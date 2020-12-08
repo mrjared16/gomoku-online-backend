@@ -13,7 +13,9 @@ export abstract class UserEntity {
   })
   username: string;
 
-  @Column()
+  @Column({
+    nullable: true
+  })
   password: string;
 
   @Column()
@@ -31,6 +33,8 @@ export abstract class UserEntity {
     if (this.password) {
       this.password = await this.hash(this.password);
     }
+    else
+      this.password = '';
   }
 
   private async hash(input): Promise<string> {
