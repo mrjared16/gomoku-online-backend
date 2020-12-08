@@ -1,4 +1,7 @@
-export class GoogleOAuthToken {
+import { ApiProperty } from "@nestjs/swagger";
+
+export class UserLoginGoogleOAuthDTO {
+  @ApiProperty()
   idToken: string;
 }
 
