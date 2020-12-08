@@ -42,3 +42,7 @@ $ npm run migrate:generate
 $ npm run migrate:down (if necessary)
 $ npm run migrate:up
 ```
+
+## Document
+
+API is documented by Swagger. You can access $HOST:$PORT/document to view it.
