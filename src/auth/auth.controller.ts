@@ -1,10 +1,11 @@
 import { LocalAuthenticationGuard } from './guards/local.guard';
 import { UserService } from './../users/users.service';
-import { CreateUserDTO } from './../users/users.dto';
+import { CreateUserDTO, UserDTO, UserLoginDTO } from './../users/users.dto';
 import { Body, Controller, HttpCode, Post, Req, UseGuards } from "@nestjs/common";
-import { RequestWithUser } from './auth.interface';
+import { RequestWithUser, LoginResponse } from './auth.interface';
 import { AuthService } from './auth.service';
-import { GoogleOAuthToken } from './auth.dto';
+import { UserLoginGoogleOAuthDTO } from './auth.dto';
+import { ApiBody, ApiResponse, ApiResponseProperty } from '@nestjs/swagger';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -14,6 +15,10 @@ export class AuthController {
   }
 
   @Post('register')
+  @ApiResponse({
+    status: 200,
+    type: UserDTO
+  })
   async registerUser(@Body() userData: CreateUserDTO) {
     return await this.userService.createUser(userData);
   }
@@ -21,6 +26,11 @@ export class AuthController {
   @HttpCode(200)
   @Post('login')
   @UseGuards(LocalAuthenticationGuard)
+  @ApiBody({ type: UserLoginDTO})
+  @ApiResponse({
+    status: 200,
+    type: LoginResponse
+  })
   async login(@Req() requestWithUser: RequestWithUser) {
     const { user } = requestWithUser;
     if (user) {
@@ -29,7 +39,11 @@ export class AuthController {
   }
 
   @Post('oauth/google')
-  async loginByOAuth(@Body() googleOAuthToken: GoogleOAuthToken) {
+  @ApiResponse({
+    status: 200,
+    type: LoginResponse
+  })
+  async loginByOAuth(@Body() googleOAuthToken: UserLoginGoogleOAuthDTO) {
     const { idToken } = googleOAuthToken;
     return await this.authService.loginWithGoogleOAuthToken(idToken);
   }

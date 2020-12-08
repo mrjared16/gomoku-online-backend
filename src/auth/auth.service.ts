@@ -3,7 +3,7 @@ import { GoogleOAuthResponse } from './auth.dto';
 import { UserDTO } from './../users/users.dto';
 import { HttpException, HttpService, HttpStatus, Injectable } from "@nestjs/common";
 import { JwtService } from '@nestjs/jwt';
-import { JWTPayload } from './auth.interface';
+import { JWTPayload, LoginResponse } from './auth.interface';
 
 @Injectable()
 export class AuthService {
@@ -14,7 +14,7 @@ export class AuthService {
   ) {
 
   }
-  getToken(userData: UserDTO) {
+  getToken(userData: UserDTO): LoginResponse {
     const { id, username } = userData;
     const jwtPayload: JWTPayload = { userId: id, username };
 
