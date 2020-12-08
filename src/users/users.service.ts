@@ -15,7 +15,6 @@ export class UserService {
   async createUser(userData: CreateUserDTO): Promise<UserDTO> {
     const { username, password, name } = userData;
     const userWithThisUsername = await this.userRepository.findOne({ where: { username } });
-    console.log({ userWithThisUsername, userData });
     if (userWithThisUsername != null) {
       throw new HttpException('Username already exists', HttpStatus.BAD_REQUEST);
     }
@@ -23,5 +22,20 @@ export class UserService {
     const newUser = await this.userRepository.create({ username, password, name });
     const userCreated = await this.userRepository.save(newUser);
     return UserDTO.EntityToDTO(userCreated);
+  }
+
+
+  async validateUser(username: string, password: string): Promise<UserDTO> {
+    const userInfo = await this.userRepository.findOne({ where: { username } });
+    if (!userInfo) {
+      throw new HttpException('Wrong username or password', HttpStatus.BAD_REQUEST);
+    }
+
+    const isPasswordMatched = await UserEntity.comparePassword(password, userInfo.password);
+    if (!isPasswordMatched) {
+      throw new HttpException('Wrong username or password', HttpStatus.BAD_REQUEST);
+    }
+
+    return UserDTO.EntityToDTO(userInfo);
   }
 }

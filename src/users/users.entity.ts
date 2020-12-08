@@ -36,4 +36,8 @@ export abstract class UserEntity {
   private async hash(input): Promise<string> {
     return bcrypt.hash(input, 10);
   }
+
+  public static async comparePassword(rawPassword: string, hashPassword: string): Promise<boolean> {
+    return bcrypt.compare(rawPassword, hashPassword);
+  }
 }
