@@ -16,6 +16,9 @@ export abstract class UserEntity {
   @Column()
   password: string;
 
+  @Column()
+  name: string;
+
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
