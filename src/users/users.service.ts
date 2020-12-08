@@ -24,6 +24,12 @@ export class UserService {
     return UserDTO.EntityToDTO(userCreated);
   }
 
+  async findUser(userData: Partial<UserDTO>) {
+    // const { name, username, id } = userData;
+    // TODO: get fields properly
+    const user = await this.userRepository.findOne({ where: { ...userData } });
+    return user;
+  }
 
   async validateUser(username: string, password: string): Promise<UserDTO> {
     const userInfo = await this.userRepository.findOne({ where: { username } });

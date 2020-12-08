@@ -4,6 +4,7 @@ import { CreateUserDTO } from './../users/users.dto';
 import { Body, Controller, HttpCode, Post, Req, UseGuards } from "@nestjs/common";
 import { RequestWithUser } from './auth.interface';
 import { AuthService } from './auth.service';
+import { GoogleOAuthToken } from './auth.dto';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -26,4 +27,11 @@ export class AuthController {
       return this.authService.getToken(user);
     }
   }
+
+  @Post('oauth/google')
+  async loginByOAuth(@Body() googleOAuthToken: GoogleOAuthToken) {
+    const { idToken } = googleOAuthToken;
+    return await this.authService.loginWithGoogleOAuthToken(idToken);
+  }
+
 }

@@ -2,7 +2,7 @@ import { Config } from 'src/shared/config';
 
 import { AuthController } from './auth.controller';
 import { UserModule } from './../users/users.module';
-import { forwardRef, Module } from "@nestjs/common";
+import { forwardRef, HttpModule, Module } from "@nestjs/common";
 import { PassportModule } from '@nestjs/passport/dist/passport.module';
 
 import { AuthService } from './auth.service';
@@ -12,6 +12,7 @@ import { JwtModule } from '@nestjs/jwt/dist/jwt.module';
 
 @Module({
   imports: [
+    HttpModule,
     forwardRef(() => UserModule),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register(Config.getJWTConfig()),
