@@ -37,7 +37,8 @@ class ConfigService {
         }
       },
       'host': this.env.HOST,
-      'port': this.env.PORT
+      'port': this.env.PORT,
+      'socketPort': this.env.SOCKET_PORT
     },
     'production': {
       'typeorm': {
@@ -69,7 +70,8 @@ class ConfigService {
         }
       },
       'host': this.env.HOST,
-      'port': this.env.PORT
+      'port': this.env.PORT,
+      'socketPort': this.env.SOCKET_PORT
     }
   }
 
@@ -105,11 +107,12 @@ class ConfigService {
     }
   }
 
-  public getCurrentHost(): { host: string, port: string, hostUrl: string } {
+  public getCurrentHost(): { host: string, port: number, hostUrl: string, socketPort: number } {
     return {
       host: (this.currentConfig as any).host,
       port: (this.currentConfig as any).port,
-      hostUrl: `http://${(this.currentConfig as any).host}:${(this.currentConfig as any).port}`
+      hostUrl: `http://${(this.currentConfig as any).host}:${(this.currentConfig as any).port}`,
+      socketPort: (this.currentConfig as any).socketPort
     }
   }
 }
