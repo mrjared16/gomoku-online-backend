@@ -94,7 +94,7 @@ class ConfigService {
 
   public getPassportLocalStrategyConfig() {
     return {
-      usernameField: 'username'
+			usernameField: 'username'
     };
   }
 
