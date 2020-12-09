@@ -33,8 +33,8 @@ export class GameGateWay implements OnGatewayConnection, OnGatewayDisconnect, On
     if (!userConnected) {
       return;
     }
-    
-    this.logger.log(`An user connected: ${client.id}`);
+
+    this.logger.log(`An user connected: ${userConnected.username} - ${client.id}`);
 
     if (this.gameService.hasUserOnlineAlready(userConnected)) {
       return;
