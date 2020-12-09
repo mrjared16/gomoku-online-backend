@@ -36,10 +36,10 @@ export class GameGateWay implements OnGatewayConnection, OnGatewayDisconnect, On
 
     this.logger.log(`An user connected: ${userConnected.username} - ${client.id}`);
 
+    this.gameService.addUser(userConnected, client.id);
     if (this.gameService.hasUserOnlineAlready(userConnected)) {
       return;
     }
-    this.gameService.addUser(userConnected);
     this.server.emit('new user connected', userConnected);
   }
 
@@ -59,7 +59,7 @@ export class GameGateWay implements OnGatewayConnection, OnGatewayDisconnect, On
     }
     const { username, id } = userConnected;
 
-    this.gameService.removeUser(userConnected);
+    this.gameService.removeUser(userConnected, client.id);
 
     this.logger.log(`An user disconnected: ${username}`);
     this.server.emit('new user disconnected', id);
