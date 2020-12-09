@@ -23,6 +23,14 @@ export class AuthService {
     }
   }
 
+  async getUser(token: string) {
+    const userData: JWTPayload | any = this.jwtService.decode(token);
+    if (!userData)
+      return null;
+    const { userId } = userData as JWTPayload;
+    return await this.userService.findUser({ id: userId });
+  }
+
   private async getGoogleUserData(googleOAuthToken: string) {
     try {
       const response = await this.httpService.get(`https://www.googleapis.com/oauth2/v3/tokeninfo?id_token=${googleOAuthToken}`).toPromise();

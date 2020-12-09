@@ -18,6 +18,7 @@ import { JwtModule } from '@nestjs/jwt/dist/jwt.module';
     JwtModule.register(Config.getJWTConfig()),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JWTStrategy]
+  providers: [AuthService, LocalStrategy, JWTStrategy],
+  exports: [AuthService]
 })
 export class AuthModule { }
