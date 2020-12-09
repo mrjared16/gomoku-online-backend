@@ -1,47 +1,69 @@
 import { Config } from 'src/shared/config';
 import { Logger } from "@nestjs/common";
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WsResponse } from "@nestjs/websockets";
+import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
+import { AuthService } from 'src/auth/auth.service';
+import { GameService } from './game.service';
 
 
 
-@WebSocketGateway(Config.getCurrentHost().socketPort)
+@WebSocketGateway(3002, { namespace: 'game' })
 export class GameGateWay implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
-  logger: Logger = new Logger('GameGateWay');
-  map: Map<string, { id: string, username: string }> = new Map();
-  counter = 0;
+  constructor(
+    private authService: AuthService,
+    private gameService: GameService
+  ) {
+
+  }
+
+  @WebSocketServer() server: Server;
+
+  private logger: Logger = new Logger('GameGateway');
+
+
   afterInit(server: Server) {
     this.logger.log(`Game Socket is running on port ${Config.getCurrentHost().socketPort}`);
   }
-  handleConnection(client: Socket, ...args: any[]): WsResponse<{ id: string, username: string }> {
-    if (!this.map.has(client.id)) {
-      this.logger.log(`An user connected: ${client.id}`);
-      this.map.set(client.id, {
-        id: `${++this.counter}`,
-        username: 'new user'
-      })
-      return {
-        event: 'new user connected',
-        data: this.map.get(client.id)
-      }
+
+  async handleConnection(client: Socket, ...args: any[]) {
+    const { query } = client.handshake;
+    const { token } = query as { token: string };
+
+    const userConnected = await this.authService.getUser(token);
+    if (!userConnected) {
+      return;
     }
+    
+    this.logger.log(`An user connected: ${client.id}`);
+
+    if (this.gameService.hasUserOnlineAlready(userConnected)) {
+      return;
+    }
+    this.gameService.addUser(userConnected);
+    this.server.emit('new user connected', userConnected);
   }
 
-  @SubscribeMessage('first')
-  async identity(): Promise<string> {
-    this.logger.log('Test entry point');
-    return 'test';
+  @SubscribeMessage('initial-client')
+  async identity() {
+    this.server.emit('initial-server', 'hello');
+    return 'first response';
   }
 
-  handleDisconnect(client: Socket): WsResponse<{ id: string, username: string }> {
-    this.logger.log(`An user disconnected: ${client.id}`);
-    return {
-      event: 'new user disconnected',
-      data: {
-        id: `${this.counter--}`,
-        username: 'new user'
-      }
+  async handleDisconnect(client: Socket) {
+    const { query } = client.handshake;
+    const { token } = query as { token: string };
+
+    const userConnected = await this.authService.getUser(token);
+    if (!userConnected) {
+      return;
     }
+    const { username, id } = userConnected;
+
+    this.gameService.removeUser(userConnected);
+
+    this.logger.log(`An user disconnected: ${username}`);
+    this.server.emit('new user disconnected', id);
   }
+
 
 }
