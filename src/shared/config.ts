@@ -54,7 +54,7 @@ class ConfigService {
         'cli': {
           'migrationsDir': 'src/migrations'
         },
-        'synchronize': false,
+        'synchronize': (this.env.TYPEORM_SYNCRHONIZE == 'OFF') || true,
         'migrationsRun': true
       },
       'google': {
