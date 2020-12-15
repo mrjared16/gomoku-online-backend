@@ -1,7 +1,7 @@
 import { Column, CreateDateColumn, JoinColumn, ManyToMany, OneToOne } from 'typeorm';
 import { UserEntity } from 'src/users/users.entity';
 import { OneToMany } from 'typeorm';
-import { ChatChannelEntity } from './../chat/chatChannel.entity';
+import { ChatChannelEntity } from '../chat/chatChannel.entity';
 import { PrimaryGeneratedColumn } from 'typeorm';
 import { Entity } from 'typeorm';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';

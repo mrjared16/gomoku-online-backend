@@ -1,4 +1,4 @@
-import { GameEntity } from './../game/game.entity';
+import { GameEntity } from '../game/game.entity';
 import { UserEntity } from 'src/users/users.entity';
 import { CreateDateColumn, Entity, JoinTable, ManyToMany, OneToMany, OneToOne, PrimaryGeneratedColumn } from "typeorm";
 import { ChatRecordEntity } from './chatRecord.entity';

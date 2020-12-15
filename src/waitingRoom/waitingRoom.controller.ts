@@ -1,6 +1,6 @@
 import { UserDTO } from 'src/users/users.dto';
-import { JWTAuthenticationGuard } from './../auth/guards/jwt.guard';
-import { GameService } from './game.service';
+import { JWTAuthenticationGuard } from '../auth/guards/jwt.guard';
+import { WaitingRoomService } from './waitingRoom.service';
 import { Controller, Get, UseGuards } from "@nestjs/common";
 import { ApiResponse } from '@nestjs/swagger';
 
@@ -9,9 +9,9 @@ class OnlineUsersResponse {
 }
 
 @Controller('game')
-export class GameController {
+export class WaitingRoomController {
   constructor(
-    private gameService: GameService
+    private waitingRoomService: WaitingRoomService
   ) {
 
   }
@@ -23,7 +23,7 @@ export class GameController {
     type: OnlineUsersResponse
   })
   async getOnlineUsers(): Promise<OnlineUsersResponse> {
-    const users = await this.gameService.getUsers();
+    const users = await this.waitingRoomService.getUsers();
     return {
       users
     }

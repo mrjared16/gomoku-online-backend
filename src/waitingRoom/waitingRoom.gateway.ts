@@ -3,15 +3,15 @@ import { Logger } from "@nestjs/common";
 import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from "@nestjs/websockets";
 import { Server, Socket } from "socket.io";
 import { AuthService } from 'src/auth/auth.service';
-import { GameService } from './game.service';
+import { WaitingRoomService } from './waitingRoom.service';
 
 
 
 @WebSocketGateway(3002, { namespace: 'game' })
-export class GameGateWay implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private authService: AuthService,
-    private gameService: GameService
+    private gameService: WaitingRoomService
   ) {
 
   }

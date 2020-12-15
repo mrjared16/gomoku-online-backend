@@ -2,7 +2,7 @@ import { UserDTO } from 'src/users/users.dto';
 import { Injectable } from "@nestjs/common";
 
 @Injectable()
-export class GameService {
+export class WaitingRoomService {
   map: Map<string, {
     user: UserDTO,
     socket: string[]
