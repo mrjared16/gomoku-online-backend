@@ -7,9 +7,7 @@ import { WaitingRoomService } from './waitingRoom.service';
 import { BroadcastUserDTO } from './waitingRoom.dto';
 import { WaitingRoomMessage } from './waitingRoom.constants';
 
-
-
-@WebSocketGateway(Config.getCurrentHost().socketPort)
+@WebSocketGateway(Number(Config.getCurrentHost().socketPort))
 export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private authService: AuthService,
