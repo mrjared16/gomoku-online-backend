@@ -13,7 +13,7 @@ export class WaitingRoomService {
   }
   socketManager: SocketManager = new SocketManager();
 
-  handleOnAnonymousConnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket) {
+  handleOnAnonymousConnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket) => {
     this.socketManager.addAnonymousUser(connection);
     waitingRoomGateWay.broadcastUserEvent({
       user: 'anonymous',
@@ -21,7 +21,7 @@ export class WaitingRoomService {
     });
   }
 
-  handleOnAnonymousDisconnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket) {
+  handleOnAnonymousDisconnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket) => {
     this.socketManager.removeAnonymousUser(connection);
     waitingRoomGateWay.broadcastUserEvent({
       user: 'anonymous',
@@ -29,7 +29,7 @@ export class WaitingRoomService {
     });
   }
 
-  handleOnAuthenticatedUserConnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) {
+  handleOnAuthenticatedUserConnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => {
     this.socketManager.addUser(userDTO, connection);
 
     waitingRoomGateWay.broadcastUserEvent({
@@ -40,7 +40,7 @@ export class WaitingRoomService {
     );
   }
 
-  handleOnAuthenticatedUserDisconnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) {
+  handleOnAuthenticatedUserDisconnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => {
     this.socketManager.removeUser(userDTO, connection);
 
     waitingRoomGateWay.broadcastUserEvent({
@@ -67,6 +67,7 @@ export class WaitingRoomService {
       return;
     }
     onAuthenticated(waitingRoomGateWay, connection, userConnected);
+    // console.log({ users: this.getUsers() });
   }
 
 
