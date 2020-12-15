@@ -3,61 +3,18 @@ import { Socket } from 'socket.io';
 import { UserDTO } from 'src/users/users.dto';
 import { Injectable } from "@nestjs/common";
 import { AuthService } from 'src/auth/auth.service';
+import { SocketManager } from './socketManager';
 
 @Injectable()
 export class WaitingRoomService {
   constructor(
     private authService: AuthService
   ) {
-
   }
-
-
-  map: Map<string, {
-    user: UserDTO,
-    socket: string[]
-  }> = new Map();
-
-  getUsers(): UserDTO[] {
-    return Array.from(this.map.values()).map(e => e.user);
-  }
-
-  addAnonymousUser(client: Socket) {
-
-  }
-  removeAnonymousUser(client: Socket) {
-
-  }
-  addUser(userData: UserDTO, client: Socket) {
-    const { username } = userData;
-    const socket = [...(this.map.has(username) ? this.map.get(username).socket : []), clientId];
-    this.map.set(username, {
-      user: userData,
-      socket
-    });
-  }
-
-  removeUser(userData: UserDTO, client: Socket) {
-    const { username } = userData;
-    const current = this.map.get(username);
-    const newSocket = current.socket.filter(socket => socket != clientId);
-    if (newSocket.length > 0) {
-      this.map.set(username, {
-        ...current, socket: newSocket
-      })
-      return
-    }
-
-    this.map.delete(username);
-  }
-
-  didUserOnlineAlready(userData: UserDTO): boolean {
-    const { username } = userData;
-    return this.map.has(username);
-  }
+  socketManager: SocketManager = new SocketManager();
 
   handleOnAnonymousConnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket) {
-    this.addAnonymousUser(connection);
+    this.socketManager.addAnonymousUser(connection);
     waitingRoomGateWay.broadcastUserEvent({
       user: 'anonymous',
       event: 'connected'
@@ -65,7 +22,7 @@ export class WaitingRoomService {
   }
 
   handleOnAnonymousDisconnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket) {
-    this.removeAnonymousUser(connection);
+    this.socketManager.removeAnonymousUser(connection);
     waitingRoomGateWay.broadcastUserEvent({
       user: 'anonymous',
       event: 'disconnected'
@@ -73,18 +30,18 @@ export class WaitingRoomService {
   }
 
   handleOnAuthenticatedUserConnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) {
-    this.addUser(userDTO, connection);
+    this.socketManager.addUser(userDTO, connection);
 
     waitingRoomGateWay.broadcastUserEvent({
       user: userDTO,
       event: 'connected'
     },
-      this.didUserOnlineAlready(userDTO) ? 'User online on new client' : null
+      this.socketManager.didUserOnlineAlready(userDTO) ? 'User online on new client' : null
     );
   }
 
   handleOnAuthenticatedUserDisconnect(waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) {
-    this.removeUser(userDTO, connection);
+    this.socketManager.removeUser(userDTO, connection);
 
     waitingRoomGateWay.broadcastUserEvent({
       user: userDTO,
@@ -112,4 +69,8 @@ export class WaitingRoomService {
     onAuthenticated(waitingRoomGateWay, connection, userConnected);
   }
 
+
+  getUsers() {
+    return this.socketManager.getUsers();
+  }
 }
