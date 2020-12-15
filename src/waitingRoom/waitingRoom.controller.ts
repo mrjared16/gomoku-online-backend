@@ -8,7 +8,7 @@ class OnlineUsersResponse {
   users: UserDTO[];
 }
 
-@Controller('game')
+@Controller('waitingRoom')
 export class WaitingRoomController {
   constructor(
     private waitingRoomService: WaitingRoomService
