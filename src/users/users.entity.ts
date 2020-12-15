@@ -1,8 +1,45 @@
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, Generated, PrimaryGeneratedColumn } from "typeorm";
 import * as bcrypt from 'bcryptjs';
+import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
+import { ChatRecordEntity } from 'src/chat/chatRecord.entity';
+import { FriendParticipantEntity } from "src/friends/friendParticipant.entity";
+import { FriendRequestEntity } from "src/friends/friendRequest.entity";
+import { GameEntity } from 'src/game/game.entity';
+import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
+import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, JoinTable, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 @Entity('user')
 export abstract class UserEntity {
+
+  @OneToMany(() => FriendRequestEntity, friendRequest => friendRequest.sender)
+  sentRequests: FriendRequestEntity[];
+
+  @OneToMany(() => FriendRequestEntity, friendRequest => friendRequest.receiver)
+  receivedRequests: FriendRequestEntity[];
+
+  @OneToMany(() => FriendParticipantEntity, friend => friend.user1)
+  friendList1: FriendParticipantEntity[];
+
+  @OneToMany(() => FriendParticipantEntity, friend => friend.user2)
+  friendList2: FriendParticipantEntity[];
+
+  @OneToMany(() => ChatRecordEntity, record => record.user)
+  chatRecords: ChatRecordEntity[];
+
+  @ManyToMany(() => ChatChannelEntity, chat => chat.users)
+  chats: ChatChannelEntity[];
+
+  @ManyToMany(() => GameEntity, game => game.users)
+  @JoinTable({
+    name: 'game_participant'
+  })
+  games: GameEntity[];
+
+  @OneToMany(() => RankRecordEntity, record => record.user)
+  rankRecords: RankRecordEntity[];
+
+  @OneToMany(() => MoveRecordEntity, record => record.user)
+  moveRecords: MoveRecordEntity[];
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -20,6 +57,9 @@ export abstract class UserEntity {
 
   @Column()
   name: string;
+
+  @Column({ default: 1000 })
+  rank: number;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
