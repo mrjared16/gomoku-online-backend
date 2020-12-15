@@ -18,7 +18,7 @@ export class UserService {
     if (userWithThisUsername != null) {
       throw new HttpException('Username already exists', HttpStatus.BAD_REQUEST);
     }
-
+		
     const newUser = await this.userRepository.create({ username, password, name });
     const userCreated = await this.userRepository.save(newUser);
     return UserDTO.EntityToDTO(userCreated);
@@ -34,12 +34,12 @@ export class UserService {
   async validateUser(username: string, password: string): Promise<UserDTO> {
     const userInfo = await this.userRepository.findOne({ where: { username } });
     if (!userInfo) {
-      throw new HttpException('Wrong username or password', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Wrong username or password', 401);
     }
 
     const isPasswordMatched = await UserEntity.comparePassword(password, userInfo.password);
     if (!isPasswordMatched) {
-      throw new HttpException('Wrong username or password', HttpStatus.BAD_REQUEST);
+      throw new HttpException('Wrong username or password', 401);
     }
 
     return UserDTO.EntityToDTO(userInfo);

@@ -20,6 +20,7 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "migrate:create": "ts-node ./node_modules/typeorm/cli.js migration:create -n",
+    "migrate:generate": "ts-node ./node_modules/typeorm/cli.js migration:generate",
     "migrate:up": "ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:down": "ts-node ./node_modules/typeorm/cli.js migration:revert"
   },
@@ -42,6 +43,7 @@
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3",
+    "socket.io": "^3.0.4",
     "swagger-ui-express": "^4.1.5",
     "typeorm": "^0.2.29"
   },

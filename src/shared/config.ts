@@ -3,7 +3,6 @@ require('dotenv').config();
 
 class ConfigService {
   constructor(private env, private node_env: 'development' | 'production' = 'development') {
-    node_env = 'development';
   }
   private readonly configs = {
     'development': {
@@ -22,7 +21,7 @@ class ConfigService {
         'cli': {
           'migrationsDir': 'src/migrations'
         },
-        'synchronize': true
+        'synchronize': true,
       },
       'google': {
         'clientID': this.env.GOOGLEOAUTH_CLIENTID,
@@ -56,11 +55,13 @@ class ConfigService {
         'cli': {
           'migrationsDir': 'src/migrations'
         },
-        'synchronize': false
+        'synchronize': (this.env.TYPEORM_SYNCRHONIZE == 'OFF') || true,
+        'migrationsRun': true
       },
       'google': {
         'clientID': this.env.GOOGLEOAUTH_CLIENTID,
         'clientSecret': this.env.GOOGLEOAUTH_CLIENTSECRET,
+        'callbackURL': `http://${this.env.HOST}:${this.env.PORT}/auth/oauth/google/callback`
       },
       'jwt': {
         'secret': this.env.JWT_SECRET,
@@ -95,7 +96,7 @@ class ConfigService {
 
   public getPassportLocalStrategyConfig() {
     return {
-      usernameField: 'username'
+			usernameField: 'username'
     };
   }
 
