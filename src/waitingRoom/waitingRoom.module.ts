@@ -9,6 +9,6 @@ import { WaitingRoomService } from './waitingRoom.service';
   controllers: [WaitingRoomController],
   providers: [WaitingRoomGateway, WaitingRoomService]
 })
-export class GameModule {
+export class WaitingRoomModule {
 
 }

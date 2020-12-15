@@ -6,10 +6,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Connection } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
-import { GameModule } from './waitingRoom/waitingRoom.module';
+import { WaitingRoomModule } from './waitingRoom/waitingRoom.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(Config.getTypeORMConfig()), UserModule, AuthModule, GameModule],
+  imports: [TypeOrmModule.forRoot(Config.getTypeORMConfig()), UserModule, AuthModule, WaitingRoomModule],
   controllers: [AppController],
   providers: [AppService],
 })

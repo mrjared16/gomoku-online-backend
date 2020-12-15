@@ -7,7 +7,7 @@ import { WaitingRoomService } from './waitingRoom.service';
 
 
 
-@WebSocketGateway(3002, { namespace: 'game' })
+@WebSocketGateway(Config.getCurrentHost().socketPort)
 export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private authService: AuthService,
