@@ -12,7 +12,9 @@ export class SocketManager {
   }> = new Map();
 
   getUsers(): UserDTO[] {
-    return Array.from(this.map.values()).map(e => e.user);
+    return Array.from(this.map.entries())
+      .filter(([key, values]) => key != '')
+      .map(([key, values]) => values.user);
   }
 
   addAnonymousUser(client: Socket) {
