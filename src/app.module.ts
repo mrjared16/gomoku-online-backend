@@ -1,3 +1,4 @@
+import { RoomModule } from './room/room.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/users.module';
 import { Config } from './shared/config';
@@ -9,7 +10,7 @@ import { AppService } from './app.service';
 import { WaitingRoomModule } from './waitingRoom/waitingRoom.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(Config.getTypeORMConfig()), UserModule, AuthModule, WaitingRoomModule],
+  imports: [TypeOrmModule.forRoot(Config.getTypeORMConfig()), UserModule, AuthModule, WaitingRoomModule, RoomModule],
   controllers: [AppController],
   providers: [AppService],
 })
