@@ -7,7 +7,10 @@ import { WaitingRoomService } from './waitingRoom.service';
 import { BroadcastUserDTO } from './waitingRoom.dto';
 import { WaitingRoomMessage } from './waitingRoom.constants';
 
-@WebSocketGateway(Number(Config.getCurrentHost().socketPort))
+@WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+  namespace: 'waitingRoom',
+  // transports: ['websocket']
+})
 export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private authService: AuthService,
@@ -17,11 +20,13 @@ export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconn
   }
 
   @WebSocketServer() server: Server;
+
   logger: Logger = new Logger('GameGateway');
 
   @SubscribeMessage('ping')
   async init() {
     this.server.emit('serverPingMsg', 'hello');
+    console.log('hello');
     return 'im here';
   }
 

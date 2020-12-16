@@ -55,7 +55,7 @@ export class WaitingRoomService {
     onAnonymous: (waitingRoomGateWay: WaitingRoomGateway, connection: Socket) => void,
     onAuthenticated: (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => void
   ) {
-    const { query } = connection.handshake;
+    const { query } = connection.handshake || { query: { token: null } };
     const { token } = query as { token: string };
     if (!token) {
       onAnonymous(waitingRoomGateWay, connection);
