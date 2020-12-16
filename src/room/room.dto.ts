@@ -1,16 +1,26 @@
+import { RoomModel } from './roomManager';
+import { UserDTO } from 'src/users/users.dto';
 
 export class BroadcastRoomEventToAllDTO {
-  event: 'newRoomCreated';
+  event: 'roomUpdated';
+  data: RoomModel
+}
+
+export class BroadcastGameEventToCurrentRoomDTO {
+  event: 'changeTurn' | 'onHit';
   data: {
-    room: string;
-  };
+    index: number,
+    value: 0 | 1
+  } | {
+    currentTurnPlayerID: string;
+  }
 }
 
 export class BroadcastRoomEventToCurrentRoomDTO {
-  event: 'newPlayerJoined';
+  event: 'newPlayerJoined' | 'roomUpdated';
   data: {
-    userId: string;
-  }
+    user: UserDTO;
+  } | RoomModel;
 }
 
 export type CreateRoomDTO = {
@@ -22,3 +32,11 @@ export type JoinRoomDTO = {
   roomID: string,
   token: string
 }
+
+// export type RoomDetailInterface = {
+//   host: UserDTO,
+//   opponent: UserDTO | null,
+//   boardSize: 20,
+//   currentTurnPlayerID: string,
+//   board: (0 | 1 | -1)[]
+// }
