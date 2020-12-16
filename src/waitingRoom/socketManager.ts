@@ -37,19 +37,21 @@ export class SocketManager {
     });
   }
 
-  addUser(userData: UserDTO, client: Socket) {
+  addUser(userData: UserDTO, client: Socket): boolean {
     const { username } = userData;
     const { id } = client;
-
-    const socket = [...(this.map.has(username) ? this.map.get(username).socket : []), id];
+    const isExist = this.map.has(username);
+    const socket = [...(isExist ? this.map.get(username).socket : []), id];
 
     this.map.set(username, {
       user: userData,
       socket
     });
+    
+    return !isExist;
   }
 
-  removeUser(userData: UserDTO, client: Socket) {
+  removeUser(userData: UserDTO, client: Socket): boolean {
     const { username } = userData;
     const { id } = client;
 
@@ -60,10 +62,11 @@ export class SocketManager {
       this.map.set(username, {
         ...current, socket: newSocket
       })
-      return;
+      return false;
     }
 
     this.map.delete(username);
+    return true;
   }
 
   didUserOnlineAlready(userData: UserDTO): boolean {

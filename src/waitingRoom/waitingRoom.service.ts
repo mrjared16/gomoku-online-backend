@@ -30,7 +30,9 @@ export class WaitingRoomService {
   }
 
   handleOnAuthenticatedUserConnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => {
-    this.socketManager.addUser(userDTO, connection);
+    if (!this.socketManager.addUser(userDTO, connection)){
+      return;
+    }
 
     waitingRoomGateWay.broadcastUserEvent({
       user: userDTO,
@@ -41,7 +43,9 @@ export class WaitingRoomService {
   }
 
   handleOnAuthenticatedUserDisconnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => {
-    this.socketManager.removeUser(userDTO, connection);
+    if (!this.socketManager.removeUser(userDTO, connection)) {
+      return;
+    }
 
     waitingRoomGateWay.broadcastUserEvent({
       user: userDTO,
