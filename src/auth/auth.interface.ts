@@ -14,3 +14,7 @@ export class LoginResponse {
   @ApiResponseProperty()
   accessToken: string;
 }
+
+export class VerifyResponse {
+  user: UserDTO;
+}
