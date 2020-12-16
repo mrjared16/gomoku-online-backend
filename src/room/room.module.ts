@@ -1,11 +1,13 @@
-import { Module } from "@nestjs/common";
-import { RoomGateWay } from "./room.gateway";
+import { RoomService } from './room.service';
+import { forwardRef, Module } from "@nestjs/common";
+import { RoomGateway } from "./room.gateway";
+import { AuthModule } from 'src/auth/auth.module';
 
 
 @Module({
-  imports: [],
+  imports: [forwardRef(() => AuthModule)],
   controllers: [],
-  providers: [RoomGateWay]
+  providers: [RoomGateway, RoomService]
 })
 export class RoomModule {
 
