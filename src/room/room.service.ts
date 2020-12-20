@@ -1,6 +1,6 @@
 import { Socket } from 'socket.io';
 import { UserDTO } from 'src/users/users.dto';
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { RoomGateway } from './room.gateway';
 import { RoomManager, RoomModel } from './roomManager';
@@ -8,11 +8,7 @@ import { CreateRoomDTO, JoinRoomDTO } from './room.dto';
 
 @Injectable()
 export class RoomService {
-
-  constructor(
-    private authService: AuthService
-  ) {
-  }
+  constructor(private authService: AuthService) {}
   roomManager: RoomManager = new RoomManager();
 
   // handleOnAnonymousConnect = (roomGateway: RoomGateway, connection: Socket) => {
@@ -72,7 +68,11 @@ export class RoomService {
   //   // // console.log({ users: this.getUsers() });
   // }
 
-  async handleCreateRoom(roomGateway: RoomGateway, socket: Socket, data: CreateRoomDTO) {
+  async handleCreateRoom(
+    roomGateway: RoomGateway,
+    socket: Socket,
+    data: CreateRoomDTO,
+  ) {
     const { token } = data;
     if (!token) {
       return;
@@ -86,15 +86,19 @@ export class RoomService {
     const newRoom = this.roomManager.addNewRoom(userInfo, socket);
     roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',
-      data: newRoom
-    })
+      data: newRoom,
+    });
     console.log({ newRoom });
     return {
-      roomID: newRoom.id
+      roomID: newRoom.id,
     };
   }
 
-  async handleJoinRoom(roomGateway: RoomGateway, socket: Socket, data: JoinRoomDTO) {
+  async handleJoinRoom(
+    roomGateway: RoomGateway,
+    socket: Socket,
+    data: JoinRoomDTO,
+  ) {
     const { token } = data;
     if (!token) {
       return;
@@ -105,23 +109,23 @@ export class RoomService {
       return;
     }
     const handleJoinRoom = {
-      'join': (roomID: string, data: JoinRoomDTO): boolean => {
+      join: (roomID: string, data: JoinRoomDTO): boolean => {
         if (this.roomManager.getRoom(roomID).addUser(userInfo)) {
           // return false;
         }
         const updatedRoom = this.roomManager.getRoom(roomID);
         roomGateway.broadcastRoomEventToMember(socket, roomID, {
           event: 'newPlayerJoined',
-          data: updatedRoom
+          data: updatedRoom,
         });
 
         roomGateway.broadcastRoomEventsToAll({
           event: 'roomUpdated',
-          data: updatedRoom
-        })
+          data: updatedRoom,
+        });
         return true;
-      }
-    }
+      },
+    };
     const { roomID } = data;
     await socket.join(roomID);
     if (handleJoinRoom[data.action](roomID, data)) {
@@ -129,18 +133,31 @@ export class RoomService {
     }
   }
 
-  async handleStartGame(roomGateway: RoomGateway, socket: Socket, data: { roomID: string }) {
+  async handleStartGame(
+    roomGateway: RoomGateway,
+    socket: Socket,
+    data: { roomID: string },
+  ) {
     const { roomID } = data;
     const room = this.roomManager.getRoom(data.roomID);
     console.log({ data, room });
-    roomGateway.broadcastGameEventToMember(socket, roomID, {
-      event: 'changeTurn',
-      data: {
-        currentTurnPlayerID: room.getTurn()
-      }
-    });
+    roomGateway.broadcastGameEventToMember(
+      socket,
+      roomID,
+      {
+        event: 'changeTurn',
+        data: {
+          currentTurnPlayerID: room.getTurn(),
+        },
+      },
+      true,
+    );
   }
-  async handleHit(roomGateway: RoomGateway, socket: Socket, data: { roomID: string, index: number; value: 0 | 1; }) {
+  async handleHit(
+    roomGateway: RoomGateway,
+    socket: Socket,
+    data: { roomID: string; index: number; value: 0 | 1 },
+  ) {
     const { roomID, index, value } = data;
     const room = this.roomManager.getRoom(data.roomID);
     room.hit(index, value);
@@ -148,15 +165,20 @@ export class RoomService {
       event: 'onHit',
       data: {
         index: index,
-        value: value
-      }
+        value: value,
+      },
     });
-    roomGateway.broadcastGameEventToMember(socket, roomID, {
-      event: 'changeTurn',
-      data: {
-        currentTurnPlayerID: room.getTurn()
-      }
-    });
+    roomGateway.broadcastGameEventToMember(
+      socket,
+      roomID,
+      {
+        event: 'changeTurn',
+        data: {
+          currentTurnPlayerID: room.getTurn(),
+        },
+      },
+      true,
+    );
   }
   getAllRoom(): RoomModel[] {
     return this.roomManager.getRooms();
