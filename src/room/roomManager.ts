@@ -64,7 +64,7 @@ export class RoomManager {
 
   addNewRoom(host: UserDTO, hostSocket: Socket): RoomModel {
     const getRoomID = (): string => {
-      return new Date().toString();
+      return Date.now().toString(36) + Math.random().toString(36).substr(2);
     };
     const roomID = getRoomID();
     console.log({ hostSocket });
