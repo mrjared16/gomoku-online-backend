@@ -48,5 +48,5 @@ export class GameEntity {
   start_at: Date;
 
   @Column()
-  end_at: Date;
+  duration: number;
 }
