@@ -26,9 +26,9 @@ export class MoveRecordEntity {
   })
   value: GameSide;
 
-  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
   @Column({ nullable: false })
   position: number;
+
+  @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
+  created_at: Date;
 }

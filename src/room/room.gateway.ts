@@ -7,7 +7,6 @@ import {
 import { Socket } from 'socket.io/dist/socket';
 import { AuthService } from 'src/auth/auth.service';
 import { Config } from 'src/shared/config';
-import { Server } from 'typeorm';
 import { RoomMessage } from './room.constants';
 import {
   BroadcastRoomEventToAllDTO,
@@ -17,16 +16,12 @@ import {
   JoinRoomDTO,
 } from './room.dto';
 import { RoomService } from './room.service';
-import { RoomManager } from './roomManager';
 
 @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
   namespace: 'room',
 })
 export class RoomGateway implements OnGatewayConnection {
-  constructor(
-    private roomService: RoomService,
-    private authService: AuthService,
-  ) {}
+  constructor(private roomService: RoomService) { }
 
   @WebSocketServer() server: Socket;
 
