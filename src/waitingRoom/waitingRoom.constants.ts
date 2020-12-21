@@ -1,3 +1,3 @@
 export const WaitingRoomMessage = {
-  BROADCAST_USER: 'userEventMsg'
-}
+  BROADCAST_USER: 'userEventMsg',
+};

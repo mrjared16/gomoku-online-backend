@@ -1,63 +1,87 @@
 import { WaitingRoomGateway } from './waitingRoom.gateway';
 import { Socket } from 'socket.io';
 import { UserDTO } from 'src/users/users.dto';
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { SocketManager } from './socketManager';
 
 @Injectable()
 export class WaitingRoomService {
-  constructor(
-    private authService: AuthService
-  ) {
-  }
+  constructor(private authService: AuthService) {}
   socketManager: SocketManager = new SocketManager();
 
-  handleOnAnonymousConnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket) => {
+  handleOnAnonymousConnect = (
+    waitingRoomGateWay: WaitingRoomGateway,
+    connection: Socket,
+  ) => {
     this.socketManager.addAnonymousUser(connection);
     waitingRoomGateWay.broadcastUserEvent({
       user: 'anonymous',
-      event: 'connected'
+      event: 'connected',
     });
-  }
+  };
 
-  handleOnAnonymousDisconnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket) => {
+  handleOnAnonymousDisconnect = (
+    waitingRoomGateWay: WaitingRoomGateway,
+    connection: Socket,
+  ) => {
     this.socketManager.removeAnonymousUser(connection);
     waitingRoomGateWay.broadcastUserEvent({
       user: 'anonymous',
-      event: 'disconnected'
+      event: 'disconnected',
     });
-  }
+  };
 
-  handleOnAuthenticatedUserConnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => {
-    if (!this.socketManager.addUser(userDTO, connection)){
+  handleOnAuthenticatedUserConnect = (
+    waitingRoomGateWay: WaitingRoomGateway,
+    connection: Socket,
+    userDTO: UserDTO,
+  ) => {
+    if (!this.socketManager.addUser(userDTO, connection)) {
       return;
     }
 
-    waitingRoomGateWay.broadcastUserEvent({
-      user: userDTO,
-      event: 'connected'
-    },
-      this.socketManager.didUserOnlineAlready(userDTO) ? 'User online on new client' : null
+    waitingRoomGateWay.broadcastUserEvent(
+      {
+        user: userDTO,
+        event: 'connected',
+      },
+      this.socketManager.didUserOnlineAlready(userDTO)
+        ? 'User online on new client'
+        : null,
     );
-  }
+  };
 
-  handleOnAuthenticatedUserDisconnect = (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => {
+  handleOnAuthenticatedUserDisconnect = (
+    waitingRoomGateWay: WaitingRoomGateway,
+    connection: Socket,
+    userDTO: UserDTO,
+  ) => {
     if (!this.socketManager.removeUser(userDTO, connection)) {
       return;
     }
 
-    waitingRoomGateWay.broadcastUserEvent({
-      user: userDTO,
-      event: 'disconnected'
-    }, null
+    waitingRoomGateWay.broadcastUserEvent(
+      {
+        user: userDTO,
+        event: 'disconnected',
+      },
+      null,
     );
-  }
+  };
 
-  async handleConnection(waitingRoomGateWay: WaitingRoomGateway,
+  async handleConnection(
+    waitingRoomGateWay: WaitingRoomGateway,
     connection: Socket,
-    onAnonymous: (waitingRoomGateWay: WaitingRoomGateway, connection: Socket) => void,
-    onAuthenticated: (waitingRoomGateWay: WaitingRoomGateway, connection: Socket, userDTO: UserDTO) => void
+    onAnonymous: (
+      waitingRoomGateWay: WaitingRoomGateway,
+      connection: Socket,
+    ) => void,
+    onAuthenticated: (
+      waitingRoomGateWay: WaitingRoomGateway,
+      connection: Socket,
+      userDTO: UserDTO,
+    ) => void,
   ) {
     const { query } = connection.handshake || { query: { token: null } };
     const { token } = query as { token: string };
@@ -73,7 +97,6 @@ export class WaitingRoomService {
     onAuthenticated(waitingRoomGateWay, connection, userConnected);
     // console.log({ users: this.getUsers() });
   }
-
 
   getUsers() {
     return this.socketManager.getUsers();

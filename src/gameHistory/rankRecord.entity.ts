@@ -7,10 +7,10 @@ export class RankRecordEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity, user => user.rankRecords)
+  @ManyToOne(() => UserEntity, (user) => user.rankRecords)
   user: UserEntity;
 
-  @ManyToOne(() => GameEntity, game => game.rankRecords)
+  @ManyToOne(() => GameEntity, (game) => game.rankRecords)
   game: GameEntity;
 
   @Column({ nullable: false })

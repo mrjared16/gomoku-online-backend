@@ -7,7 +7,7 @@ export class GameModel {
     this.board = new Array(size * size).fill(-1);
     this.turn = 0;
   }
-  public board: (-1 | 0 | 1)[]
+  public board: (-1 | 0 | 1)[];
   public turn: number;
 
   hit(index: number, value: 0 | 1) {
@@ -18,9 +18,9 @@ export class GameModel {
   isFinish() {
     return false;
   }
-  
+
   getTurn(): 0 | 1 {
-    return this.turn as (0 | 1);
+    return this.turn as 0 | 1;
   }
 }
 export class RoomModel {
@@ -29,17 +29,19 @@ export class RoomModel {
     public host: UserDTO,
     public hostSocket: Client,
     public opponent: UserDTO | null = null,
-    public boardSize: 20 = 20
+    public boardSize: 20 = 20,
   ) {
     this.game = new GameModel(this.boardSize);
-
   }
   public game: GameModel;
 
   addUser(user: UserDTO): boolean {
-    if (!user || !user.id)
-      return false;
-    if (this.opponent && user.id != this.host.id && user.id != this.opponent.id) {
+    if (!user || !user.id) return false;
+    if (
+      this.opponent &&
+      user.id != this.host.id &&
+      user.id != this.opponent.id
+    ) {
       return false;
     }
     if (user.id != this.host.id) {
@@ -51,19 +53,19 @@ export class RoomModel {
     this.game.hit(index, value);
   }
   getTurn(): string {
-    return (this.game.getTurn() == 0) ? this.host.id : this.opponent.id;
+    return this.game.getTurn() == 0 ? this.host.id : this.opponent.id;
   }
 }
 export class RoomManager {
   map: Map<string, RoomModel> = new Map();
   getRoom = (roomID): RoomModel => {
     return this.map.get(roomID);
-  }
+  };
 
   addNewRoom(host: UserDTO, hostSocket: Socket): RoomModel {
     const getRoomID = (): string => {
-      return (new Date()).toString();
-    }
+      return new Date().toString();
+    };
     const roomID = getRoomID();
     console.log({ hostSocket });
     const newRoom = new RoomModel(roomID, host, null);

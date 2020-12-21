@@ -1,5 +1,5 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { UserEntity } from "./users.entity";
+import { ApiProperty } from '@nestjs/swagger';
+import { UserEntity } from './users.entity';
 
 export class CreateUserDTO {
   @ApiProperty()
@@ -9,7 +9,7 @@ export class CreateUserDTO {
   @ApiProperty()
   password: string;
 }
-export class UserLoginDTO{
+export class UserLoginDTO {
   @ApiProperty()
   username: string;
   @ApiProperty()
@@ -23,8 +23,7 @@ export class UserDTO {
   @ApiProperty()
   username: string;
   static EntityToDTO(userEntity: UserEntity): UserDTO {
-    if (userEntity == null)
-      return null;
+    if (userEntity == null) return null;
 
     const { id, name, username } = userEntity;
     return { id, name, username };

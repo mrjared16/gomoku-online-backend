@@ -1,5 +1,5 @@
-import { ApiResponseProperty } from "@nestjs/swagger";
-import { UserDTO } from "src/users/users.dto";
+import { ApiResponseProperty } from '@nestjs/swagger';
+import { UserDTO } from 'src/users/users.dto';
 
 export interface RequestWithUser extends Request {
   user: UserDTO;

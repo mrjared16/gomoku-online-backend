@@ -1,8 +1,6 @@
-import { Controller, Get } from "@nestjs/common";
+import { Controller, Get } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
 import { RoomService } from './room.service';
-
-
 
 export class AllRoomResponse {
   rooms: {}[];
@@ -10,23 +8,18 @@ export class AllRoomResponse {
 
 @Controller('rooms')
 export class RoomController {
-  constructor(
-    private roomService: RoomService
-  ) {
-
-  }
+  constructor(private roomService: RoomService) {}
 
   @Get()
   // @UseGuards(JWTAuthenticationGuard)
   @ApiResponse({
     status: 200,
-    type: AllRoomResponse
+    type: AllRoomResponse,
   })
   async getOnlineUsers(): Promise<AllRoomResponse> {
     const rooms = await this.roomService.getAllRoom();
     return {
-      rooms: rooms
-    }
+      rooms: rooms,
+    };
   }
-
 }

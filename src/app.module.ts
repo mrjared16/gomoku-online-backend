@@ -10,10 +10,16 @@ import { AppService } from './app.service';
 import { WaitingRoomModule } from './waitingRoom/waitingRoom.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(Config.getTypeORMConfig()), UserModule, AuthModule, WaitingRoomModule, RoomModule],
+  imports: [
+    TypeOrmModule.forRoot(Config.getTypeORMConfig()),
+    UserModule,
+    AuthModule,
+    WaitingRoomModule,
+    RoomModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {
-  constructor(connection: Connection) { }
+  constructor(connection: Connection) {}
 }

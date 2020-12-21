@@ -4,4 +4,4 @@ export const RoomMessage = {
   BROADCAST_ALL: 'waitingRoomEventMsg',
   BROADCAST_ROOM: 'roomEventMsg',
   BROADCAST_GAME: 'gameEventMsg',
-}
+};

@@ -3,9 +3,9 @@ import { Column, CreateDateColumn, ManyToOne } from 'typeorm';
 import { GameEntity } from 'src/game/game.entity';
 import { Entity, PrimaryGeneratedColumn } from 'typeorm';
 
-
 export enum GameSide {
-  X, O
+  X,
+  O,
 }
 
 @Entity('move_record')
@@ -13,16 +13,16 @@ export class MoveRecordEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity, user => user.rankRecords)
+  @ManyToOne(() => UserEntity, (user) => user.rankRecords)
   user: UserEntity;
 
-  @ManyToOne(() => GameEntity, game => game.moves)
+  @ManyToOne(() => GameEntity, (game) => game.moves)
   game: GameEntity;
 
   @Column({
     type: 'enum',
     enum: GameSide,
-    nullable: false
+    nullable: false,
   })
   value: GameSide;
 
@@ -31,5 +31,4 @@ export class MoveRecordEntity {
 
   @Column({ nullable: false })
   position: number;
-
 }

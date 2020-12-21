@@ -4,7 +4,6 @@ import { AuthService } from './../auth.service';
 import { Strategy } from 'passport-jwt';
 import { PassportStrategy } from '@nestjs/passport';
 
-
 export class JWTStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super(Config.getPassportJWTStrategyConfig());
