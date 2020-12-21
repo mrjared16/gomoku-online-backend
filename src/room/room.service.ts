@@ -3,13 +3,17 @@ import { UserDTO } from 'src/users/users.dto';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { RoomGateway } from './room.gateway';
-import { RoomManager, RoomModel } from './roomManager';
 import { CreateRoomDTO, JoinRoomDTO } from './room.dto';
+import { RoomManager, RoomModel } from './room.model';
 
 @Injectable()
 export class RoomService {
-  constructor(private authService: AuthService) {}
-  roomManager: RoomManager = new RoomManager();
+  constructor(
+    private authService: AuthService,
+    private roomManager: RoomManager,
+  ) {}
+
+  // roomManager: RoomManager = new RoomManager();
 
   // handleOnAnonymousConnect = (roomGateway: RoomGateway, connection: Socket) => {
   //   // this.socketManager.addAnonymousUser(connection);
@@ -82,7 +86,6 @@ export class RoomService {
     if (!userInfo) {
       return;
     }
-
     const newRoom = this.roomManager.addNewRoom(userInfo, socket);
     roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',

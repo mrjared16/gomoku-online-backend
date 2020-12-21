@@ -1,5 +1,5 @@
-import { RoomModel } from './roomManager';
 import { UserDTO } from 'src/users/users.dto';
+import { RoomModel } from './room.model';
 
 export class BroadcastRoomEventToAllDTO {
   event: 'roomUpdated';
