@@ -7,7 +7,7 @@ import {
 import { Socket } from 'socket.io/dist/socket';
 import { Config } from 'src/shared/config';
 import { ROOM_MESSAGE } from './room.constants';
-import { CreateRoomDTO, JoinRoomDTO } from './room.dto';
+import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
 import {
   BroadcastRoomEventToAllResponse,
   BroadcastRoomEventToCurrentRoomResponse,
@@ -41,7 +41,7 @@ export class RoomGateway implements OnGatewayConnection {
 
   @SubscribeMessage(ROOM_MESSAGE.ON_JOIN)
   async joinRoom(socket: Socket, data: JoinRoomDTO) {
-    const roomDetail = await this.roomService.handleJoinRoom(
+    const roomDetail = await this.roomService.handleUsersChanged(
       this,
       socket,
       data,
@@ -54,7 +54,7 @@ export class RoomGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage(ROOM_MESSAGE.ON_START)
-  async startGame(socket: Socket, data: { roomID: string }) {
+  async startGame(socket: Socket, data: StartGameDTO) {
     await this.roomService.handleStartGame(this, socket, data);
   }
 

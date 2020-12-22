@@ -19,3 +19,7 @@ export type JoinRoomDTO = {
   roomID: string;
   roomRequirement: RoomRequirement;
 };
+
+export type StartGameDTO = {
+  roomID: string;
+};
