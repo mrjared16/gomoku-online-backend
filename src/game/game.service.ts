@@ -1,18 +1,16 @@
-import { RoomService } from './../room/room.service';
-import { RoomGateway } from './../room/room.gateway';
-import { TeamEntity } from './../gameHistory/team.entity';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
-import { RoomModel } from './../room/room.model';
-import { UserEntity } from 'src/users/users.entity';
-import { Repository } from 'typeorm';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
+import { GameSide } from 'src/gameHistory/moveRecord.entity';
+import { RoomGateway } from 'src/room/room.gateway';
 import { RoomManager } from 'src/room/room.model';
+import { Repository } from 'typeorm';
+import { RoomModel } from './../room/room.model';
+import { RoomService } from './../room/room.service';
+import { GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
 import { GameModel } from './game.model';
-import { GameEntity } from './game.entity';
-import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class GameService {
@@ -21,6 +19,7 @@ export class GameService {
     @InjectRepository(GameEntity)
     private gameRepository: Repository<GameEntity>,
     private roomGateway: RoomGateway,
+    @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
   ) {}
   async getGameInfo(gameID: string): Promise<GameInfoResponse> {
