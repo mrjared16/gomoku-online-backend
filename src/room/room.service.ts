@@ -85,9 +85,6 @@ export class RoomService {
   ) {
     const { roomID } = data;
     const room = this.roomManager.getRoom(data.roomID);
-    // TODO: handle join game
-    room.setPlayer(room.users[0], GameSide.X);
-    room.setPlayer(room.users[1], GameSide.O);
 
     room.startGame(this.gameService);
     this.broadcastRoomState({ roomGateway, socket, roomID });

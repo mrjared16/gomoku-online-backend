@@ -74,6 +74,12 @@ export class RoomModel {
     const isExist = this.users.some((inRoomUser) => inRoomUser.id === user.id);
     if (!isExist) {
       this.users.push(user);
+      // TO DO: game ready manual
+      if (!this.players.X) {
+        this.players.X = user;
+      } else if (!this.players.O) {
+        this.players.O = user;
+      }
     }
     return true;
   }
