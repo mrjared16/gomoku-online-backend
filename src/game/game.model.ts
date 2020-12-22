@@ -1,12 +1,29 @@
-export class GameModel {
-  constructor(size: number) {
-    this.board = new Array(size * size).fill(-1);
-    this.turn = 0;
-  }
-  public board: (-1 | 0 | 1)[];
-  public turn: number;
+import { GameEntity } from 'src/game/game.entity';
+import { GomokuGamePlayer } from 'src/game/game.dto';
+import { RoomModel } from './../room/room.model';
+import { GameSide } from 'src/gameHistory/moveRecord.entity';
+import { Injectable } from '@nestjs/common';
+import { GameOption } from './game.dto';
 
-  hit(index: number, value: 0 | 1) {
+@Injectable()
+export class GameModel {
+  constructor(
+    gameOption: GameOption,
+    private players: GomokuGamePlayer,
+    private gameEntity: GameEntity,
+  ) {
+    const { boardSize, time } = gameOption;
+    this.board = new Array(boardSize).fill(-1);
+    this.boardSize = boardSize;
+    this.time = time;
+    this.turn = GameSide.X;
+  }
+  boardSize: number;
+  time: number;
+  public board: (null | GameSide)[];
+  public turn: GameSide;
+
+  hit(index: number, value: GameSide) {
     this.board[index] = value;
     this.turn = (this.turn + 1) % 2;
   }
@@ -15,7 +32,15 @@ export class GameModel {
     return false;
   }
 
-  getTurn(): 0 | 1 {
-    return this.turn as 0 | 1;
+  getTurn(): GameSide {
+    return this.turn;
+  }
+
+  getPlayers(): GomokuGamePlayer {
+    return this.players;
+  }
+
+  getGameID(): string {
+    return this.gameEntity.id;
   }
 }
