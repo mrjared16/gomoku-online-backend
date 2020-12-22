@@ -60,7 +60,7 @@ export class RoomGateway implements OnGatewayConnection {
       return;
     }
     // console.log({ updatedRoom });
-    return RoomDTO.ModelToDTO(updatedRoom);
+    // return RoomDTO.ModelToDTO(updatedRoom);
   }
 
   @SubscribeMessage(ROOM_MESSAGE.ON_START)
@@ -68,8 +68,12 @@ export class RoomGateway implements OnGatewayConnection {
     socket: Socket,
     data: StartGameDTO,
   ): Promise<StartGameResponse> {
-    const { gameID } = this.roomService.handleStartGame(this, socket, data);
-    return { gameID };
+    const { gameID } = await this.roomService.handleStartGame(
+      this,
+      socket,
+      data,
+    );
+    return { gameID: gameID };
   }
 
   broadcastRoomEventsToAll(

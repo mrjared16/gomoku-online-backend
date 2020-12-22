@@ -78,7 +78,7 @@ export class RoomService {
     }
   }
 
-  handleStartGame(
+  async handleStartGame(
     roomGateway: RoomGateway,
     socket: Socket,
     data: StartGameDTO,
@@ -86,9 +86,9 @@ export class RoomService {
     const { roomID } = data;
     const room = this.roomManager.getRoom(data.roomID);
 
-    room.startGame(this.gameService);
+    await room.startGame(this.gameService);
     this.broadcastRoomState({ roomGateway, socket, roomID });
-    console.log({ data, room });
+    // console.log({ data, room });
 
     return { gameID: room.gameID };
   }

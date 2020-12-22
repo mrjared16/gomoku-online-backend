@@ -101,8 +101,8 @@ export class RoomModel {
     return true;
   }
 
-  startGame(gameService: GameService) {
-    this.gameModel = gameService.createGame(this);
+  async startGame(gameService: GameService) {
+    this.gameModel = await gameService.createGame(this);
     this.gameID = this.gameModel.getGameID();
     return this.gameID;
   }

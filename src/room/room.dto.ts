@@ -57,7 +57,7 @@ export class RoomDTO {
       roomOption: RoomOptionDTO.ModelToEntity(roomOption),
       players,
       numberOfUsers: users.length,
-      gameID,
+      gameID: gameID,
     };
   }
 }

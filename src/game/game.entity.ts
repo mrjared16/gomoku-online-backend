@@ -1,18 +1,16 @@
-import { TeamEntity } from './../gameHistory/team.entity';
+import { GameSide, MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
+import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import {
   Column,
   CreateDateColumn,
+  Entity,
   JoinColumn,
-  ManyToMany,
+  OneToMany,
   OneToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { UserEntity } from 'src/users/users.entity';
-import { OneToMany } from 'typeorm';
 import { ChatChannelEntity } from '../chat/chatChannel.entity';
-import { PrimaryGeneratedColumn } from 'typeorm';
-import { Entity } from 'typeorm';
-import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
-import { GameSide, MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
+import { TeamEntity } from './../gameHistory/team.entity';
 import { DEFAULT_BOARD_SIZE } from './game.constants';
 @Entity('game')
 export class GameEntity {
@@ -35,7 +33,7 @@ export class GameEntity {
   @Column({
     type: 'enum',
     enum: GameSide,
-    nullable: false,
+    nullable: true,
   })
   winSide: GameSide;
 
@@ -48,6 +46,8 @@ export class GameEntity {
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   start_at: Date;
 
-  @Column()
+  @Column({
+    nullable: true,
+  })
   duration: number;
 }

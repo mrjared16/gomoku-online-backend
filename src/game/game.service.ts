@@ -1,3 +1,4 @@
+import { RoomOption } from './../room/room.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
@@ -59,13 +60,14 @@ export class GameService {
     );
   }
 
-  createGame(room: RoomModel): GameModel {
+  async createGame(room: RoomModel): Promise<GameModel> {
     const { roomOption, players } = room;
     const { boardSize } = roomOption;
 
     const gameEntity: GameEntity = this.gameRepository.create({
       boardSize,
     });
+    await this.gameRepository.save(gameEntity);
     return new GameModel(room.roomOption, players, gameEntity);
   }
 
