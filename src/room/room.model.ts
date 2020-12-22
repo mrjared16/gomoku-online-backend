@@ -51,6 +51,7 @@ export class RoomModel {
       X: null,
       O: null,
     };
+    this.users = [];
     this.gameID = null;
   }
 
@@ -66,6 +67,7 @@ export class RoomModel {
 
   addUser(user: UserDTO, roomRequirement: RoomRequirement): boolean {
     if (roomRequirement) {
+      console.log({ roomRequirement });
       const { password } = roomRequirement;
       if (this.password !== password) return false;
     }

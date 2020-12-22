@@ -1,12 +1,11 @@
-import { GameService } from './../game/game.service';
-import { Socket } from 'socket.io';
-import { UserDTO } from 'src/users/users.dto';
 import { Injectable } from '@nestjs/common';
+import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { RoomGateway } from './room.gateway';
-import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
-import { RoomManager, RoomModel } from './room.model';
 import { GameSide } from 'src/gameHistory/moveRecord.entity';
+import { GameService } from './../game/game.service';
+import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
+import { RoomGateway } from './room.gateway';
+import { RoomManager, RoomModel } from './room.model';
 
 @Injectable()
 export class RoomService {
@@ -50,7 +49,7 @@ export class RoomService {
       join: (roomID: string, data: JoinRoomDTO): boolean => {
         const { roomRequirement } = data;
         if (
-          this.roomManager.getRoom(roomID).addUser(userInfo, roomRequirement)
+          !this.roomManager.getRoom(roomID).addUser(userInfo, roomRequirement)
         ) {
           // TODO: handle not able to join room (not meet requirement or server error)
           return false;
