@@ -1,46 +1,21 @@
-import { UserDTO } from 'src/users/users.dto';
-import { RoomModel } from './room.model';
+export type RoomOption = {
+  time: number;
+  password: string | null;
+  boardSize: number;
+};
 
-export class BroadcastRoomEventToAllDTO {
-  event: 'roomUpdated';
-  data: RoomModel;
-}
-
-export class BroadcastGameEventToCurrentRoomDTO {
-  event: 'changeTurn' | 'onHit';
-  data:
-    | {
-        index: number;
-        value: 0 | 1;
-      }
-    | {
-        currentTurnPlayerID: string;
-      };
-}
-
-export class BroadcastRoomEventToCurrentRoomDTO {
-  event: 'newPlayerJoined' | 'roomUpdated';
-  data:
-    | {
-        user: UserDTO;
-      }
-    | RoomModel;
-}
+export type RoomRequirement = {
+  password: string;
+} | null;
 
 export type CreateRoomDTO = {
   token: string;
+  roomOption: RoomOption;
 };
 
 export type JoinRoomDTO = {
   action: 'join';
-  roomID: string;
   token: string;
+  roomID: string;
+  roomRequirement: RoomRequirement;
 };
-
-// export type RoomDetailInterface = {
-//   host: UserDTO,
-//   opponent: UserDTO | null,
-//   boardSize: 20,
-//   currentTurnPlayerID: string,
-//   board: (0 | 1 | -1)[]
-// }

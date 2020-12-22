@@ -1,10 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
+import { AllRoomResponse } from './room.interface';
 import { RoomService } from './room.service';
-
-export class AllRoomResponse {
-  rooms: {}[];
-}
 
 @Controller('rooms')
 export class RoomController {
