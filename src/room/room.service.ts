@@ -4,8 +4,9 @@ import { UserDTO } from 'src/users/users.dto';
 import { Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { RoomGateway } from './room.gateway';
-import { CreateRoomDTO, JoinRoomDTO } from './room.dto';
+import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
 import { RoomManager, RoomModel } from './room.model';
+import { GameSide } from 'src/gameHistory/moveRecord.entity';
 
 @Injectable()
 export class RoomService {
@@ -40,7 +41,7 @@ export class RoomService {
     };
   }
 
-  async handleJoinRoom(
+  async handleUsersChanged(
     roomGateway: RoomGateway,
     socket: Socket,
     data: JoinRoomDTO,
@@ -54,19 +55,8 @@ export class RoomService {
           // TODO: handle not able to join room (not meet requirement or server error)
           return false;
         }
-        const updatedRoom = this.roomManager.getRoom(roomID);
 
-        // broadcast to current room
-        roomGateway.broadcastRoomEventToMember(socket, roomID, {
-          event: 'roomUpdated',
-          data: updatedRoom,
-        });
-
-        // broadcast to waiting room
-        roomGateway.broadcastRoomEventsToAll({
-          event: 'roomUpdated',
-          data: updatedRoom,
-        });
+        this.broadcastRoomState({ roomGateway, roomID, socket });
         return true;
       },
     };
@@ -89,16 +79,43 @@ export class RoomService {
     }
   }
 
-  async handleStartGame(
+  handleStartGame(
     roomGateway: RoomGateway,
     socket: Socket,
-    data: { roomID: string },
+    data: StartGameDTO,
   ) {
     const { roomID } = data;
     const room = this.roomManager.getRoom(data.roomID);
+    // TODO: handle join game
+    room.setPlayer(room.users[0], GameSide.X);
+    room.setPlayer(room.users[1], GameSide.O);
 
     room.startGame(this.gameService);
+    this.broadcastRoomState({ roomGateway, socket, roomID });
+    console.log({ data, room });
+  }
 
+  handleEndGame(roomGateway: RoomGateway, room: RoomModel, socket: Socket) {
+    room.save();
+    room.endGame();
+    this.broadcastRoomState({
+      roomGateway,
+      roomID: room.id,
+      socket,
+    });
+  }
+
+  broadcastRoomState({
+    roomGateway,
+    roomID,
+    socket,
+  }: {
+    roomGateway: RoomGateway;
+    socket: Socket;
+    roomID: string;
+  }) {
+    const room = this.roomManager.getRoom(roomID);
+    // broadcast to current room
     roomGateway.broadcastRoomEventToMember(
       socket,
       roomID,
@@ -108,8 +125,11 @@ export class RoomService {
       },
       true,
     );
-
-    console.log({ data, room });
+    // broadcast to waiting room
+    roomGateway.broadcastRoomEventsToAll({
+      event: 'roomUpdated',
+      data: room,
+    });
   }
 
   getAllRoom(): RoomModel[] {
