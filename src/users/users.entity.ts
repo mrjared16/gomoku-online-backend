@@ -1,3 +1,4 @@
+import { TeamEntity } from './../gameHistory/team.entity';
 import * as bcrypt from 'bcryptjs';
 import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
 import { ChatRecordEntity } from 'src/chat/chatRecord.entity';
@@ -42,11 +43,11 @@ export abstract class UserEntity {
   @ManyToMany(() => ChatChannelEntity, (chat) => chat.users)
   chats: ChatChannelEntity[];
 
-  @ManyToMany(() => GameEntity, (game) => game.users)
+  @ManyToMany(() => TeamEntity, (team) => team.users)
   @JoinTable({
-    name: 'game_participant',
+    name: 'team_participant',
   })
-  games: GameEntity[];
+  teams: TeamEntity[];
 
   @OneToMany(() => RankRecordEntity, (record) => record.user)
   rankRecords: RankRecordEntity[];

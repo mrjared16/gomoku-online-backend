@@ -1,3 +1,4 @@
+import { TeamEntity } from './../gameHistory/team.entity';
 import {
   Column,
   CreateDateColumn,
@@ -18,8 +19,8 @@ export class GameEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToMany(() => UserEntity, (user) => user.games)
-  users: UserEntity[];
+  @OneToMany(() => TeamEntity, (team) => team.game)
+  team: TeamEntity[];
 
   @OneToMany(() => MoveRecordEntity, (move) => move.game)
   moves: MoveRecordEntity[];
