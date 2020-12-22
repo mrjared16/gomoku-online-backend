@@ -5,7 +5,6 @@ import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { Injectable } from '@nestjs/common';
 import { GameOption } from './game.dto';
 
-@Injectable()
 export class GameModel {
   constructor(
     gameOption: GameOption,

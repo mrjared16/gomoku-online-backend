@@ -1,3 +1,4 @@
+import { GameModule } from './game/game.module';
 import { RoomModule } from './room/room.module';
 import { AuthModule } from './auth/auth.module';
 import { UserModule } from './users/users.module';
@@ -16,6 +17,7 @@ import { WaitingRoomModule } from './waitingRoom/waitingRoom.module';
     AuthModule,
     WaitingRoomModule,
     RoomModule,
+    GameModule,
   ],
   controllers: [AppController],
   providers: [AppService],

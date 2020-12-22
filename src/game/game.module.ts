@@ -13,6 +13,7 @@ import { GameGateway } from './game.gateway';
     forwardRef(() => RoomModule),
   ],
   controllers: [GameController],
-  providers: [GameService, GameModel, GameGateway],
+  providers: [GameService, GameGateway],
+  exports: [GameService, GameGateway],
 })
 export class GameModule {}

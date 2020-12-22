@@ -9,6 +9,7 @@ import { RoomManager } from './room.model';
 @Module({
   imports: [forwardRef(() => AuthModule), forwardRef(() => GameModule)],
   controllers: [RoomController],
-  providers: [RoomGateway, RoomService, RoomManager],
+  providers: [RoomService, RoomGateway, RoomManager],
+  exports: [RoomGateway, RoomService, RoomManager],
 })
 export class RoomModule {}

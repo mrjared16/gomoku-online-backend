@@ -1,6 +1,6 @@
-import { GameInfoResponse } from './game.dto';
-import { GameService } from './game.service';
 import { Controller, Get, Param } from '@nestjs/common';
+import { GameInfoResponse } from './game.interface';
+import { GameService } from './game.service';
 
 @Controller('game')
 export class GameController {

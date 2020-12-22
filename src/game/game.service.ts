@@ -12,11 +12,13 @@ import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
 import { GameModel } from './game.model';
 import { GameEntity } from './game.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class GameService {
   constructor(
     private roomManager: RoomManager,
+    @InjectRepository(GameEntity)
     private gameRepository: Repository<GameEntity>,
     private roomGateway: RoomGateway,
     private roomService: RoomService,
