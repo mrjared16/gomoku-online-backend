@@ -63,7 +63,7 @@ export class RoomModel {
   users: UserDTO[];
 
   public gameID: string | null;
-  gameModel: GameModel;
+  private gameModel: GameModel;
 
   addUser(user: UserDTO, roomRequirement: RoomRequirement): boolean {
     if (roomRequirement) {
@@ -114,5 +114,9 @@ export class RoomModel {
 
   save() {
     //TODO: handle save game
+  }
+
+  getGame() {
+    return this.gameModel;
   }
 }

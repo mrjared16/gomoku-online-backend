@@ -6,8 +6,8 @@ import { GameService } from './game.service';
 export class GameController {
   constructor(private gameService: GameService) {}
 
-  @Get(':id')
-  async getGameInfo(@Param('id') gameID: string): Promise<GameInfoResponse> {
-    return this.gameService.getGameInfo(gameID);
+  @Get('/room/:id')
+  async getGameInfo(@Param('id') roomID: string): Promise<GameInfoResponse> {
+    return this.gameService.getLiveGameInfo(roomID);
   }
 }

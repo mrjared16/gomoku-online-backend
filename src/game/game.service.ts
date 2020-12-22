@@ -23,9 +23,34 @@ export class GameService {
     @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
   ) {}
-  async getGameInfo(gameID: string): Promise<GameInfoResponse> {
-    return null;
+
+  async getLiveGameInfo(roomID: string): Promise<GameInfoResponse> {
+    const room = this.roomManager.getRoom(roomID);
+    const game = room.getGame();
+
+    if (!game)
+      return {
+        boardSize: room.roomOption.boardSize,
+      };
+
+    const { boardSize } = game;
+    return {
+      id: game.getGameID(),
+      startAt: game.getStartedDate(),
+      boardSize,
+      duration: null,
+      winnerID: null,
+      rankRecord: [],
+      gameState: {
+        move: [],
+        turn: {
+          playerID: this.getTurn(game),
+          remainingTime: 60,
+        },
+      },
+    };
   }
+
   async handleHit(
     gameGateway: GameGateway,
     socket: Socket,
@@ -33,13 +58,14 @@ export class GameService {
   ) {
     const { roomID, index, value } = data;
     const room = this.roomManager.getRoom(data.roomID);
-    room.gameModel.hit(index, value);
+    room.getGame().hit(index, value);
     const isEnd = false;
     if (isEnd) {
       // TODO: handle game end
       this.roomService.handleEndGame(this.roomGateway, room, socket);
       return;
     }
+    // TODO: fix onHit not broadcast
     gameGateway.broadcastGameEventToMember(socket, roomID, {
       event: 'onHit',
       data: {
@@ -53,7 +79,7 @@ export class GameService {
       {
         event: 'changeTurn',
         data: {
-          currentTurnPlayerID: this.getTurn(room.gameModel),
+          currentTurnPlayerID: this.getTurn(room.getGame()),
         },
       },
       true,
@@ -83,6 +109,8 @@ export class GameService {
 
   getTurn(game: GameModel): string {
     const turn = game.getTurn();
-    return game.getPlayers()[turn];
+    const side: ('O' | 'X')[] = ['X', 'O'];
+    const turnSide: 'X' | 'O' = side[turn];
+    return game.getPlayers()[turnSide].id;
   }
 }

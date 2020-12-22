@@ -17,12 +17,16 @@ export type BroadcastGameEventToCurrentRoomResponse =
       };
     };
 
-export class GameInfoResponse {
-  id: string;
-  boardSize: number;
-  gameState: GameState;
-  startAt: Date | null;
-  duration: number;
-  winnerID: string | null;
-  rankRecord: RankRecordDTO[];
-}
+export type GameInfoResponse =
+  | {
+      id: string;
+      boardSize: number;
+      gameState: GameState;
+      startAt: Date | null;
+      duration: number;
+      winnerID: string | null;
+      rankRecord: RankRecordDTO[];
+    }
+  | {
+      boardSize: number;
+    };

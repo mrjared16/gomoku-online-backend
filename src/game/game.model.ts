@@ -42,4 +42,8 @@ export class GameModel {
   getGameID(): string {
     return this.gameEntity.id;
   }
+
+  getStartedDate(): Date {
+    return this.gameEntity.start_at;
+  }
 }
