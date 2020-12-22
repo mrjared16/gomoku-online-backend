@@ -20,3 +20,15 @@ export type BroadcastRoomEventToCurrentRoomResponse =
 export class AllRoomResponse {
   rooms: RoomDTO[];
 }
+
+export type CreateRoomResponse =
+  | {
+      roomID: string;
+    }
+  | never;
+
+export type JoinRoomResponse = RoomDTO | never;
+
+export type StartGameResponse = {
+  gameID: string;
+};

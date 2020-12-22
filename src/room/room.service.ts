@@ -89,6 +89,8 @@ export class RoomService {
     room.startGame(this.gameService);
     this.broadcastRoomState({ roomGateway, socket, roomID });
     console.log({ data, room });
+
+    return { gameID: room.gameID };
   }
 
   handleEndGame(roomGateway: RoomGateway, room: RoomModel, socket: Socket) {

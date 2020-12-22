@@ -8,10 +8,13 @@ import {
 import { Socket } from 'socket.io/dist/socket';
 import { Config } from 'src/shared/config';
 import { ROOM_MESSAGE } from './room.constants';
-import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
+import { CreateRoomDTO, JoinRoomDTO, RoomDTO, StartGameDTO } from './room.dto';
 import {
   BroadcastRoomEventToAllResponse,
   BroadcastRoomEventToCurrentRoomResponse,
+  CreateRoomResponse,
+  JoinRoomResponse,
+  StartGameResponse,
 } from './room.interface';
 import { RoomService } from './room.service';
 
@@ -33,7 +36,10 @@ export class RoomGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage(ROOM_MESSAGE.ON_CREATE)
-  async createRoom(socket: Socket, data: CreateRoomDTO) {
+  async createRoom(
+    socket: Socket,
+    data: CreateRoomDTO,
+  ): Promise<CreateRoomResponse> {
     const newRoom = await this.roomService.handleCreateRoom(this, socket, data);
     if (!newRoom) {
       return;
@@ -44,22 +50,26 @@ export class RoomGateway implements OnGatewayConnection {
   }
 
   @SubscribeMessage(ROOM_MESSAGE.ON_JOIN)
-  async joinRoom(socket: Socket, data: JoinRoomDTO) {
-    const roomDetail = await this.roomService.handleUsersChanged(
+  async joinRoom(socket: Socket, data: JoinRoomDTO): Promise<JoinRoomResponse> {
+    const updatedRoom = await this.roomService.handleUsersChanged(
       this,
       socket,
       data,
     );
-    if (!roomDetail) {
+    if (!updatedRoom) {
       return;
     }
-    console.log({ roomDetail });
-    return roomDetail;
+    // console.log({ updatedRoom });
+    return RoomDTO.ModelToDTO(updatedRoom);
   }
 
   @SubscribeMessage(ROOM_MESSAGE.ON_START)
-  async startGame(socket: Socket, data: StartGameDTO) {
-    await this.roomService.handleStartGame(this, socket, data);
+  async startGame(
+    socket: Socket,
+    data: StartGameDTO,
+  ): Promise<StartGameResponse> {
+    const { gameID } = this.roomService.handleStartGame(this, socket, data);
+    return { gameID };
   }
 
   broadcastRoomEventsToAll(
