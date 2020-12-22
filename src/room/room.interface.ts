@@ -1,9 +1,10 @@
+import { RoomDTO } from './room.dto';
 import { UserDTO } from 'src/users/users.dto';
 import { RoomModel } from './room.model';
 
 export class BroadcastRoomEventToAllResponse {
   event: 'roomUpdated';
-  data: RoomModel;
+  data: RoomDTO;
 }
 
 export type BroadcastRoomEventToCurrentRoomResponse =
@@ -13,9 +14,9 @@ export type BroadcastRoomEventToCurrentRoomResponse =
     }
   | {
       event: 'roomUpdated';
-      data: RoomModel;
+      data: RoomDTO;
     };
 
 export class AllRoomResponse {
-  rooms: RoomModel[];
+  rooms: RoomDTO[];
 }

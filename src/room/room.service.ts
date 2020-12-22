@@ -3,7 +3,7 @@ import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { GameService } from './../game/game.service';
-import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
+import { CreateRoomDTO, JoinRoomDTO, RoomDTO, StartGameDTO } from './room.dto';
 import { RoomGateway } from './room.gateway';
 import { RoomManager, RoomModel } from './room.model';
 
@@ -32,7 +32,7 @@ export class RoomService {
     const newRoom = this.roomManager.addNewRoom(userInfo, socket);
     roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',
-      data: newRoom,
+      data: RoomDTO.ModelToDTO(newRoom),
     });
     console.log({ newRoom });
     return {
@@ -117,18 +117,18 @@ export class RoomService {
       roomID,
       {
         event: 'roomUpdated',
-        data: room,
+        data: RoomDTO.ModelToDTO(room),
       },
       true,
     );
     // broadcast to waiting room
     roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',
-      data: room,
+      data: RoomDTO.ModelToDTO(room),
     });
   }
 
-  getAllRoom(): RoomModel[] {
-    return this.roomManager.getRooms();
+  getAllRoom(): RoomDTO[] {
+    return this.roomManager.getRooms().map((room) => RoomDTO.ModelToDTO(room));
   }
 }

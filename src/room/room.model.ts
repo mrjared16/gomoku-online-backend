@@ -62,7 +62,7 @@ export class RoomModel {
   public players: GomokuGamePlayer;
   users: UserDTO[];
 
-  public gameID: string;
+  public gameID: string | null;
   gameModel: GameModel;
 
   addUser(user: UserDTO, roomRequirement: RoomRequirement): boolean {
