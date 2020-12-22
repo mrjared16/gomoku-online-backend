@@ -3,11 +3,16 @@ import { GameController } from './game.controller';
 import { GameService } from './game.service';
 import { GameEntity } from 'src/game/game.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
+import { GameModel } from './game.model';
+import { GameGateway } from './game.gateway';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([GameEntity]), RoomModule],
+  imports: [
+    TypeOrmModule.forFeature([GameEntity]),
+    forwardRef(() => RoomModule),
+  ],
   controllers: [GameController],
-  providers: [GameService],
+  providers: [GameService, GameModel, GameGateway],
 })
 export class GameModule {}
