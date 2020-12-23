@@ -1,4 +1,4 @@
-import { RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
+import { RankRecordDTO, MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { GameState, Turn } from './game.dto';
 
@@ -14,6 +14,15 @@ export type BroadcastGameEventToCurrentRoomResponse =
       data: {
         position: number;
         value: GameSide;
+      };
+    }
+  | {
+      event: 'onFinish';
+      data: {
+        winnerID: string;
+        duration: number;
+        rankRecord: RankRecordDTO[];
+        line: number[];
       };
     };
 

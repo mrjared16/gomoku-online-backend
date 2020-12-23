@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io/dist/socket';
-import { GomokuGamePlayer } from 'src/game/game.dto';
+import { GomokuGamePlayer, Turn } from 'src/game/game.dto';
 import { GameEntity } from 'src/game/game.entity';
 import { GameModel } from 'src/game/game.model';
 import { GameSide } from 'src/gameHistory/moveRecord.entity';
@@ -118,5 +118,19 @@ export class RoomModel {
 
   getGame() {
     return this.gameModel;
+  }
+
+  getGameTurn(): Turn {
+    const turn = this.gameModel.getTurn();
+    return {
+      playerID: this.getPlayerOfSide(turn),
+      remainingTime: this.gameModel.getRemainingTime(),
+    };
+  }
+
+  getPlayerOfSide(gameSide: GameSide): string {
+    const side: ('O' | 'X')[] = ['X', 'O'];
+    const turnSide: 'X' | 'O' = side[gameSide];
+    return this.gameModel.getPlayers()[turnSide].id;
   }
 }

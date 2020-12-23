@@ -1,4 +1,4 @@
-import { MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
+import { MoveRecordDTO, RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { GameEntity } from 'src/game/game.entity';
 import { GomokuGamePlayer } from 'src/game/game.dto';
 import { RoomModel } from './../room/room.model';
@@ -13,12 +13,13 @@ export class GameModel {
     private gameEntity: GameEntity,
   ) {
     const { boardSize, time } = gameOption;
-    this.board = new Array(boardSize).fill(-1);
+    this.board = new Array(boardSize * boardSize).fill(-1);
     this.boardSize = boardSize;
     this.time = time;
     this.turn = GameSide.X;
     this.remainingTime = this.time;
     this.moves = [];
+    this.winLine = [];
   }
 
   boardSize: number;
@@ -30,6 +31,7 @@ export class GameModel {
   public moves: MoveRecordDTO[];
 
   public board: (null | GameSide)[];
+  private winLine: number[];
 
   hit(position: number, value: GameSide): boolean {
     if (!this.isValidHit(position, value)) {
@@ -65,7 +67,72 @@ export class GameModel {
     return true;
   }
 
-  isFinish() {
+  isFinish(): boolean {
+    let isWon = false;
+    const numberOfWinLine = 5;
+    const direction = [
+      [-1, -1],
+      [-1, 0],
+      [-1, 1],
+      [0, -1],
+      [0, 1],
+      [1, -1],
+      [1, 0],
+      [1, 1],
+    ];
+    const getValue = (i, j) => {
+      const value = this.board[i * this.boardSize + j];
+      return value;
+    };
+    const isValid = (i, j) => {
+      const result =
+        i >= 0 &&
+        i < this.boardSize &&
+        j >= 0 &&
+        j < this.boardSize &&
+        getValue(i, j) != -1;
+      return result;
+    };
+    for (let i = 0; i < this.boardSize; i++) {
+      for (let j = 0; j < this.boardSize; j++) {
+        if (getValue(i, j) === -1) {
+          continue;
+        }
+        const currentPlayer = getValue(i, j);
+        direction.forEach(([row, col]) => {
+          const currentLine = [i * this.boardSize + j];
+          for (let k = 1; k < numberOfWinLine; k++) {
+            const [nextX, nextY] = [i + row * k, j + col * k];
+            if (
+              !isValid(nextX, nextY) ||
+              getValue(nextX, nextY) != currentPlayer
+            ) {
+              return;
+            }
+            currentLine.push(nextX * this.boardSize + nextY);
+          }
+          const isValidTop = isValid(i + row * -1, j + col * -1);
+          const top = getValue(i + row * -1, j + col * -1);
+          const isValidBot = isValid(
+            i + row * numberOfWinLine,
+            j + col * numberOfWinLine,
+          );
+          const bot = getValue(
+            i + row * numberOfWinLine,
+            j + col * numberOfWinLine,
+          );
+          const isBlockTop = isValidTop && top != currentPlayer;
+          const isBlockBot = isValidBot && bot != currentPlayer;
+          if (!isBlockBot || !isBlockTop) {
+            isWon = true;
+            this.winLine = [...currentLine];
+          }
+        });
+        if (isWon) {
+          return true;
+        }
+      }
+    }
     return false;
   }
 
@@ -91,5 +158,36 @@ export class GameModel {
 
   getStartedDate(): Date {
     return this.gameEntity.start_at;
+  }
+
+  getDuration(): number {
+    return this.gameEntity.duration;
+  }
+
+  getRankRecord(): RankRecordDTO[] {
+    return [];
+  }
+  getWinLine(): number[] {
+    return this.winLine;
+  }
+  getWinSide(): GameSide {
+    return this.gameEntity.winSide;
+  }
+  saveGameState() {
+    // TODO: Handle save game
+    // save moves
+    this.gameEntity.moves = this.moves.map((moveDTO) =>
+      MoveRecordDTO.DTOToEntity(moveDTO),
+    );
+
+    // save result
+    this.gameEntity.winSide = (this.turn + 1) % 2;
+    // save duration
+    this.gameEntity.duration =
+      (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
+    console.log({ gameEntity: this.gameEntity });
+    // save team
+    // save chat
+    // save rank records
   }
 }

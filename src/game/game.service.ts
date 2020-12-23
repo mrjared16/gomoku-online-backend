@@ -1,6 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
+import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { RoomGateway } from 'src/room/room.gateway';
 import { RoomManager } from 'src/room/room.model';
 import { Repository } from 'typeorm';
@@ -42,7 +43,7 @@ export class GameService {
       rankRecord: [],
       gameState: {
         move: game.getMoves(),
-        turn: this.getTurn(game),
+        turn: room.getGameTurn(),
       },
     };
   }
@@ -71,6 +72,21 @@ export class GameService {
     const isFinish = game.isFinish();
     if (isFinish) {
       // TODO: handle game end
+      game.saveGameState();
+      gameGateway.broadcastGameEventToMember(
+        socket,
+        roomID,
+        {
+          event: 'onFinish',
+          data: {
+            winnerID: room.getPlayerOfSide(game.getWinSide()),
+            duration: game.getDuration(),
+            rankRecord: game.getRankRecord(),
+            line: game.getWinLine(),
+          },
+        },
+        true,
+      );
       this.roomService.handleEndGame(this.roomGateway, room, socket);
       return;
     }
@@ -81,7 +97,7 @@ export class GameService {
       {
         event: 'changeTurn',
         data: {
-          turn: this.getTurn(game),
+          turn: room.getGameTurn(),
         },
       },
       true,
@@ -107,15 +123,5 @@ export class GameService {
       boardSize,
     });
     return new GameModel(room.roomOption, players, gameEntity);
-  }
-
-  getTurn(game: GameModel): Turn {
-    const turn = game.getTurn();
-    const side: ('O' | 'X')[] = ['X', 'O'];
-    const turnSide: 'X' | 'O' = side[turn];
-    return {
-      playerID: game.getPlayers()[turnSide].id,
-      remainingTime: game.getRemainingTime(),
-    };
   }
 }

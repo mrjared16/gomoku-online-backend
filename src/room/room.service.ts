@@ -94,6 +94,7 @@ export class RoomService {
   }
 
   handleEndGame(roomGateway: RoomGateway, room: RoomModel, socket: Socket) {
+    // TODO: handle save game to database
     room.save();
     room.endGame();
     this.broadcastRoomState({
