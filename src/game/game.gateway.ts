@@ -1,7 +1,3 @@
-import { BroadcastGameEventToCurrentRoomResponse } from './game.interface';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
-import { GAME_MESSAGE } from './game.constants';
-import { GameService } from './game.service';
 import {
   OnGatewayConnection,
   SubscribeMessage,
@@ -10,7 +6,10 @@ import {
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io/dist/socket';
 import { Config } from 'src/shared/config';
-import { HitDTO } from './game.dto';
+import { GAME_MESSAGE } from './game.constants';
+import { HitDTO, JoinDTO } from './game.dto';
+import { BroadcastGameEventToCurrentRoomResponse } from './game.interface';
+import { GameService } from './game.service';
 
 @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
   namespace: 'game',
@@ -27,6 +26,14 @@ export class GameGateway implements OnGatewayConnection {
   @SubscribeMessage(GAME_MESSAGE.ON_HIT)
   async hit(socket: Socket, data: HitDTO) {
     await this.gameService.handleHit(this, socket, data);
+  }
+
+  @SubscribeMessage('join')
+  async join(socket: Socket, data: JoinDTO) {
+    console.log({ data });
+    const { roomID } = data;
+    await socket.join(roomID);
+    // await this.gameService.handleJoin(this, socket, data);
   }
 
   broadcastGameEventToMember(

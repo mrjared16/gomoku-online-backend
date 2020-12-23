@@ -1,13 +1,12 @@
-import { RoomOption } from './../room/room.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { RoomGateway } from 'src/room/room.gateway';
 import { RoomManager } from 'src/room/room.model';
 import { Repository } from 'typeorm';
 import { RoomModel } from './../room/room.model';
 import { RoomService } from './../room/room.service';
+import { HitDTO } from './game.dto';
 import { GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
@@ -51,11 +50,7 @@ export class GameService {
     };
   }
 
-  async handleHit(
-    gameGateway: GameGateway,
-    socket: Socket,
-    data: { roomID: string; index: number; value: GameSide },
-  ) {
+  async handleHit(gameGateway: GameGateway, socket: Socket, data: HitDTO) {
     const { roomID, index, value } = data;
     const room = this.roomManager.getRoom(data.roomID);
     room.getGame().hit(index, value);

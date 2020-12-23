@@ -8,7 +8,7 @@ import {
 import { Socket } from 'socket.io/dist/socket';
 import { Config } from 'src/shared/config';
 import { ROOM_MESSAGE } from './room.constants';
-import { CreateRoomDTO, JoinRoomDTO, RoomDTO, StartGameDTO } from './room.dto';
+import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
 import {
   BroadcastRoomEventToAllResponse,
   BroadcastRoomEventToCurrentRoomResponse,

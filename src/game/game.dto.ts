@@ -19,8 +19,14 @@ export type GameOption = {
 
 export type HitDTO = {
   roomID: string;
+  gameID: string;
   index: number;
   value: GameSide;
+};
+
+export type JoinDTO = {
+  roomID: string;
+  gameID: string;
 };
 
 export type GomokuGamePlayer = {
