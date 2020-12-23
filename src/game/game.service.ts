@@ -41,7 +41,7 @@ export class GameService {
       winnerID: null,
       rankRecord: [],
       gameState: {
-        move: [],
+        move: game.getMoves(),
         turn: this.getTurn(game),
       },
     };
@@ -49,15 +49,17 @@ export class GameService {
 
   async handleHit(gameGateway: GameGateway, socket: Socket, data: HitDTO) {
     const { roomID, position, value } = data;
+
     const room = this.roomManager.getRoom(data.roomID);
-    room.getGame().hit(position, value);
-    const isEnd = false;
-    if (isEnd) {
-      // TODO: handle game end
-      this.roomService.handleEndGame(this.roomGateway, room, socket);
+    const game = room.getGame();
+
+    const canHit = game.hit(position, value);
+
+    if (!canHit) {
+      // TODO: handle invalid hit
       return;
     }
-    // TODO: fix onHit not broadcast
+
     gameGateway.broadcastGameEventToMember(socket, roomID, {
       event: 'onHit',
       data: {
@@ -65,13 +67,21 @@ export class GameService {
         value: value,
       },
     });
+
+    const isFinish = game.isFinish();
+    if (isFinish) {
+      // TODO: handle game end
+      this.roomService.handleEndGame(this.roomGateway, room, socket);
+      return;
+    }
+
     gameGateway.broadcastGameEventToMember(
       socket,
       roomID,
       {
         event: 'changeTurn',
         data: {
-          turn: this.getTurn(room.getGame()),
+          turn: this.getTurn(game),
         },
       },
       true,
