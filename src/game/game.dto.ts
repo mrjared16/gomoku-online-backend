@@ -20,7 +20,7 @@ export type GameOption = {
 export type HitDTO = {
   roomID: string;
   gameID: string;
-  index: number;
+  position: number;
   value: GameSide;
 };
 

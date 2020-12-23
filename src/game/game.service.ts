@@ -51,9 +51,9 @@ export class GameService {
   }
 
   async handleHit(gameGateway: GameGateway, socket: Socket, data: HitDTO) {
-    const { roomID, index, value } = data;
+    const { roomID, position, value } = data;
     const room = this.roomManager.getRoom(data.roomID);
-    room.getGame().hit(index, value);
+    room.getGame().hit(position, value);
     const isEnd = false;
     if (isEnd) {
       // TODO: handle game end
@@ -64,7 +64,7 @@ export class GameService {
     gameGateway.broadcastGameEventToMember(socket, roomID, {
       event: 'onHit',
       data: {
-        index: index,
+        position: position,
         value: value,
       },
     });

@@ -22,8 +22,8 @@ export class GameModel {
   public board: (null | GameSide)[];
   public turn: GameSide;
 
-  hit(index: number, value: GameSide) {
-    this.board[index] = value;
+  hit(position: number, value: GameSide) {
+    this.board[position] = value;
     this.turn = (this.turn + 1) % 2;
   }
 

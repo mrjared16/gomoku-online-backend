@@ -12,7 +12,7 @@ export type BroadcastGameEventToCurrentRoomResponse =
   | {
       event: 'onHit';
       data: {
-        index: number;
+        position: number;
         value: GameSide;
       };
     };
