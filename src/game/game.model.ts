@@ -16,15 +16,18 @@ export class GameModel {
     this.boardSize = boardSize;
     this.time = time;
     this.turn = GameSide.X;
+    this.remainingTime = this.time;
   }
   boardSize: number;
   time: number;
+  private remainingTime: number;
   public board: (null | GameSide)[];
   public turn: GameSide;
 
   hit(position: number, value: GameSide) {
     this.board[position] = value;
     this.turn = (this.turn + 1) % 2;
+    this.remainingTime = this.time;
   }
 
   isFinish() {
@@ -33,6 +36,10 @@ export class GameModel {
 
   getTurn(): GameSide {
     return this.turn;
+  }
+
+  getRemainingTime(): number {
+    return this.remainingTime;
   }
 
   getPlayers(): GomokuGamePlayer {

@@ -1,12 +1,12 @@
 import { RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { GameSide } from 'src/gameHistory/moveRecord.entity';
-import { GameState } from './game.dto';
+import { GameState, Turn } from './game.dto';
 
 export type BroadcastGameEventToCurrentRoomResponse =
   | {
       event: 'changeTurn';
       data: {
-        currentTurnPlayerID: string;
+        turn: Turn;
       };
     }
   | {

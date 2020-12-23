@@ -6,7 +6,7 @@ import { RoomManager } from 'src/room/room.model';
 import { Repository } from 'typeorm';
 import { RoomModel } from './../room/room.model';
 import { RoomService } from './../room/room.service';
-import { HitDTO } from './game.dto';
+import { HitDTO, Turn } from './game.dto';
 import { GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
@@ -42,10 +42,7 @@ export class GameService {
       rankRecord: [],
       gameState: {
         move: [],
-        turn: {
-          playerID: this.getTurn(game),
-          remainingTime: 60,
-        },
+        turn: this.getTurn(game),
       },
     };
   }
@@ -74,7 +71,7 @@ export class GameService {
       {
         event: 'changeTurn',
         data: {
-          currentTurnPlayerID: this.getTurn(room.getGame()),
+          turn: this.getTurn(room.getGame()),
         },
       },
       true,
@@ -102,10 +99,13 @@ export class GameService {
     return new GameModel(room.roomOption, players, gameEntity);
   }
 
-  getTurn(game: GameModel): string {
+  getTurn(game: GameModel): Turn {
     const turn = game.getTurn();
     const side: ('O' | 'X')[] = ['X', 'O'];
     const turnSide: 'X' | 'O' = side[turn];
-    return game.getPlayers()[turnSide].id;
+    return {
+      playerID: game.getPlayers()[turnSide].id,
+      remainingTime: game.getRemainingTime(),
+    };
   }
 }
