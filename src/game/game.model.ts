@@ -20,6 +20,7 @@ export class GameModel {
     this.remainingTime = this.time;
     this.moves = [];
     this.winLine = [];
+    this.winSide = null;
   }
 
   boardSize: number;
@@ -32,6 +33,7 @@ export class GameModel {
 
   public board: (null | GameSide)[];
   private winLine: number[];
+  private winSide: GameSide | null;
 
   hit(position: number, value: GameSide): boolean {
     if (!this.isValidHit(position, value)) {
@@ -126,6 +128,7 @@ export class GameModel {
           if (!isBlockBot || !isBlockTop) {
             isWon = true;
             this.winLine = [...currentLine];
+            this.winSide = currentPlayer;
           }
         });
         if (isWon) {
@@ -171,23 +174,23 @@ export class GameModel {
     return this.winLine;
   }
   getWinSide(): GameSide {
-    return this.gameEntity.winSide;
+    return this.winSide;
   }
   saveGameState() {
-    // TODO: Handle save game
     // save moves
     this.gameEntity.moves = this.moves.map((moveDTO) =>
       MoveRecordDTO.DTOToEntity(moveDTO),
     );
 
     // save result
-    this.gameEntity.winSide = (this.turn + 1) % 2;
+    this.gameEntity.winSide = this.winSide;
+
     // save duration
     this.gameEntity.duration =
       (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
     console.log({ gameEntity: this.gameEntity });
-    // save team
-    // save chat
-    // save rank records
+
+    // TODO: save chat
+    // TODO: save rank records
   }
 }

@@ -31,13 +31,6 @@ export class GameEntity {
   chat: ChatChannelEntity;
 
   @Column({
-    type: 'enum',
-    enum: GameSide,
-    nullable: true,
-  })
-  winSide: GameSide;
-
-  @Column({
     type: 'int',
     default: DEFAULT_BOARD_SIZE,
   })
@@ -45,6 +38,13 @@ export class GameEntity {
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   start_at: Date;
+
+  @Column({
+    type: 'enum',
+    enum: GameSide,
+    nullable: true,
+  })
+  winSide: GameSide;
 
   @Column({
     nullable: true,
