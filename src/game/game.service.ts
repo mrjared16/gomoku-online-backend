@@ -1,3 +1,5 @@
+import { GameHistoryService } from './../gameHistory/gameHistory.service';
+import { TeamEntity } from './../gameHistory/team.entity';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
@@ -22,6 +24,7 @@ export class GameService {
     private roomGateway: RoomGateway,
     @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
+    private gameHistoryService: GameHistoryService,
   ) {}
 
   async getLiveGameInfo(roomID: string): Promise<GameInfoResponse> {
@@ -104,15 +107,21 @@ export class GameService {
     );
   }
 
-  async createGame(room: RoomModel): Promise<GameModel> {
+  async createGameEntity(room: RoomModel): Promise<GameEntity> {
     const { roomOption, players } = room;
     const { boardSize } = roomOption;
 
+    const team: TeamEntity[] = await this.gameHistoryService.createTeamEntity(
+      players,
+    );
+
+    // TODO: create chat
+
     const gameEntity: GameEntity = this.gameRepository.create({
       boardSize,
+      team: team,
     });
-    await this.gameRepository.save(gameEntity);
-    return new GameModel(room.roomOption, players, gameEntity);
+    return await this.gameRepository.save(gameEntity);
   }
 
   saveGame(room: RoomModel): GameModel {

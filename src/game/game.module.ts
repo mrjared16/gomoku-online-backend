@@ -1,3 +1,4 @@
+import { GameHistoryModule } from './../gameHistory/gameHistory.module';
 import { forwardRef, Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { GameEntity } from 'src/game/game.entity';
@@ -10,6 +11,7 @@ import { GameService } from './game.service';
   imports: [
     TypeOrmModule.forFeature([GameEntity]),
     forwardRef(() => RoomModule),
+    forwardRef(() => GameHistoryModule),
   ],
   controllers: [GameController],
   providers: [GameService, GameGateway],
