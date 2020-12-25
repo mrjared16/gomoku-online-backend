@@ -1,19 +1,17 @@
-import { GameHistoryService } from './../gameHistory/gameHistory.service';
-import { TeamEntity } from './../gameHistory/team.entity';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { RoomGateway } from 'src/room/room.gateway';
 import { RoomManager } from 'src/room/room.model';
 import { Repository } from 'typeorm';
+import { GameHistoryService } from './../gameHistory/gameHistory.service';
+import { TeamEntity } from './../gameHistory/team.entity';
 import { RoomModel } from './../room/room.model';
 import { RoomService } from './../room/room.service';
-import { HitDTO, Turn } from './game.dto';
+import { HitDTO } from './game.dto';
 import { GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
-import { GameModel } from './game.model';
 
 @Injectable()
 export class GameService {
@@ -75,7 +73,8 @@ export class GameService {
     const isFinish = game.isFinish();
     if (isFinish) {
       // TODO: handle game end
-      game.saveGameState();
+      this.saveGame(room);
+
       gameGateway.broadcastGameEventToMember(
         socket,
         roomID,
@@ -124,13 +123,7 @@ export class GameService {
     return await this.gameRepository.save(gameEntity);
   }
 
-  saveGame(room: RoomModel): GameModel {
-    const { roomOption, players } = room;
-    const { boardSize } = roomOption;
-
-    const gameEntity: GameEntity = this.gameRepository.create({
-      boardSize,
-    });
-    return new GameModel(room.roomOption, players, gameEntity);
+  async saveGame(room: RoomModel) {
+    room.getGame().saveGameState();
   }
 }
