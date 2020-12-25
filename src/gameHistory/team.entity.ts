@@ -1,5 +1,5 @@
 import { GameEntity } from 'src/game/game.entity';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
+import {} from 'src/gameHistory/moveRecord.entity';
 import { UserEntity } from 'src/users/users.entity';
 import {
   Column,
@@ -8,7 +8,10 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-
+enum GameSide {
+  X,
+  O,
+}
 @Entity('team')
 export class TeamEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -25,5 +28,5 @@ export class TeamEntity {
     enum: GameSide,
     nullable: false,
   })
-  side: GameSide;
+  side!: GameSide;
 }

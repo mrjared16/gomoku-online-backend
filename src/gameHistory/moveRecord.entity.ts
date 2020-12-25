@@ -24,7 +24,7 @@ export class MoveRecordEntity {
     enum: GameSide,
     nullable: false,
   })
-  value: GameSide;
+  value!: GameSide;
 
   @Column({ nullable: false })
   position: number;
