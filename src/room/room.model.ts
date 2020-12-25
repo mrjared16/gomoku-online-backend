@@ -102,7 +102,8 @@ export class RoomModel {
   }
 
   async startGame(gameService: GameService) {
-    this.gameModel = await gameService.createGame(this);
+    const gameEntity = await gameService.createGameEntity(this);
+    this.gameModel = new GameModel(this.roomOption, this.players, gameEntity);
     this.gameID = this.gameModel.getGameID();
     return this.gameID;
   }
