@@ -1,4 +1,4 @@
-import { GameSide, MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
+import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import {
   Column,
@@ -12,6 +12,7 @@ import {
 import { ChatChannelEntity } from '../chat/chatChannel.entity';
 import { TeamEntity } from './../gameHistory/team.entity';
 import { DEFAULT_BOARD_SIZE } from './game.constants';
+import { GameResult } from './game.dto';
 @Entity('game')
 export class GameEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -41,10 +42,10 @@ export class GameEntity {
 
   @Column({
     type: 'enum',
-    enum: GameSide,
+    enum: GameResult,
     nullable: true,
   })
-  winSide: GameSide;
+  winSide: GameResult;
 
   @Column({
     nullable: true,

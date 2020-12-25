@@ -1,10 +1,9 @@
 import { UserEntity } from 'src/users/users.entity';
-import { GomokuGamePlayer } from 'src/game/game.dto';
+import { GameSide, GomokuGamePlayer } from 'src/game/game.dto';
 import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
 import { TeamEntity } from './team.entity';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GameSide } from './moveRecord.entity';
 @Injectable()
 export class GameHistoryService {
   constructor(

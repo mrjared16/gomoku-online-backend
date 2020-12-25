@@ -1,5 +1,4 @@
 import { MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { UserDTO } from 'src/users/users.dto';
 
 export class GameState {
@@ -33,3 +32,14 @@ export type GomokuGamePlayer = {
   X: UserDTO | null;
   O: UserDTO | null;
 };
+
+export enum GameSide {
+  X,
+  O,
+}
+
+export enum GameResult {
+  X,
+  O,
+  Draw,
+}
