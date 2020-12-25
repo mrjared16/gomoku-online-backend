@@ -1,19 +1,27 @@
 import { RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
-import { GameState } from './game.dto';
+import { GameSide, GameState, Turn } from './game.dto';
 
 export type BroadcastGameEventToCurrentRoomResponse =
   | {
       event: 'changeTurn';
       data: {
-        currentTurnPlayerID: string;
+        turn: Turn;
       };
     }
   | {
       event: 'onHit';
       data: {
-        index: number;
+        position: number;
         value: GameSide;
+      };
+    }
+  | {
+      event: 'onFinish';
+      data: {
+        winnerID: string;
+        duration: number;
+        rankRecord: RankRecordDTO[];
+        line: number[];
       };
     };
 

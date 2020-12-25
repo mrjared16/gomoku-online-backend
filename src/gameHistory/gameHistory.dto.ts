@@ -1,6 +1,7 @@
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
-import { GameSide } from './moveRecord.entity';
+import { getRepository } from 'typeorm';
+import { GameSide } from 'src/game/game.dto';
 
 export class MoveRecordDTO {
   id: string;
@@ -13,6 +14,14 @@ export class MoveRecordDTO {
 
     const { id, value, position, created_at } = moveEntity;
     return { id, position, value, time: created_at };
+  }
+  static DTOToEntity(moveDTO: MoveRecordDTO): MoveRecordEntity {
+    const { id, position, value, time } = moveDTO;
+    return getRepository(MoveRecordEntity).create({
+      position,
+      value,
+      created_at: time,
+    });
   }
 }
 

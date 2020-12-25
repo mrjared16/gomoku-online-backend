@@ -1,3 +1,4 @@
+import { GameSide } from 'src/game/game.dto';
 import { GameEntity } from 'src/game/game.entity';
 import {} from 'src/gameHistory/moveRecord.entity';
 import { UserEntity } from 'src/users/users.entity';
@@ -8,10 +9,7 @@ import {
   ManyToOne,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-enum GameSide {
-  X,
-  O,
-}
+
 @Entity('team')
 export class TeamEntity {
   @PrimaryGeneratedColumn('uuid')

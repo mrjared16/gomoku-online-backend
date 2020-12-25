@@ -1,9 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io/dist/socket';
-import { GomokuGamePlayer } from 'src/game/game.dto';
+import { GameSide, GomokuGamePlayer, Turn } from 'src/game/game.dto';
 import { GameEntity } from 'src/game/game.entity';
 import { GameModel } from 'src/game/game.model';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { UserDTO } from 'src/users/users.dto';
 import { GameService } from './../game/game.service';
 import { DEFAULT_ROOM_OPTION } from './room.constants';
@@ -102,7 +101,8 @@ export class RoomModel {
   }
 
   async startGame(gameService: GameService) {
-    this.gameModel = await gameService.createGame(this);
+    const gameEntity = await gameService.createGameEntity(this);
+    this.gameModel = new GameModel(this.roomOption, this.players, gameEntity);
     this.gameID = this.gameModel.getGameID();
     return this.gameID;
   }
@@ -118,5 +118,19 @@ export class RoomModel {
 
   getGame() {
     return this.gameModel;
+  }
+
+  getGameTurn(): Turn {
+    const turn = this.gameModel.getTurn();
+    return {
+      playerID: this.getPlayerOfSide(turn),
+      remainingTime: this.gameModel.getRemainingTime(),
+    };
+  }
+
+  getPlayerOfSide(gameSide: GameSide): string {
+    const side: ('O' | 'X')[] = ['X', 'O'];
+    const turnSide: 'X' | 'O' = side[gameSide];
+    return this.gameModel.getPlayers()[turnSide].id;
   }
 }

@@ -4,13 +4,14 @@ import { Socket } from 'socket.io/dist/socket';
 import { RoomGateway } from 'src/room/room.gateway';
 import { RoomManager } from 'src/room/room.model';
 import { Repository } from 'typeorm';
+import { GameHistoryService } from './../gameHistory/gameHistory.service';
+import { TeamEntity } from './../gameHistory/team.entity';
 import { RoomModel } from './../room/room.model';
 import { RoomService } from './../room/room.service';
-import { HitDTO } from './game.dto';
+import { GameResult, HitDTO } from './game.dto';
 import { GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
-import { GameModel } from './game.model';
 
 @Injectable()
 export class GameService {
@@ -21,6 +22,7 @@ export class GameService {
     private roomGateway: RoomGateway,
     @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
+    private gameHistoryService: GameHistoryService,
   ) {}
 
   async getLiveGameInfo(roomID: string): Promise<GameInfoResponse> {
@@ -41,71 +43,90 @@ export class GameService {
       winnerID: null,
       rankRecord: [],
       gameState: {
-        move: [],
-        turn: {
-          playerID: this.getTurn(game),
-          remainingTime: 60,
-        },
+        move: game.getMoves(),
+        turn: room.getGameTurn(),
       },
     };
   }
 
   async handleHit(gameGateway: GameGateway, socket: Socket, data: HitDTO) {
-    const { roomID, index, value } = data;
+    const { roomID, position, value } = data;
+
     const room = this.roomManager.getRoom(data.roomID);
-    room.getGame().hit(index, value);
-    const isEnd = false;
-    if (isEnd) {
-      // TODO: handle game end
-      this.roomService.handleEndGame(this.roomGateway, room, socket);
+    const game = room.getGame();
+
+    const canHit = game.hit(position, value);
+
+    if (!canHit) {
+      // TODO: handle invalid hit
       return;
     }
-    // TODO: fix onHit not broadcast
+
     gameGateway.broadcastGameEventToMember(socket, roomID, {
       event: 'onHit',
       data: {
-        index: index,
+        position: position,
         value: value,
       },
     });
+
+    const isFinish = game.isFinish();
+    if (isFinish) {
+      // TODO: handle game end
+      this.saveGame(room);
+
+      gameGateway.broadcastGameEventToMember(
+        socket,
+        roomID,
+        {
+          event: 'onFinish',
+          data: {
+            winnerID:
+              game.getWinSide() != GameResult.Draw
+                ? room.getPlayerOfSide(game.getWinSide() as 0 | 1)
+                : null,
+            duration: game.getDuration(),
+            rankRecord: game.getRankRecord(),
+            line: game.getWinLine(),
+          },
+        },
+        true,
+      );
+      this.roomService.handleEndGame(this.roomGateway, room, socket);
+      return;
+    }
+
     gameGateway.broadcastGameEventToMember(
       socket,
       roomID,
       {
         event: 'changeTurn',
         data: {
-          currentTurnPlayerID: this.getTurn(room.getGame()),
+          turn: room.getGameTurn(),
         },
       },
       true,
     );
   }
 
-  async createGame(room: RoomModel): Promise<GameModel> {
+  async createGameEntity(room: RoomModel): Promise<GameEntity> {
     const { roomOption, players } = room;
     const { boardSize } = roomOption;
 
-    const gameEntity: GameEntity = this.gameRepository.create({
-      boardSize,
-    });
-    await this.gameRepository.save(gameEntity);
-    return new GameModel(room.roomOption, players, gameEntity);
-  }
+    const team: TeamEntity[] = await this.gameHistoryService.createTeamEntity(
+      players,
+    );
 
-  saveGame(room: RoomModel): GameModel {
-    const { roomOption, players } = room;
-    const { boardSize } = roomOption;
+    // TODO: create chat
 
     const gameEntity: GameEntity = this.gameRepository.create({
       boardSize,
+      team: team,
     });
-    return new GameModel(room.roomOption, players, gameEntity);
+    return await this.gameRepository.save(gameEntity);
   }
 
-  getTurn(game: GameModel): string {
-    const turn = game.getTurn();
-    const side: ('O' | 'X')[] = ['X', 'O'];
-    const turnSide: 'X' | 'O' = side[turn];
-    return game.getPlayers()[turnSide].id;
+  async saveGame(room: RoomModel) {
+    room.getGame().saveGameState();
   }
 }

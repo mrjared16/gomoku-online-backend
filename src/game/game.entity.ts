@@ -12,10 +12,8 @@ import {
 import { ChatChannelEntity } from '../chat/chatChannel.entity';
 import { TeamEntity } from './../gameHistory/team.entity';
 import { DEFAULT_BOARD_SIZE } from './game.constants';
-enum GameSide {
-  X,
-  O,
-}
+import { GameResult } from './game.dto';
+
 @Entity('game')
 export class GameEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -35,13 +33,6 @@ export class GameEntity {
   chat: ChatChannelEntity;
 
   @Column({
-    type: 'enum',
-    enum: GameSide,
-    nullable: true,
-  })
-  winSide!: GameSide;
-
-  @Column({
     type: 'int',
     default: DEFAULT_BOARD_SIZE,
   })
@@ -49,6 +40,13 @@ export class GameEntity {
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   start_at: Date;
+
+  @Column({
+    type: 'enum',
+    enum: GameResult,
+    nullable: true,
+  })
+  winSide: GameResult;
 
   @Column({
     nullable: true,

@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
-import { GameSide } from 'src/gameHistory/moveRecord.entity';
 import { GameService } from './../game/game.service';
 import { CreateRoomDTO, JoinRoomDTO, RoomDTO, StartGameDTO } from './room.dto';
 import { RoomGateway } from './room.gateway';
@@ -94,6 +93,7 @@ export class RoomService {
   }
 
   handleEndGame(roomGateway: RoomGateway, room: RoomModel, socket: Socket) {
+    // TODO: handle save game to database
     room.save();
     room.endGame();
     this.broadcastRoomState({
