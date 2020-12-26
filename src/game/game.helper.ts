@@ -29,7 +29,6 @@ export class GameHelper {
       return result;
     };
 
-    console.log({ board });
     let winLine: (null | GameSide)[] = [];
     let gameResult: GameResult = null;
 
