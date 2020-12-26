@@ -2,7 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './../game/game.service';
-import { CreateRoomDTO, JoinRoomDTO, RoomDTO, StartGameDTO } from './room.dto';
+import {
+  CreateRoomDTO,
+  JoinRoomDTO,
+  RoomDTO,
+  StartGameDTO,
+  JoinTableDTO,
+} from './room.dto';
 import { RoomGateway } from './room.gateway';
 import { RoomManager, RoomModel } from './room.model';
 
@@ -75,6 +81,32 @@ export class RoomService {
     if (handleJoinRoom[data.action](roomID, data)) {
       return this.roomManager.getRoom(roomID);
     }
+  }
+
+  async handleJoinTable(
+    roomGateway: RoomGateway,
+    socket: Socket,
+    data: JoinTableDTO,
+  ) {
+    const { token } = data;
+    if (!token) {
+      return;
+    }
+
+    const userInfo = await this.authService.getUser(token);
+    if (!userInfo) {
+      return;
+    }
+    const { roomID, side } = data;
+    const room = this.roomManager.getRoom(roomID);
+    const result = room.setPlayer(userInfo, side);
+    if (!result) return false;
+    roomGateway.broadcastRoomEventsToAll({
+      event: 'roomUpdated',
+      data: RoomDTO.ModelToDTO(room),
+    });
+
+    return true;
   }
 
   async handleStartGame(

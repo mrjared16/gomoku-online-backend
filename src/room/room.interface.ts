@@ -32,3 +32,10 @@ export type JoinRoomResponse = RoomDTO | never;
 export type StartGameResponse = {
   gameID: string;
 };
+
+export type JoinTableResponse = {
+  message: {
+    type: 'success' | 'error';
+    content: string;
+  };
+};

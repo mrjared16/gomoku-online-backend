@@ -8,12 +8,18 @@ import {
 import { Socket } from 'socket.io/dist/socket';
 import { Config } from 'src/shared/config';
 import { ROOM_MESSAGE } from './room.constants';
-import { CreateRoomDTO, JoinRoomDTO, StartGameDTO } from './room.dto';
+import {
+  CreateRoomDTO,
+  JoinRoomDTO,
+  JoinTableDTO,
+  StartGameDTO,
+} from './room.dto';
 import {
   BroadcastRoomEventToAllResponse,
   BroadcastRoomEventToCurrentRoomResponse,
   CreateRoomResponse,
   JoinRoomResponse,
+  JoinTableResponse,
   StartGameResponse,
 } from './room.interface';
 import { RoomService } from './room.service';
@@ -49,8 +55,33 @@ export class RoomGateway implements OnGatewayConnection {
     };
   }
 
+  @SubscribeMessage(ROOM_MESSAGE.ON_TABLE_JOIN)
+  async joinTable(
+    socket: Socket,
+    data: JoinTableDTO,
+  ): Promise<JoinTableResponse> {
+    const success = await this.roomService.handleJoinTable(this, socket, data);
+    if (success) {
+      return {
+        message: {
+          type: 'success',
+          content: '',
+        },
+      };
+    }
+    return {
+      message: {
+        type: 'error',
+        content: '',
+      },
+    };
+  }
+
   @SubscribeMessage(ROOM_MESSAGE.ON_JOIN)
-  async joinRoom(socket: Socket, data: JoinRoomDTO): Promise<JoinRoomResponse> {
+  async joinRoom(
+    socket: Socket,
+    data: JoinRoomDTO,
+  ): Promise<JoinTableResponse> {
     const updatedRoom = await this.roomService.handleUsersChanged(
       this,
       socket,

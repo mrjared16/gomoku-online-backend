@@ -1,5 +1,5 @@
 import { RoomModel } from './room.model';
-import { GomokuGamePlayer } from 'src/game/game.dto';
+import { GomokuGamePlayer, GameSide } from 'src/game/game.dto';
 import { UserDTO } from 'src/users/users.dto';
 export type RoomOption = {
   time: number;
@@ -37,6 +37,12 @@ export type JoinRoomDTO = {
   roomRequirement: RoomRequirement;
 };
 
+export type JoinTableDTO = {
+  token: string;
+  roomID: string;
+  side: GameSide;
+};
+
 export type StartGameDTO = {
   roomID: string;
 };
@@ -48,6 +54,7 @@ export class RoomDTO {
   players: GomokuGamePlayer;
   numberOfUsers: number;
   gameID: string | null;
+  users: UserDTO[];
 
   static ModelToDTO(roomModel: RoomModel): RoomDTO {
     const { id, host, roomOption, players, users, gameID } = roomModel;
@@ -58,6 +65,7 @@ export class RoomDTO {
       players,
       numberOfUsers: users.length,
       gameID: gameID,
+      users,
     };
   }
 }

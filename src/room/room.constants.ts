@@ -5,6 +5,7 @@ export const ROOM_MESSAGE = {
   ON_JOIN: 'join',
   ON_CREATE: 'create',
   ON_START: 'start',
+  ON_TABLE_JOIN: 'joinTable',
   BROADCAST_ALL: 'waitingRoomEventMsg',
   BROADCAST_ROOM: 'roomEventMsg',
 };
