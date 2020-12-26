@@ -73,7 +73,7 @@ export class GameService {
     const isFinish = game.isFinish();
     if (isFinish) {
       // TODO: handle game end
-      this.saveGame(room);
+      await this.saveGame(room);
 
       gameGateway.broadcastGameEventToMember(
         socket,
@@ -128,5 +128,7 @@ export class GameService {
 
   async saveGame(room: RoomModel) {
     room.getGame().saveGameState();
+    this.gameHistoryService.saveGame(room);
+    await this.gameRepository.save(room.getGame().getGameEntity());
   }
 }

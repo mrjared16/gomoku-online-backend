@@ -15,14 +15,6 @@ export class MoveRecordDTO {
     const { id, value, position, created_at } = moveEntity;
     return { id, position, value, time: created_at };
   }
-  static DTOToEntity(moveDTO: MoveRecordDTO): MoveRecordEntity {
-    const { id, position, value, time } = moveDTO;
-    return getRepository(MoveRecordEntity).create({
-      position,
-      value,
-      created_at: time,
-    });
-  }
 }
 
 export class RankRecordDTO {
