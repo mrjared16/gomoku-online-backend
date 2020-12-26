@@ -1,3 +1,4 @@
+import { GameHelper } from './game.helper';
 import { GameSide, GomokuGamePlayer } from 'src/game/game.dto';
 import { GameEntity } from 'src/game/game.entity';
 import { MoveRecordDTO, RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
@@ -10,14 +11,14 @@ export class GameModel {
     private gameEntity: GameEntity,
   ) {
     const { boardSize, time } = gameOption;
-    this.board = new Array(boardSize * boardSize).fill(-1);
+    this.board = new Array(boardSize * boardSize).fill(null);
     this.boardSize = boardSize;
     this.time = time;
     this.turn = GameSide.X;
     this.remainingTime = this.time;
     this.moves = [];
     this.winLine = [];
-    this.winSide = null;
+    this.gameResult = null;
   }
 
   boardSize: number;
@@ -30,7 +31,7 @@ export class GameModel {
 
   public board: (null | GameSide)[];
   private winLine: number[];
-  private winSide: GameResult;
+  private gameResult: GameResult;
 
   hit(position: number, value: GameSide): boolean {
     if (!this.isValidHit(position, value)) {
@@ -67,71 +68,12 @@ export class GameModel {
   }
 
   isFinish(): boolean {
-    let isWon = false;
-    const numberOfWinLine = 5;
-    const direction = [
-      [-1, -1],
-      [-1, 0],
-      [-1, 1],
-      [0, -1],
-      [0, 1],
-      [1, -1],
-      [1, 0],
-      [1, 1],
-    ];
-    const getValue = (i, j) => {
-      const value = this.board[i * this.boardSize + j];
-      return value;
-    };
-    const isValid = (i, j) => {
-      const result =
-        i >= 0 &&
-        i < this.boardSize &&
-        j >= 0 &&
-        j < this.boardSize &&
-        getValue(i, j) != -1;
-      return result;
-    };
-    for (let i = 0; i < this.boardSize; i++) {
-      for (let j = 0; j < this.boardSize; j++) {
-        if (getValue(i, j) === -1) {
-          continue;
-        }
-        const currentPlayer = getValue(i, j);
-        direction.forEach(([row, col]) => {
-          const currentLine = [i * this.boardSize + j];
-          for (let k = 1; k < numberOfWinLine; k++) {
-            const [nextX, nextY] = [i + row * k, j + col * k];
-            if (
-              !isValid(nextX, nextY) ||
-              getValue(nextX, nextY) != currentPlayer
-            ) {
-              return;
-            }
-            currentLine.push(nextX * this.boardSize + nextY);
-          }
-          const isValidTop = isValid(i + row * -1, j + col * -1);
-          const top = getValue(i + row * -1, j + col * -1);
-          const isValidBot = isValid(
-            i + row * numberOfWinLine,
-            j + col * numberOfWinLine,
-          );
-          const bot = getValue(
-            i + row * numberOfWinLine,
-            j + col * numberOfWinLine,
-          );
-          const isBlockTop = isValidTop && top != currentPlayer;
-          const isBlockBot = isValidBot && bot != currentPlayer;
-          if (!isBlockBot || !isBlockTop) {
-            isWon = true;
-            this.winLine = [...currentLine];
-            this.winSide = currentPlayer as 0 | 1;
-          }
-        });
-        if (isWon) {
-          return true;
-        }
-      }
+    const gameResult = GameHelper.isFinish(this.board, this.boardSize);
+    if (gameResult.status == 'finish') {
+      const { result, winLine } = gameResult;
+      this.gameResult = result;
+      this.winLine = winLine;
+      return true;
     }
     return false;
   }
@@ -167,27 +109,26 @@ export class GameModel {
   getRankRecord(): RankRecordDTO[] {
     return [];
   }
+
   getWinLine(): number[] {
     return this.winLine;
   }
-  getWinSide(): GameResult {
-    return this.winSide;
-  }
-  saveGameState() {
-    // save moves
-    this.gameEntity.moves = this.moves.map((moveDTO) =>
-      MoveRecordDTO.DTOToEntity(moveDTO),
-    );
 
+  getWinSide(): GameResult {
+    return this.gameResult;
+  }
+
+  getGameEntity(): GameEntity {
+    return this.gameEntity;
+  }
+
+  saveGameState() {
     // save result
-    this.gameEntity.winSide = this.winSide;
+    this.gameEntity.gameResult = this.gameResult;
 
     // save duration
     this.gameEntity.duration =
       (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
     console.log({ gameEntity: this.gameEntity });
-
-    // TODO: save chat
-    // TODO: save rank records
   }
 }
