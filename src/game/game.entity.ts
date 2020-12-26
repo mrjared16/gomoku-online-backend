@@ -19,16 +19,16 @@ export class GameEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToMany(() => TeamEntity, (team) => team.game)
+  @OneToMany(() => TeamEntity, (team) => team.game, { cascade: true })
   team: TeamEntity[];
 
-  @OneToMany(() => MoveRecordEntity, (move) => move.game)
+  @OneToMany(() => MoveRecordEntity, (move) => move.game, { cascade: true })
   moves: MoveRecordEntity[];
 
-  @OneToMany(() => RankRecordEntity, (record) => record.game)
+  @OneToMany(() => RankRecordEntity, (record) => record.game, { cascade: true })
   rankRecords: RankRecordEntity[];
 
-  @OneToOne(() => ChatChannelEntity, (chat) => chat.game)
+  @OneToOne(() => ChatChannelEntity, (chat) => chat.game, { cascade: true })
   @JoinColumn()
   chat: ChatChannelEntity;
 
@@ -46,10 +46,11 @@ export class GameEntity {
     enum: GameResult,
     nullable: true,
   })
-  winSide: GameResult;
+  gameResult: GameResult;
 
   @Column({
     nullable: true,
+    type: 'float',
   })
   duration: number;
 }

@@ -9,7 +9,7 @@ export class MoveRecordEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity, (user) => user.rankRecords)
+  @ManyToOne(() => UserEntity, (user) => user.rankRecords, { cascade: true })
   user: UserEntity;
 
   @ManyToOne(() => GameEntity, (game) => game.moves)
