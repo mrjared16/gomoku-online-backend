@@ -30,6 +30,11 @@ export class RoomManager {
     return newRoom;
   }
 
+  removeRoom(roomID: string): boolean {
+    this.map.delete(roomID);
+    return true;
+  }
+
   getRooms(): RoomModel[] {
     return Array.from(this.map.values());
   }
@@ -77,6 +82,11 @@ export class RoomModel {
     if (!isExist) {
       this.users.push(user);
     }
+    return true;
+  }
+
+  removeUser(userId: string): boolean {
+    this.users = this.users.filter((user) => user.id !== userId);
     return true;
   }
 

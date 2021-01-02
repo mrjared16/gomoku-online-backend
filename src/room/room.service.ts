@@ -52,7 +52,7 @@ export class RoomService {
     requestData: JoinRoomDTO,
   ) {
     const handleJoinRoom = {
-      join: async (roomID: string, data: JoinRoomDTO) => {
+      join: async (roomID: string, data: JoinRoomDTO, userInfo: UserDTO) => {
         if (data.action !== 'join') {
           return;
         }
@@ -68,6 +68,28 @@ export class RoomService {
         this.broadcastRoomState({ roomGateway, roomID, socket });
         return this.roomManager.getRoom(roomID);
       },
+      leave: async (roomID: string, data: JoinRoomDTO, userInfo: UserDTO) => {
+        if (data.action !== 'leave') {
+          return;
+        }
+        console.log(`${userInfo.username} leaved room ${roomID}`);
+        await socket.leave(roomID);
+        const room = this.roomManager.getRoom(roomID);
+        if (room.isHost(userInfo)) {
+          if (this.roomManager.removeRoom(roomID)) {
+            this.broadcastRoomState({ roomGateway, roomID, socket });
+          }
+          return;
+        }
+        room.removeUser(userInfo.id);
+        this.broadcastRoomState({ roomGateway, roomID, socket });
+      },
+      kick: async (roomID: string, data: JoinRoomDTO, userInfo: UserDTO) => {
+        if (data.action !== 'kick') {
+          return;
+        }
+        console.log(`${userInfo.username} is kicked out of room ${roomID}`);
+      },
     };
     const { data } = requestData;
     const { token } = data;
@@ -82,7 +104,7 @@ export class RoomService {
 
     const { roomID } = data;
 
-    return handleJoinRoom[requestData.action](roomID, requestData);
+    return handleJoinRoom[requestData.action](roomID, requestData, userInfo);
   }
 
   async handleJoinTable(
@@ -195,20 +217,26 @@ export class RoomService {
     roomID: string;
   }) {
     const room = this.roomManager.getRoom(roomID);
+    const data = !!room
+      ? RoomDTO.ModelToDTO(room)
+      : {
+          id: roomID,
+          host: null,
+        };
     // broadcast to current room
     roomGateway.broadcastRoomEventToMember(
       socket,
       roomID,
       {
         event: 'roomUpdated',
-        data: RoomDTO.ModelToDTO(room),
+        data,
       },
       true,
     );
     // broadcast to waiting room
     roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',
-      data: RoomDTO.ModelToDTO(room),
+      data,
     });
   }
 

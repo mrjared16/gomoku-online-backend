@@ -4,7 +4,12 @@ import { RoomModel } from './room.model';
 
 export class BroadcastRoomEventToAllResponse {
   event: 'roomUpdated';
-  data: RoomDTO;
+  data:
+    | RoomDTO
+    | {
+        id: string;
+        host: null;
+      };
 }
 
 export type BroadcastRoomEventToCurrentRoomResponse =
@@ -14,7 +19,12 @@ export type BroadcastRoomEventToCurrentRoomResponse =
     }
   | {
       event: 'roomUpdated';
-      data: RoomDTO;
+      data:
+        | RoomDTO
+        | {
+            id: string;
+            host: null;
+          };
     };
 
 export class AllRoomResponse {
