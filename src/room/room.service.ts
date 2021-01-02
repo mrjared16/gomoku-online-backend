@@ -49,23 +49,27 @@ export class RoomService {
   async handleUsersChanged(
     roomGateway: RoomGateway,
     socket: Socket,
-    data: JoinRoomDTO,
+    requestData: JoinRoomDTO,
   ) {
     const handleJoinRoom = {
-      join: (roomID: string, data: JoinRoomDTO): boolean => {
-        const { roomRequirement } = data;
+      join: async (roomID: string, data: JoinRoomDTO) => {
+        if (data.action !== 'join') {
+          return;
+        }
+
+        const { roomRequirement } = data.data;
         if (
           !this.roomManager.getRoom(roomID).addUser(userInfo, roomRequirement)
         ) {
           // TODO: handle not able to join room (not meet requirement or server error)
-          return false;
+          return;
         }
-
+        await socket.join(roomID);
         this.broadcastRoomState({ roomGateway, roomID, socket });
-        return true;
+        return this.roomManager.getRoom(roomID);
       },
     };
-
+    const { data } = requestData;
     const { token } = data;
     if (!token) {
       return;
@@ -77,11 +81,8 @@ export class RoomService {
     }
 
     const { roomID } = data;
-    await socket.join(roomID);
 
-    if (handleJoinRoom[data.action](roomID, data)) {
-      return this.roomManager.getRoom(roomID);
-    }
+    return handleJoinRoom[requestData.action](roomID, requestData);
   }
 
   async handleJoinTable(
