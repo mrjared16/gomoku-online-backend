@@ -97,14 +97,15 @@ export class RoomService {
     if (!userInfo) {
       return;
     }
+
     const { roomID, side } = data;
     const room = this.roomManager.getRoom(roomID);
+
     const result = room.setPlayer(userInfo, side);
+
     if (!result) return false;
-    roomGateway.broadcastRoomEventsToAll({
-      event: 'roomUpdated',
-      data: RoomDTO.ModelToDTO(room),
-    });
+
+    this.broadcastRoomState({ roomGateway, roomID, socket });
 
     return true;
   }

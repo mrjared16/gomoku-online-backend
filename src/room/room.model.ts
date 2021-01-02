@@ -50,6 +50,8 @@ export class RoomModel {
       X: null,
       O: null,
     };
+
+    this.joinedPlayer = [];
     this.users = [];
     this.gameID = null;
   }
@@ -60,6 +62,7 @@ export class RoomModel {
 
   public players: GomokuGamePlayer;
   users: UserDTO[];
+  joinedPlayer: { user: UserDTO; side: GameSide }[];
 
   public gameID: string | null;
   private gameModel: GameModel;
@@ -73,30 +76,47 @@ export class RoomModel {
     const isExist = this.users.some((inRoomUser) => inRoomUser.id === user.id);
     if (!isExist) {
       this.users.push(user);
-      // TO DO: game ready manual
-      if (!this.players.X) {
-        this.players.X = user;
-      } else if (!this.players.O) {
-        this.players.O = user;
-      }
     }
     return true;
   }
 
-  setPlayer(user: UserDTO, gameSide: GameSide): boolean {
-    //TODO: refactor gameside
-    if (this.players[gameSide.toString()]) return false;
-    this.players[gameSide.toString()] = user;
+  resetPlayer() {
+    this.players = {
+      X: null,
+      O: null,
+    };
+    this.joinedPlayer.forEach(({ user, side }) => {
+      const gameSide = side == GameSide.X ? 'X' : 'O';
+      this.players[gameSide] = user;
+    });
+  }
+
+  setPlayer(newUser: UserDTO, gameSide: GameSide): boolean {
+    // full
+    if (this.joinedPlayer.length + 1 > 2) {
+      return false;
+    }
+
+    // already taken
+    if (this.joinedPlayer.some(({ side }) => side == gameSide)) {
+      return false;
+    }
+
+    this.joinedPlayer = this.joinedPlayer
+      .filter(({ user }) => user.id !== newUser.id)
+      .concat({ user: newUser, side: gameSide });
+    this.resetPlayer();
     return true;
   }
 
-  kickPlayer(user: UserDTO): boolean {
-    // TODO: refactor
-    const gameSide = [GameSide.O.toString(), GameSide.X.toString()].find(
-      (team: 'X' | 'O') => this.players[team].id === user.id,
+  kickPlayer(newUser: UserDTO): boolean {
+    if (this.joinedPlayer.length === 0) {
+      return false;
+    }
+    this.joinedPlayer = this.joinedPlayer.filter(
+      ({ user }) => user.id !== newUser.id,
     );
-    if (!gameSide) return false;
-    this.players[gameSide] = null;
+    this.resetPlayer();
     return true;
   }
 
