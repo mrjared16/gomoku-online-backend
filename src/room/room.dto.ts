@@ -37,11 +37,30 @@ export type JoinRoomDTO = {
   roomRequirement: RoomRequirement;
 };
 
-export type JoinTableDTO = {
-  token: string;
-  roomID: string;
-  side: GameSide;
-};
+export type JoinTableDTO =
+  | {
+      action: 'join';
+      data: {
+        token: string;
+        roomID: string;
+        side: GameSide;
+      };
+    }
+  | {
+      action: 'leave';
+      data: {
+        token: string;
+        roomID: string;
+      };
+    }
+  | {
+      action: 'kick';
+      data: {
+        token: string;
+        roomID: string;
+        playerId: string;
+      };
+    };
 
 export type StartGameDTO = {
   roomID: string;

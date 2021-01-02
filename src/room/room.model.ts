@@ -102,19 +102,26 @@ export class RoomModel {
       return false;
     }
 
-    this.joinedPlayer = this.joinedPlayer
-      .filter(({ user }) => user.id !== newUser.id)
-      .concat({ user: newUser, side: gameSide });
+    let newJoinedPlayer = this.joinedPlayer.filter(
+      ({ user }) => user.id !== newUser.id,
+    );
+    if (gameSide != null) {
+      newJoinedPlayer = newJoinedPlayer.concat({
+        user: newUser,
+        side: gameSide,
+      });
+    }
+    this.joinedPlayer = newJoinedPlayer;
     this.resetPlayer();
     return true;
   }
 
-  kickPlayer(newUser: UserDTO): boolean {
+  kickPlayer(playerId: string): boolean {
     if (this.joinedPlayer.length === 0) {
       return false;
     }
     this.joinedPlayer = this.joinedPlayer.filter(
-      ({ user }) => user.id !== newUser.id,
+      ({ user }) => user.id !== playerId,
     );
     this.resetPlayer();
     return true;
@@ -152,5 +159,9 @@ export class RoomModel {
     const side: ('O' | 'X')[] = ['X', 'O'];
     const turnSide: 'X' | 'O' = side[gameSide];
     return this.gameModel.getPlayers()[turnSide].id;
+  }
+
+  isHost(userDTO: UserDTO) {
+    return userDTO.id === this.host.id;
   }
 }

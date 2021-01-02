@@ -1,3 +1,4 @@
+import { UserDTO } from './../users/users.dto';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
@@ -86,8 +87,62 @@ export class RoomService {
   async handleJoinTable(
     roomGateway: RoomGateway,
     socket: Socket,
-    data: JoinTableDTO,
+    requestData: JoinTableDTO,
   ) {
+    const handleJoinTable = {
+      join: (
+        room: RoomModel,
+        data: JoinTableDTO,
+        userInfo: UserDTO,
+      ): boolean => {
+        if (data.action !== 'join') {
+          return;
+        }
+        const { side } = data.data;
+        const result = room.setPlayer(userInfo, side);
+
+        if (!result) return false;
+
+        this.broadcastRoomState({ roomGateway, roomID, socket });
+        return true;
+      },
+      leave: (
+        room: RoomModel,
+        data: JoinTableDTO,
+        userInfo: UserDTO,
+      ): boolean => {
+        if (data.action !== 'leave') {
+          return;
+        }
+        const result = room.setPlayer(userInfo, null);
+
+        if (!result) return false;
+
+        this.broadcastRoomState({ roomGateway, roomID, socket });
+        return true;
+      },
+      kick: (
+        room: RoomModel,
+        data: JoinTableDTO,
+        userInfo: UserDTO,
+      ): boolean => {
+        if (data.action !== 'kick') {
+          return;
+        }
+        if (!room.isHost(userInfo)) {
+          return false;
+        }
+        const { playerId } = data.data;
+        const result = room.kickPlayer(playerId);
+
+        if (!result) return false;
+
+        this.broadcastRoomState({ roomGateway, roomID, socket });
+        return true;
+      },
+    };
+
+    const { data, action } = requestData;
     const { token } = data;
     if (!token) {
       return;
@@ -98,16 +153,9 @@ export class RoomService {
       return;
     }
 
-    const { roomID, side } = data;
+    const { roomID } = data;
     const room = this.roomManager.getRoom(roomID);
-
-    const result = room.setPlayer(userInfo, side);
-
-    if (!result) return false;
-
-    this.broadcastRoomState({ roomGateway, roomID, socket });
-
-    return true;
+    return handleJoinTable[action](room, requestData, userInfo);
   }
 
   async handleStartGame(
