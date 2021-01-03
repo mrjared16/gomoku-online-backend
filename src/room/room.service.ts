@@ -287,7 +287,8 @@ export class RoomService {
   ) {
     const { roomID } = data;
     const room = this.roomManager.getRoom(data.roomID);
-
+    this.waitingRoomService.onUserPlayGame(room.players.X.username);
+    this.waitingRoomService.onUserPlayGame(room.players.O.username);
     await room.startGame(this.gameService);
     this.broadcastRoomState({ roomGateway, socket, roomID });
     // console.log({ data, room });
@@ -296,6 +297,9 @@ export class RoomService {
   }
 
   handleEndGame(roomGateway: RoomGateway, room: RoomModel, socket: Socket) {
+    // TODO: remove game status in socket manager
+    this.waitingRoomService.onUserLeaveGame(room.players.X.username);
+    this.waitingRoomService.onUserLeaveGame(room.players.O.username);
     // TODO: handle save game to database
     room.save();
     room.endGame();

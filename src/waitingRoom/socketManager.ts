@@ -56,18 +56,25 @@ export class SocketManager {
     const { id } = client;
     const isExist = this.map.has(username);
     const socket = [...(isExist ? this.map.get(username).socket : []), id];
-
-    this.map.set(username, {
-      user: userData,
-      socket,
-      roomID: null,
-      isPlayingGame: false,
-    });
+    const old = this.map.get(username);
+    if (isExist) {
+      this.map.set(username, {
+        ...old,
+        socket: socket,
+      });
+    } else {
+      this.map.set(username, {
+        user: userData,
+        socket,
+        roomID: null,
+        isPlayingGame: false,
+      });
+    }
 
     return !isExist;
   }
 
-  removeUser(userData: UserDTO, client: Socket): boolean {
+  removeUser(userData: UserDTO, client: Socket, isRemoved: boolean): boolean {
     const { username } = userData;
     const { id } = client;
 
@@ -81,8 +88,9 @@ export class SocketManager {
       });
       return false;
     }
-
-    this.map.delete(username);
+    if (isRemoved) {
+      this.map.delete(username);
+    }
     return true;
   }
 

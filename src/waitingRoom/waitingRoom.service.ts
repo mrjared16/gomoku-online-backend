@@ -45,7 +45,8 @@ export class WaitingRoomService {
     userDTO: UserDTO,
   ) => {
     const userStatus = this.socketManager.getUserStatus(userDTO.username);
-    if (userStatus.isPlayingGame && userStatus.roomID) {
+    // console.log({ userStatus });
+    if (userStatus?.isPlayingGame && userStatus?.roomID) {
       connection.emit(WaitingRoomMessage.RECONNECT, {
         roomID: userStatus.roomID,
       });
@@ -69,15 +70,17 @@ export class WaitingRoomService {
     connection: Socket,
     userDTO: UserDTO,
   ) => {
-    const userStatus = this.getUserStatus(userDTO.username);
-    if (!userStatus.isPlayingGame || !userStatus.roomID) {
-      if (!this.socketManager.removeUser(userDTO, connection)) {
-        return;
-      }
-    }
+    const userStatus = { ...this.getUserStatus(userDTO.username) };
     if (userStatus.roomID) {
       this.roomService.handleUserDisconnect(userStatus.roomID, userStatus.user);
     }
+    const isPlaying = !!userStatus.isPlayingGame && !!userStatus.roomID;
+    const isRemoved = !isPlaying;
+    // console.log({ userStatus });
+    if (!this.socketManager.removeUser(userDTO, connection, isRemoved)) {
+      return;
+    }
+
     waitingRoomGateWay.broadcastUserEvent(
       {
         user: userDTO,
