@@ -29,8 +29,8 @@ export type JoinDTO = {
 };
 
 export type GomokuGamePlayer = {
-  X: UserDTO | null;
-  O: UserDTO | null;
+  X: (UserDTO & { online: boolean }) | null;
+  O: (UserDTO & { online: boolean }) | null;
 };
 
 export enum GameSide {

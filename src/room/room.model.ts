@@ -1,7 +1,6 @@
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io/dist/socket';
 import { GameSide, GomokuGamePlayer, Turn } from 'src/game/game.dto';
-import { GameEntity } from 'src/game/game.entity';
 import { GameModel } from 'src/game/game.model';
 import { UserDTO } from 'src/users/users.dto';
 import { GameService } from './../game/game.service';
@@ -67,7 +66,11 @@ export class RoomModel {
 
   public players: GomokuGamePlayer;
   users: UserDTO[];
-  joinedPlayer: { user: UserDTO; side: GameSide }[];
+  joinedPlayer: {
+    user: UserDTO;
+    side: GameSide;
+    online: boolean;
+  }[];
 
   public gameID: string | null;
   private gameModel: GameModel;
@@ -81,6 +84,13 @@ export class RoomModel {
     const isExist = this.users.some((inRoomUser) => inRoomUser.id === user.id);
     if (!isExist) {
       this.users.push(user);
+
+      const isReconnect = this.joinedPlayer.some(
+        (joinedPlayer) => joinedPlayer.user.id === user.id,
+      );
+      if (isReconnect) {
+        this.setPlayerOnlineStatus(user.id, true);
+      }
     }
     return true;
   }
@@ -90,14 +100,35 @@ export class RoomModel {
     return true;
   }
 
+  removePlayer(userId: string) {
+    this.joinedPlayer = this.joinedPlayer.filter(
+      ({ user }) => user.id === userId,
+    );
+    this.resetPlayer();
+  }
+
+  setPlayerOnlineStatus(userId: string, onlineStatus: boolean) {
+    this.joinedPlayer = this.joinedPlayer.map((joinedPlayer) => {
+      const { user } = joinedPlayer;
+      if (user.id !== userId) {
+        return joinedPlayer;
+      }
+      return {
+        ...joinedPlayer,
+        online: onlineStatus,
+      };
+    });
+    this.resetPlayer();
+  }
+
   resetPlayer() {
     this.players = {
       X: null,
       O: null,
     };
-    this.joinedPlayer.forEach(({ user, side }) => {
+    this.joinedPlayer.forEach(({ user, side, online }) => {
       const gameSide = side == GameSide.X ? 'X' : 'O';
-      this.players[gameSide] = user;
+      this.players[gameSide] = { ...user, online };
     });
   }
 
@@ -119,6 +150,7 @@ export class RoomModel {
       newJoinedPlayer = newJoinedPlayer.concat({
         user: newUser,
         side: gameSide,
+        online: true,
       });
     }
     this.joinedPlayer = newJoinedPlayer;
@@ -173,5 +205,9 @@ export class RoomModel {
 
   isHost(userDTO: UserDTO) {
     return userDTO.id === this.host.id;
+  }
+
+  isPlayer(userInfo: UserDTO) {
+    return this.joinedPlayer.some(({ user }) => user.id === userInfo.id);
   }
 }
