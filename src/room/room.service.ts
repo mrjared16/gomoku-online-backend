@@ -1,5 +1,6 @@
+import { WaitingRoomService } from './../waitingRoom/waitingRoom.service';
 import { UserDTO } from './../users/users.dto';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './../game/game.service';
@@ -19,6 +20,10 @@ export class RoomService {
     private authService: AuthService,
     private roomManager: RoomManager,
     private gameService: GameService,
+    @Inject(forwardRef(() => WaitingRoomService))
+    private waitingRoomService: WaitingRoomService,
+    @Inject(forwardRef(() => RoomGateway))
+    private roomGateway: RoomGateway,
   ) {}
 
   async handleCreateRoom(
@@ -35,6 +40,12 @@ export class RoomService {
     if (!userInfo) {
       return;
     }
+    const userStatus = this.waitingRoomService.getUserStatus(userInfo.username);
+    if (userStatus.roomID) {
+      // already in a room
+      return;
+    }
+
     const newRoom = this.roomManager.addNewRoom(userInfo, socket);
     roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',
@@ -44,6 +55,54 @@ export class RoomService {
     return {
       roomID: newRoom.id,
     };
+  }
+  async handleUserDisconnect(roomID: string, userInfo: UserDTO) {
+    const room = this.roomManager.getRoom(roomID);
+    if (room.getGame() && room.isPlayer(userInfo)) {
+      room.setPlayerOnlineStatus(userInfo.id, false);
+      this.broadcastRoomState({
+        roomGateway: this.roomGateway,
+        roomID,
+        socket: null,
+      });
+      return;
+    }
+
+    if (room.isHost(userInfo)) {
+      // only remove room when game hasn't started
+      if (room.getGame()) {
+        room.removeUser(userInfo.id);
+        this.broadcastRoomState({
+          roomGateway: this.roomGateway,
+          roomID,
+          socket: null,
+        });
+        return;
+      }
+      this.waitingRoomService.onUserLeaveRoom(userInfo.username);
+      const success = this.roomManager.removeRoom(roomID);
+      if (success) {
+        this.broadcastRoomState({
+          roomGateway: this.roomGateway,
+          roomID,
+          socket: null,
+        });
+      }
+      return;
+    }
+
+    room.removeUser(userInfo.id);
+
+    this.waitingRoomService.onUserLeaveRoom(userInfo.username);
+    if (room.isPlayer(userInfo)) {
+      room.removePlayer(userInfo.id);
+    }
+
+    this.broadcastRoomState({
+      roomGateway: this.roomGateway,
+      roomID,
+      socket: null,
+    });
   }
 
   async handleUsersChanged(
@@ -56,34 +115,70 @@ export class RoomService {
         if (data.action !== 'join') {
           return;
         }
+        const userStatus = this.waitingRoomService.getUserStatus(
+          userInfo.username,
+        );
+
+        if (userStatus.roomID && userStatus.roomID !== roomID) {
+          // already in a room
+          return;
+        }
 
         const { roomRequirement } = data.data;
-        if (
-          !this.roomManager.getRoom(roomID).addUser(userInfo, roomRequirement)
-        ) {
+        const room = this.roomManager.getRoom(roomID);
+        if (!room.addUser(userInfo, roomRequirement)) {
           // TODO: handle not able to join room (not meet requirement or server error)
           return;
         }
         await socket.join(roomID);
+
+        if (!userStatus.roomID) {
+          this.waitingRoomService.onUserJoinRoom(userInfo.username, roomID);
+        }
+
         this.broadcastRoomState({ roomGateway, roomID, socket });
         return this.roomManager.getRoom(roomID);
       },
+
       leave: async (roomID: string, data: JoinRoomDTO, userInfo: UserDTO) => {
         if (data.action !== 'leave') {
           return;
         }
+
         console.log(`${userInfo.username} leaved room ${roomID}`);
-        await socket.leave(roomID);
+
         const room = this.roomManager.getRoom(roomID);
+        if (room.getGame() && room.isPlayer(userInfo)) {
+          // TODO: defwin
+          return;
+        }
         if (room.isHost(userInfo)) {
-          if (this.roomManager.removeRoom(roomID)) {
+          // only remove room when game hasn't started
+          await socket.leave(roomID);
+          if (room.getGame()) {
+            room.removeUser(userInfo.id);
+            this.broadcastRoomState({ roomGateway, roomID, socket });
+            return;
+          }
+          this.waitingRoomService.onUserLeaveRoom(userInfo.username);
+          const success = this.roomManager.removeRoom(roomID);
+          if (success) {
             this.broadcastRoomState({ roomGateway, roomID, socket });
           }
           return;
         }
+
+        await socket.leave(roomID);
+
         room.removeUser(userInfo.id);
+        this.waitingRoomService.onUserLeaveRoom(userInfo.username);
+        if (room.isPlayer(userInfo)) {
+          room.removePlayer(userInfo.id);
+        }
+
         this.broadcastRoomState({ roomGateway, roomID, socket });
       },
+
       kick: async (roomID: string, data: JoinRoomDTO, userInfo: UserDTO) => {
         if (data.action !== 'kick') {
           return;
