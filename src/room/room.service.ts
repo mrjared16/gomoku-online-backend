@@ -79,7 +79,6 @@ export class RoomService {
         });
         return;
       }
-      this.waitingRoomService.onUserLeaveRoom(userInfo.username);
       const success = this.roomManager.removeRoom(roomID);
       if (success) {
         this.broadcastRoomState({
@@ -93,7 +92,6 @@ export class RoomService {
 
     room.removeUser(userInfo.id);
 
-    this.waitingRoomService.onUserLeaveRoom(userInfo.username);
     if (room.isPlayer(userInfo)) {
       room.removePlayer(userInfo.id);
     }
@@ -126,7 +124,13 @@ export class RoomService {
 
         const { roomRequirement } = data.data;
         const room = this.roomManager.getRoom(roomID);
-        if (!room.addUser(userInfo, roomRequirement)) {
+        if (!room) {
+          // TODO: handle room not found
+          // room not found
+          return;
+        }
+        const addUserResponse = room.addUser(userInfo, roomRequirement);
+        if (!addUserResponse) {
           // TODO: handle not able to join room (not meet requirement or server error)
           return;
         }

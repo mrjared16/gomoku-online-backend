@@ -102,7 +102,7 @@ export class RoomModel {
 
   removePlayer(userId: string) {
     this.joinedPlayer = this.joinedPlayer.filter(
-      ({ user }) => user.id === userId,
+      ({ user }) => user.id !== userId,
     );
     this.resetPlayer();
   }
