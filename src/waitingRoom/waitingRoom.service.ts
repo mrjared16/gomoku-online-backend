@@ -1,13 +1,20 @@
+import { RoomService } from './../room/room.service';
+import { WaitingRoomMessage } from './waitingRoom.constants';
 import { WaitingRoomGateway } from './waitingRoom.gateway';
 import { Socket } from 'socket.io';
 import { UserDTO } from 'src/users/users.dto';
-import { Injectable } from '@nestjs/common';
+import { forwardRef, Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { SocketManager } from './socketManager';
+import { Inject } from '@nestjs/common/decorators/core/inject.decorator';
 
 @Injectable()
 export class WaitingRoomService {
-  constructor(private authService: AuthService) {}
+  constructor(
+    private authService: AuthService,
+    @Inject(forwardRef(() => RoomService))
+    private roomService: RoomService,
+  ) {}
   socketManager: SocketManager = new SocketManager();
 
   handleOnAnonymousConnect = (
@@ -37,10 +44,15 @@ export class WaitingRoomService {
     connection: Socket,
     userDTO: UserDTO,
   ) => {
+    const userStatus = this.socketManager.getUserStatus(userDTO.username);
+    if (userStatus.isPlayingGame && userStatus.roomID) {
+      connection.emit(WaitingRoomMessage.RECONNECT, {
+        roomID: userStatus.roomID,
+      });
+    }
     if (!this.socketManager.addUser(userDTO, connection)) {
       return;
     }
-
     waitingRoomGateWay.broadcastUserEvent(
       {
         user: userDTO,
@@ -57,10 +69,15 @@ export class WaitingRoomService {
     connection: Socket,
     userDTO: UserDTO,
   ) => {
-    if (!this.socketManager.removeUser(userDTO, connection)) {
-      return;
+    const userStatus = this.getUserStatus(userDTO.username);
+    if (!userStatus.isPlayingGame || !userStatus.roomID) {
+      if (!this.socketManager.removeUser(userDTO, connection)) {
+        return;
+      }
     }
-
+    if (userStatus.roomID) {
+      this.roomService.handleUserDisconnect(userStatus.roomID, userStatus.user);
+    }
     waitingRoomGateWay.broadcastUserEvent(
       {
         user: userDTO,
@@ -100,5 +117,25 @@ export class WaitingRoomService {
 
   getUsers() {
     return this.socketManager.getUsers();
+  }
+
+  onUserJoinRoom(username: string, roomID: string) {
+    this.socketManager.setUserStatus(username, { roomID });
+  }
+
+  onUserLeaveRoom(username: string) {
+    this.socketManager.setUserStatus(username, { roomID: null });
+  }
+
+  onUserPlayGame(username: string) {
+    this.socketManager.setUserStatus(username, { isPlayingGame: true });
+  }
+
+  onUserLeaveGame(username: string) {
+    this.socketManager.setUserStatus(username, { isPlayingGame: false });
+  }
+
+  getUserStatus(username: string) {
+    return this.socketManager.getUserStatus(username);
   }
 }

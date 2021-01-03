@@ -3,7 +3,12 @@ import { UserDTO } from 'src/users/users.dto';
 
 export class SocketManager {
   constructor() {
-    this.map.set('', { user: null, socket: [] });
+    this.map.set('', {
+      user: null,
+      socket: [],
+      roomID: null,
+      isPlayingGame: false,
+    });
   }
 
   map: Map<
@@ -11,6 +16,8 @@ export class SocketManager {
     {
       user: UserDTO | null;
       socket: string[];
+      roomID: string;
+      isPlayingGame: boolean;
     }
   > = new Map();
 
@@ -26,6 +33,8 @@ export class SocketManager {
     this.map.set('', {
       user: null,
       socket,
+      roomID: null,
+      isPlayingGame: false,
     });
   }
 
@@ -37,6 +46,8 @@ export class SocketManager {
     this.map.set('', {
       user: null,
       socket: newSocket,
+      roomID: null,
+      isPlayingGame: false,
     });
   }
 
@@ -49,6 +60,8 @@ export class SocketManager {
     this.map.set(username, {
       user: userData,
       socket,
+      roomID: null,
+      isPlayingGame: false,
     });
 
     return !isExist;
@@ -73,8 +86,28 @@ export class SocketManager {
     return true;
   }
 
+  setUserStatus(
+    username: string,
+    userStatus: { roomID?: string; isPlayingGame?: boolean },
+  ) {
+    const current = this.map.get(username);
+    if (userStatus.roomID !== undefined) {
+      current.roomID = userStatus.roomID;
+    }
+    if (userStatus.isPlayingGame !== undefined) {
+      current.isPlayingGame = userStatus.isPlayingGame;
+    }
+    this.map.set(username, {
+      ...current,
+    });
+  }
+
   didUserOnlineAlready(userData: UserDTO): boolean {
     const { username } = userData;
     return this.map.has(username);
+  }
+
+  getUserStatus(username: string) {
+    return this.map.get(username);
   }
 }
