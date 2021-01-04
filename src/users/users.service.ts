@@ -57,10 +57,17 @@ export class UserService {
   }
 
   async getUser(id: string): Promise<UserDTO> {
-    return this.findUser({ id: id });
+    const user = await this.userRepository.findOne(id);
+    return UserDTO.EntityToDTO(user);
   }
 
   async getLeaderboard(top = 50): Promise<UserDTO[]> {
-    return [];
+    const topProfile = await this.userRepository.find({
+      take: top,
+      order: {
+        rank: 'DESC',
+      },
+    });
+    return topProfile.map((user) => UserDTO.EntityToDTO(user));
   }
 }

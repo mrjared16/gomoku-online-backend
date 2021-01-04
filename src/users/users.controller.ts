@@ -17,18 +17,6 @@ export class LeaderboardResponse {
 export class UserController {
   constructor(private userService: UserService) {}
 
-  @Get(':id')
-  @ApiResponse({
-    status: 200,
-    type: UserDetailResponse,
-  })
-  async getUser(@Param() id: string) {
-    const user = await this.userService.getUser(id);
-    return {
-      user,
-    };
-  }
-
   @Get('leaderboard')
   @ApiResponse({
     status: 200,
@@ -41,6 +29,18 @@ export class UserController {
       leaderboard: {
         users,
       },
+    };
+  }
+
+  @Get(':id')
+  @ApiResponse({
+    status: 200,
+    type: UserDetailResponse,
+  })
+  async getUser(@Param() id: string) {
+    const user = await this.userService.getUser(id);
+    return {
+      user,
     };
   }
 }
