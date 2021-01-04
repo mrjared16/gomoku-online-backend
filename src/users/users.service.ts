@@ -55,4 +55,8 @@ export class UserService {
 
     return UserDTO.EntityToDTO(userInfo);
   }
+
+  async getUser(id: string): Promise<UserDTO> {
+    throw new Error('Method not implemented.');
+  }
 }
