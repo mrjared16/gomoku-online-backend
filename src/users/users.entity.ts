@@ -22,38 +22,23 @@ import {
 
 @Entity('user')
 export abstract class UserEntity {
-  @OneToMany(() => FriendRequestEntity, (friendRequest) => friendRequest.sender)
-  sentRequests: FriendRequestEntity[];
-
-  @OneToMany(
-    () => FriendRequestEntity,
-    (friendRequest) => friendRequest.receiver,
-  )
-  receivedRequests: FriendRequestEntity[];
-
-  @OneToMany(() => FriendParticipantEntity, (friend) => friend.user1)
-  friendList1: FriendParticipantEntity[];
-
-  @OneToMany(() => FriendParticipantEntity, (friend) => friend.user2)
-  friendList2: FriendParticipantEntity[];
-
-  @OneToMany(() => ChatRecordEntity, (record) => record.user)
-  chatRecords: ChatRecordEntity[];
-
-  @ManyToMany(() => ChatChannelEntity, (chat) => chat.users)
-  chats: ChatChannelEntity[];
-
   @ManyToMany(() => TeamEntity, (team) => team.users)
   @JoinTable({
     name: 'team_participant',
   })
   teams: TeamEntity[];
 
+  @OneToMany(() => MoveRecordEntity, (record) => record.user)
+  moveRecords: MoveRecordEntity[];
+
   @OneToMany(() => RankRecordEntity, (record) => record.user)
   rankRecords: RankRecordEntity[];
 
-  @OneToMany(() => MoveRecordEntity, (record) => record.user)
-  moveRecords: MoveRecordEntity[];
+  @ManyToMany(() => ChatChannelEntity, (chat) => chat.users)
+  chats: ChatChannelEntity[];
+
+  @OneToMany(() => ChatRecordEntity, (record) => record.user)
+  chatRecords: ChatRecordEntity[];
 
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -72,8 +57,14 @@ export abstract class UserEntity {
   @Column()
   name: string;
 
-  @Column({ default: 1000 })
+  @Column({ default: 1000, type: 'integer', nullable: false })
   rank: number;
+
+  @Column({ default: 0, type: 'integer', nullable: false })
+  numberOfMatches: number;
+
+  @Column({ default: 0, type: 'integer', nullable: false })
+  numberOfWonMatches: number;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
@@ -99,4 +90,19 @@ export abstract class UserEntity {
   ): Promise<boolean> {
     return bcrypt.compare(rawPassword, hashPassword);
   }
+
+  @OneToMany(() => FriendRequestEntity, (friendRequest) => friendRequest.sender)
+  sentRequests: FriendRequestEntity[];
+
+  @OneToMany(
+    () => FriendRequestEntity,
+    (friendRequest) => friendRequest.receiver,
+  )
+  receivedRequests: FriendRequestEntity[];
+
+  @OneToMany(() => FriendParticipantEntity, (friend) => friend.user1)
+  friendList1: FriendParticipantEntity[];
+
+  @OneToMany(() => FriendParticipantEntity, (friend) => friend.user2)
+  friendList2: FriendParticipantEntity[];
 }
