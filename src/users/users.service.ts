@@ -57,6 +57,6 @@ export class UserService {
   }
 
   async getUser(id: string): Promise<UserDTO> {
-    throw new Error('Method not implemented.');
+    return this.findUser({ id: id });
   }
 }
