@@ -59,4 +59,8 @@ export class UserService {
   async getUser(id: string): Promise<UserDTO> {
     return this.findUser({ id: id });
   }
+
+  async getLeaderboard(top = 50): Promise<UserDTO[]> {
+    return [];
+  }
 }
