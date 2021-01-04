@@ -22,10 +22,33 @@ export class UserDTO {
   name: string;
   @ApiProperty()
   username: string;
+  @ApiProperty()
+  gameProfile: {
+    rank: number;
+    numberOfMatches: number;
+    numberOfWonMatches: number;
+  };
+
   static EntityToDTO(userEntity: UserEntity): UserDTO {
     if (userEntity == null) return null;
 
-    const { id, name, username } = userEntity;
-    return { id, name, username };
+    const {
+      id,
+      name,
+      username,
+      rank,
+      numberOfMatches,
+      numberOfWonMatches,
+    } = userEntity;
+    return {
+      id,
+      name,
+      username,
+      gameProfile: {
+        rank,
+        numberOfMatches,
+        numberOfWonMatches,
+      },
+    };
   }
 }
