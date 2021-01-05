@@ -129,6 +129,5 @@ export class GameModel {
     // save duration
     this.gameEntity.duration =
       (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
-    console.log({ gameEntity: this.gameEntity });
   }
 }

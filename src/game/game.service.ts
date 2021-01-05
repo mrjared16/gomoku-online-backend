@@ -110,11 +110,11 @@ export class GameService {
   }
 
   async createGameEntity(room: RoomModel): Promise<GameEntity> {
-    const { roomOption, players } = room;
+    const { roomOption, joinedPlayer } = room;
     const { boardSize } = roomOption;
 
     const team: TeamEntity[] = await this.gameHistoryService.createTeamEntity(
-      players,
+      joinedPlayer,
     );
 
     // TODO: create chat
@@ -123,7 +123,8 @@ export class GameService {
       boardSize,
       team: team,
     });
-    return await this.gameRepository.save(gameEntity);
+    const result = await this.gameRepository.save(gameEntity);
+    return result;
   }
 
   async saveGame(room: RoomModel) {

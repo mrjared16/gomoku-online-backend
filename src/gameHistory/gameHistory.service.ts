@@ -1,3 +1,4 @@
+import { UserDTO } from 'src/users/users.dto';
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GameSide, GomokuGamePlayer } from 'src/game/game.dto';
@@ -22,20 +23,36 @@ export class GameHistoryService {
     private rankRecordRepository: Repository<RankRecordEntity>,
   ) {}
 
-  async createTeamEntity(players: GomokuGamePlayer): Promise<TeamEntity[]> {
-    const XPlayer = this.userRepository.create({ ...players.X });
-    const OPlayer = this.userRepository.create({ ...players.O });
-
-    const result: TeamEntity[] = [
-      this.teamRepository.create({
-        users: [XPlayer],
-        side: GameSide.X,
-      }),
-      this.teamRepository.create({
-        users: [OPlayer],
-        side: GameSide.O,
-      }),
+  async createTeamEntity(
+    players: {
+      user: UserDTO;
+      side: GameSide;
+      online: boolean;
+    }[],
+  ): Promise<TeamEntity[]> {
+    const initalTeamReduce: { side: GameSide; users: UserEntity[] }[] = [
+      { side: GameSide.X, users: [] },
+      { side: GameSide.O, users: [] },
     ];
+
+    const teamReduce = players.reduce((result, currentPlayer) => {
+      const { user, side } = currentPlayer;
+      return result.map((team) => {
+        if (side !== team.side) {
+          return team;
+        }
+        team.users.push(this.userRepository.create(UserDTO.toEntity(user)));
+        return team;
+      });
+    }, initalTeamReduce);
+
+    const result: TeamEntity[] = teamReduce.map(({ users, side }) =>
+      this.teamRepository.create({
+        users,
+        side,
+      }),
+    );
+
     return result;
   }
 

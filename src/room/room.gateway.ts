@@ -110,7 +110,7 @@ export class RoomGateway implements OnGatewayConnection {
   broadcastRoomEventsToAll(
     broadcastRoomToAllDTO: BroadcastRoomEventToAllResponse,
   ) {
-    console.log({ broadcastRoomToAllDTO });
+    // console.log({ broadcastRoomToAllDTO });
     this.server.emit(ROOM_MESSAGE.BROADCAST_ALL, broadcastRoomToAllDTO);
   }
 
@@ -120,7 +120,7 @@ export class RoomGateway implements OnGatewayConnection {
     broadcastRoomEventToCurrentRoomDTO: BroadcastRoomEventToCurrentRoomResponse,
     isBroadcast = false,
   ) {
-    console.log({ broadcastRoomEventToCurrentRoomDTO });
+    // console.log({ broadcastRoomEventToCurrentRoomDTO });
     const socket = isBroadcast ? this.server.in(roomID) : room.to(roomID);
     socket.emit(
       ROOM_MESSAGE.BROADCAST_ROOM,
