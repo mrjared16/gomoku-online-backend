@@ -82,8 +82,8 @@ export class GameService {
           event: 'onFinish',
           data: {
             winnerID:
-              game.getWinSide() != GameResult.Draw
-                ? room.getPlayerOfSide(game.getWinSide() as 0 | 1)
+              game.getGameResult() != GameResult.Draw
+                ? room.getPlayerOfSide(game.getGameResult() as 0 | 1)
                 : null,
             duration: game.getDuration(),
             rankRecord: game.getRankRecord(),
@@ -128,7 +128,7 @@ export class GameService {
 
   async saveGame(room: RoomModel) {
     room.getGame().saveGameState();
-    this.gameHistoryService.saveGame(room);
+    await this.gameHistoryService.saveGame(room);
     await this.gameRepository.save(room.getGame().getGameEntity());
   }
 }

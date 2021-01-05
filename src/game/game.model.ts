@@ -1,8 +1,8 @@
-import { GameHelper } from './game.helper';
 import { GameSide, GomokuGamePlayer } from 'src/game/game.dto';
 import { GameEntity } from 'src/game/game.entity';
 import { MoveRecordDTO, RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { GameOption, GameResult } from './game.dto';
+import { GameHelper } from './game.helper';
 
 export class GameModel {
   constructor(
@@ -114,7 +114,7 @@ export class GameModel {
     return this.winLine;
   }
 
-  getWinSide(): GameResult {
+  getGameResult(): GameResult {
     return this.gameResult;
   }
 
