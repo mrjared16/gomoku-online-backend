@@ -18,7 +18,7 @@ export class TeamEntity {
   @ManyToOne(() => GameEntity, (game) => game.team)
   game: GameEntity;
 
-  @ManyToMany(() => UserEntity, (user) => user.teams)
+  @ManyToMany(() => UserEntity, (user) => user.teams, { cascade: true })
   users: UserEntity[];
 
   @Column({
