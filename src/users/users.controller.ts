@@ -9,7 +9,7 @@ export class UserDetailResponse {
 
 export class LeaderboardResponse {
   leaderboard: {
-    users: UserDTO[];
+    users: { rankIndex: number; user: UserDTO }[];
   };
 }
 

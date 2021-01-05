@@ -61,13 +61,18 @@ export class UserService {
     return UserDTO.EntityToDTO(user);
   }
 
-  async getLeaderboard(top = 50): Promise<UserDTO[]> {
+  async getLeaderboard(
+    top = 50,
+  ): Promise<{ rankIndex: number; user: UserDTO }[]> {
     const topProfile = await this.userRepository.find({
       take: top,
       order: {
         rank: 'DESC',
       },
     });
-    return topProfile.map((user) => UserDTO.EntityToDTO(user));
+    return topProfile.map((user, index) => ({
+      user: UserDTO.EntityToDTO(user),
+      rankIndex: index + 1,
+    }));
   }
 }
