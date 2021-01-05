@@ -12,8 +12,12 @@ import {
 import { ChatChannelEntity } from '../chat/chatChannel.entity';
 import { TeamEntity } from './../gameHistory/team.entity';
 import { DEFAULT_BOARD_SIZE } from './game.constants';
-import { GameResult } from './game.dto';
-
+// import { GameResult } from './game.dto';
+enum GameResult {
+  X,
+  O,
+  Draw,
+}
 @Entity('game')
 export class GameEntity {
   @PrimaryGeneratedColumn('uuid')
