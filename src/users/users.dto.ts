@@ -23,11 +23,19 @@ export class UserDTO {
   @ApiProperty()
   username: string;
   @ApiProperty()
+  firstName: string;
+  @ApiProperty()
+  lastName: string;
+  @ApiProperty()
   gameProfile: {
     rank: number;
     numberOfMatches: number;
     numberOfWonMatches: number;
   };
+  @ApiProperty()
+  joinDate: Date;
+  @ApiProperty()
+  photoURL: string;
 
   static EntityToDTO(userEntity: UserEntity): UserDTO {
     if (userEntity == null) return null;
@@ -39,6 +47,10 @@ export class UserDTO {
       rank,
       numberOfMatches,
       numberOfWonMatches,
+      created_at,
+      firstName,
+      lastName,
+      photoURL,
     } = userEntity;
     return {
       id,
@@ -49,6 +61,10 @@ export class UserDTO {
         numberOfMatches,
         numberOfWonMatches,
       },
+      joinDate: created_at,
+      firstName,
+      lastName,
+      photoURL,
     };
   }
 

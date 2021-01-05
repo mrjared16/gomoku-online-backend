@@ -57,6 +57,15 @@ export abstract class UserEntity {
   @Column()
   name: string;
 
+  @Column({ default: '' })
+  firstName: string;
+
+  @Column({ default: '' })
+  lastName: string;
+
+  @Column({ default: '' })
+  photoURL: string;
+
   @Column({ default: 1000, type: 'integer', nullable: false })
   rank: number;
 
