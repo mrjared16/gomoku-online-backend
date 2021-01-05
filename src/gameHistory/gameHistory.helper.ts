@@ -21,7 +21,9 @@ export const getNewRank = ({
 
   const MAX_DIFF_ELO = 1000;
   const AVG_GAMES_TO_UP_RANK = 40;
-  const AVG_GAINED_ELO_PER_GAME = MAX_DIFF_ELO / AVG_GAMES_TO_UP_RANK; //25
+  const AVG_GAINED_ELO_PER_GAME = Math.round(
+    MAX_DIFF_ELO / AVG_GAMES_TO_UP_RANK,
+  ); //25
   const MIN_ELO_GAINED_PER_GAME = 5;
   const MAX_ELO_GAINED_PER_GAME =
     2 * AVG_GAINED_ELO_PER_GAME - MIN_ELO_GAINED_PER_GAME; // 45
@@ -33,13 +35,17 @@ export const getNewRank = ({
   */
 
   const rankDiff = enemyRank - currentRank;
-  const gainedRankDiffDivFactor =
-    MAX_DIFF_ELO / (MAX_ELO_GAINED_PER_GAME - MIN_ELO_GAINED_PER_GAME);
+  const gainedRankDiffDivFactor = Math.round(
+    MAX_DIFF_ELO / (MAX_ELO_GAINED_PER_GAME - MIN_ELO_GAINED_PER_GAME),
+  );
   const newRank = isWon
-    ? currentRank + AVG_GAINED_ELO_PER_GAME + rankDiff / gainedRankDiffDivFactor
+    ? currentRank +
+      AVG_GAINED_ELO_PER_GAME +
+      Math.round(rankDiff / gainedRankDiffDivFactor)
     : currentRank -
-      (AVG_GAINED_ELO_PER_GAME - rankDiff / gainedRankDiffDivFactor);
-  return newRank;
+      (AVG_GAINED_ELO_PER_GAME -
+        Math.round(rankDiff / gainedRankDiffDivFactor));
+  return Math.round(newRank);
 };
 
 export const getUserResult = (gameSide: GameSide, gameResult: GameResult) => {
@@ -59,7 +65,7 @@ export class GetRankData {
         0,
       );
 
-      avgRank[side as 0 | 1] = totalRankTeam / team.length;
+      avgRank[side as 0 | 1] = Math.round(totalRankTeam / users.length);
       return avgRank;
     }, {} as { 0: number; 1: number });
   }
