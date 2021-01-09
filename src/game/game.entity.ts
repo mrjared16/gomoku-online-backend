@@ -5,6 +5,7 @@ import {
   CreateDateColumn,
   Entity,
   JoinColumn,
+  ManyToOne,
   OneToMany,
   OneToOne,
   PrimaryGeneratedColumn,
@@ -32,7 +33,7 @@ export class GameEntity {
   @OneToMany(() => RankRecordEntity, (record) => record.game, { cascade: true })
   rankRecords: RankRecordEntity[];
 
-  @OneToOne(() => ChatChannelEntity, (chat) => chat.game, { cascade: true })
+  @ManyToOne(() => ChatChannelEntity, (chat) => chat.game, { cascade: true })
   @JoinColumn()
   chat: ChatChannelEntity;
 

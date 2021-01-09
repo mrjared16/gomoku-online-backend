@@ -25,8 +25,8 @@ export class ChatChannelEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @OneToOne(() => GameEntity, (game) => game.chat)
-  game: GameEntity;
+  @OneToMany(() => GameEntity, (game) => game.chat)
+  game: GameEntity[];
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
