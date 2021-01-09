@@ -102,7 +102,7 @@ export type HitDTO = {
   value: GameSide;
 };
 
-export type JoinDTO = {
+export type JoinGameDTO = {
   roomID: string;
   gameID: string;
 };
