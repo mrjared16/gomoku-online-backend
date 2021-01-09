@@ -1,3 +1,4 @@
+import { GameHistoryController } from './gameHistory.controller';
 import { GameEntity } from 'src/game/game.entity';
 import { GameHistoryService } from './gameHistory.service';
 import { UserEntity } from 'src/users/users.entity';
@@ -18,6 +19,7 @@ import { Module } from '@nestjs/common';
     ]),
   ],
   providers: [GameHistoryService],
+  controllers: [GameHistoryController],
   exports: [GameHistoryService],
 })
 export class GameHistoryModule {}

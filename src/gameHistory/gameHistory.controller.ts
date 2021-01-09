@@ -1,3 +1,4 @@
+import { UserDTO } from 'src/users/users.dto';
 import { GameHistoryDetailResponse } from './gameHistory.interface';
 import { GameHistoryService } from './gameHistory.service';
 import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
@@ -17,7 +18,7 @@ export class GameHistoryController {
     const { user } = requestWithUser;
     const result: GameHistoryDetailResponse = await this.gameHistoryService.getGameHistory(
       gameID,
-      user,
+      user as UserDTO,
     );
     return result;
   }

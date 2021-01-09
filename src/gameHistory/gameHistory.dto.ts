@@ -1,3 +1,4 @@
+import { UserDTO } from 'src/users/users.dto';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
 import { getRepository } from 'typeorm';
@@ -34,4 +35,10 @@ export class RankRecordDTO {
       newRank,
     };
   }
+}
+
+export class TeamDTO {
+  id: string;
+  side: GameSide;
+  users: UserDTO[];
 }

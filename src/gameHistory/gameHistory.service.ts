@@ -1,18 +1,17 @@
-import { GameDTO } from './../game/game.dto';
-import { GameEntity } from 'src/game/game.entity';
-import { UserDTO } from 'src/users/users.dto';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GameSide, GomokuGamePlayer } from 'src/game/game.dto';
+import { GameSide } from 'src/game/game.dto';
+import { GameEntity } from 'src/game/game.entity';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import { RoomModel } from 'src/room/room.model';
+import { UserDTO } from 'src/users/users.dto';
 import { UserEntity } from 'src/users/users.entity';
 import { Repository } from 'typeorm';
-import { UserService } from './../users/users.service';
+import { GameDTO } from './../game/game.dto';
 import { getNewRank, GetRankData, getUserResult } from './gameHistory.helper';
+import { GameHistoryDetailResponse } from './gameHistory.interface';
 import { MoveRecordEntity } from './moveRecord.entity';
 import { TeamEntity } from './team.entity';
-import { GameHistoryDetailResponse } from './gameHistory.interface';
 @Injectable()
 export class GameHistoryService {
   constructor(
@@ -132,7 +131,7 @@ export class GameHistoryService {
     user: UserDTO,
   ): Promise<GameHistoryDetailResponse> {
     const gameEntity = await this.gameRepository.findOne(gameID, {
-      relations: ['team'],
+      relations: ['team', 'team.users'],
     });
     const { team } = gameEntity;
 
