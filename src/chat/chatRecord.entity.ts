@@ -19,6 +19,9 @@ export class ChatRecordEntity {
   @ManyToOne(() => ChatChannelEntity, (channel) => channel.records)
   channel: ChatChannelEntity;
 
+  @Column()
+  channelId: string;
+
   @Column({ nullable: false })
   content: string;
 

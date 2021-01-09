@@ -1,5 +1,7 @@
+import { ChatRecordDTO } from 'src/chat/chat.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { ChatService } from 'src/chat/chat.service';
 import { GameSide } from 'src/game/game.dto';
 import { GameEntity } from 'src/game/game.entity';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
@@ -29,6 +31,7 @@ export class GameHistoryService {
     private rankRecordRepository: Repository<RankRecordEntity>,
     @InjectRepository(GameEntity)
     private gameRepository: Repository<GameEntity>,
+    private chatService: ChatService,
   ) {}
 
   async createTeamEntity(
@@ -145,10 +148,25 @@ export class GameHistoryService {
         HttpStatus.FORBIDDEN,
       );
     }
+    const { start_at, duration, chat: chatChannel } = gameEntity;
+    const getChatRecords = async () => {
+      if (!chatChannel) {
+        return;
+      }
+      const { id: chatChannelID } = chatChannel;
+      const startAt = start_at;
+      const endAt = new Date(start_at.getTime() + duration * 1000);
 
+      return await this.chatService.getChatRecordsOfGame({
+        chatChannelID,
+        startAt,
+        endAt,
+      });
+    };
+    const chatRecord: ChatRecordDTO[] = await getChatRecords();
     const gameDTO = GameDTO.EntityToDTO(gameEntity);
     return {
-      game: gameDTO,
+      game: { ...gameDTO, chatRecord: chatRecord || [] },
     };
   }
 

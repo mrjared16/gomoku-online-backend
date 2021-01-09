@@ -5,7 +5,7 @@ import { Socket } from 'socket.io';
 import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
 import { ChatRecordEntity } from 'src/chat/chatRecord.entity';
 import { RoomManager } from 'src/room/room.model';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { ChatRecordDTO, SentMessageToRoomChatDTO } from './chat.dto';
 import { ChatGateway } from './chat.gateway';
 import { UserEntity } from 'src/users/users.entity';
@@ -63,5 +63,26 @@ export class ChatService {
       event: 'onReceivedMessage',
       data: ChatRecordDTO.EntityToDTO(newChatRecordResponse),
     });
+  }
+
+  async getChatRecordsOfGame(gameData: {
+    chatChannelID: string;
+    startAt: Date;
+    endAt: Date;
+  }): Promise<ChatRecordDTO[]> {
+    const { chatChannelID, startAt, endAt } = gameData;
+    const response = await this.chatRecordRepository
+      .createQueryBuilder('chat_record')
+      .leftJoinAndSelect('chat_record.user', 'user')
+      .select(['chat_record', 'user.username', 'user.id'])
+      .where('chat_record.channelId = :chatChannelID', { chatChannelID })
+      .andWhere(`chat_record.created_at BETWEEN :begin AND :end`, {
+        begin: startAt.toISOString(),
+        end: endAt.toISOString(),
+      })
+      .getMany();
+
+    const result: ChatRecordDTO[] = response.map(ChatRecordDTO.EntityToDTO);
+    return result;
   }
 }

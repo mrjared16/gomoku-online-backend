@@ -1,3 +1,4 @@
+import { ChatModule } from './../chat/chat.module';
 import { GameHistoryController } from './gameHistory.controller';
 import { GameEntity } from 'src/game/game.entity';
 import { GameHistoryService } from './gameHistory.service';
@@ -6,7 +7,7 @@ import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import { TeamEntity } from './team.entity';
 import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { Module } from '@nestjs/common';
       UserEntity,
       GameEntity,
     ]),
+    forwardRef(() => ChatModule),
   ],
   providers: [GameHistoryService],
   controllers: [GameHistoryController],
