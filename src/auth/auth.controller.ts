@@ -1,7 +1,3 @@
-import { JWTAuthenticationGuard } from './guards/jwt.guard';
-import { LocalAuthenticationGuard } from './guards/local.guard';
-import { UserService } from './../users/users.service';
-import { CreateUserDTO, UserDTO, UserLoginDTO } from './../users/users.dto';
 import {
   Body,
   Controller,
@@ -11,14 +7,18 @@ import {
   Req,
   UseGuards,
 } from '@nestjs/common';
+import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
+import { CreateUserDTO, UserDTO, UserLoginDTO } from './../users/users.dto';
+import { UserService } from './../users/users.service';
+import { UserLoginGoogleOAuthDTO } from './auth.dto';
 import {
-  RequestWithUser,
   LoginResponse,
+  RequestWithUser,
   VerifyResponse,
 } from './auth.interface';
 import { AuthService } from './auth.service';
-import { UserLoginGoogleOAuthDTO } from './auth.dto';
-import { ApiBody, ApiResponse, ApiResponseProperty } from '@nestjs/swagger';
+import { JWTAuthenticationGuard } from './guards/jwt.guard';
+import { LocalAuthenticationGuard } from './guards/local.guard';
 @Controller('auth')
 export class AuthController {
   constructor(
@@ -29,6 +29,7 @@ export class AuthController {
   @HttpCode(200)
   @Get('verify')
   @UseGuards(JWTAuthenticationGuard)
+  @ApiBearerAuth()
   @ApiResponse({
     status: 200,
     type: VerifyResponse,

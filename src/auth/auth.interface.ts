@@ -16,5 +16,6 @@ export class LoginResponse {
 }
 
 export class VerifyResponse {
+  @ApiResponseProperty()
   user: UserDTO;
 }

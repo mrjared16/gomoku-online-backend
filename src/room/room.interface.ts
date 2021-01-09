@@ -1,6 +1,7 @@
 import { RoomDTO } from './room.dto';
 import { UserDTO } from 'src/users/users.dto';
 import { RoomModel } from './room.model';
+import { ApiProperty, ApiResponse, ApiResponseProperty } from '@nestjs/swagger';
 
 export class BroadcastRoomEventToAllResponse {
   event: 'roomUpdated';
@@ -28,6 +29,10 @@ export type BroadcastRoomEventToCurrentRoomResponse =
     };
 
 export class AllRoomResponse {
+  @ApiProperty({
+    type: RoomDTO,
+    isArray: true,
+  })
   rooms: RoomDTO[];
 }
 

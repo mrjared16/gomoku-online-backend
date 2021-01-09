@@ -5,12 +5,18 @@ import { Controller, Get, Param, Req, UseGuards } from '@nestjs/common';
 import { GameController } from './../game/game.controller';
 import { JWTAuthenticationGuard } from 'src/auth/guards/jwt.guard';
 import { RequestWithUser } from 'src/auth/auth.interface';
+import { ApiBearerAuth, ApiResponse } from '@nestjs/swagger';
 @Controller('gameHistory')
 export class GameHistoryController {
   constructor(private gameHistoryService: GameHistoryService) {}
 
   @Get('/:id')
   @UseGuards(JWTAuthenticationGuard)
+  @ApiResponse({
+    status: 200,
+    type: GameHistoryDetailResponse,
+  })
+  @ApiBearerAuth()
   async getGameHistory(
     @Param('id') gameID: string,
     @Req() requestWithUser: RequestWithUser,

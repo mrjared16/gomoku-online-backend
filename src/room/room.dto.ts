@@ -1,6 +1,7 @@
 import { RoomModel } from './room.model';
 import { GomokuGamePlayer, GameSide } from 'src/game/game.dto';
 import { UserDTO } from 'src/users/users.dto';
+import { ApiProperty } from '@nestjs/swagger';
 export type RoomOption = {
   time: number;
   password: string | null;
@@ -8,9 +9,13 @@ export type RoomOption = {
 };
 
 export class RoomOptionDTO {
+  @ApiProperty()
   time: number;
+  @ApiProperty()
   boardSize: number;
+  @ApiProperty()
   hasPassword: boolean;
+
   static ModelToEntity(roomOptionModel: RoomOption): RoomOptionDTO {
     const { time, password, boardSize } = roomOptionModel;
     return {
@@ -78,12 +83,22 @@ export type StartGameDTO = {
 };
 
 export class RoomDTO {
+  @ApiProperty()
   id: string;
+  @ApiProperty()
   host: UserDTO;
+  @ApiProperty()
   roomOption: RoomOptionDTO;
+  @ApiProperty()
   players: GomokuGamePlayer;
+  @ApiProperty()
   numberOfUsers: number;
+  @ApiProperty()
   gameID: string | null;
+  @ApiProperty({
+    type: UserDTO,
+    isArray: true,
+  })
   users: UserDTO[];
 
   static ModelToDTO(roomModel: RoomModel): RoomDTO {

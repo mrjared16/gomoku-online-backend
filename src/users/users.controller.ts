@@ -1,17 +1,7 @@
-import { UserDTO } from 'src/users/users.dto';
-import { UserService } from './users.service';
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiResponse } from '@nestjs/swagger';
-
-export class UserDetailResponse {
-  user: UserDTO;
-}
-
-export class LeaderboardResponse {
-  leaderboard: {
-    users: { rankIndex: number; user: UserDTO }[];
-  };
-}
+import { LeaderboardResponse, UserDetailResponse } from './users.interface';
+import { UserService } from './users.service';
 
 @Controller('user')
 export class UserController {
@@ -37,7 +27,7 @@ export class UserController {
     status: 200,
     type: UserDetailResponse,
   })
-  async getUser(@Param() id: string) {
+  async getUser(@Param() id: string): Promise<UserDetailResponse> {
     const user = await this.userService.getUser(id);
     return {
       user,

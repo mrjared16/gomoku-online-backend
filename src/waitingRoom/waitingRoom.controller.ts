@@ -2,9 +2,13 @@ import { UserDTO } from 'src/users/users.dto';
 import { JWTAuthenticationGuard } from '../auth/guards/jwt.guard';
 import { WaitingRoomService } from './waitingRoom.service';
 import { Controller, Get, UseGuards } from '@nestjs/common';
-import { ApiResponse } from '@nestjs/swagger';
+import { ApiResponse, ApiResponseProperty, ApiProperty } from '@nestjs/swagger';
 
 class OnlineUsersResponse {
+  @ApiProperty({
+    type: UserDTO,
+    isArray: true,
+  })
   users: UserDTO[];
 }
 

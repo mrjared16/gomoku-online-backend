@@ -2,16 +2,38 @@ import { GameEntity } from 'src/game/game.entity';
 import { ChatRecordDTO } from 'src/chat/chat.dto';
 import { MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { UserDTO } from 'src/users/users.dto';
-
+import { ApiProperty } from '@nestjs/swagger';
+export class GomokuGameHistoryPlayer {
+  @ApiProperty()
+  X: UserDTO;
+  @ApiProperty()
+  O: UserDTO;
+}
 export class GameDTO {
+  @ApiProperty()
   id: string;
+  @ApiProperty()
   boardSize: number;
+  @ApiProperty()
   result: GameResult;
+  @ApiProperty()
   startAt: Date;
+  @ApiProperty()
   duration: number;
 
+  @ApiProperty({
+    type: MoveRecordDTO,
+    isArray: true,
+  })
   moveRecord: MoveRecordDTO[];
+  @ApiProperty({
+    type: ChatRecordDTO,
+    isArray: true,
+  })
   chatRecord: ChatRecordDTO[];
+
+  @ApiProperty()
+  players?: GomokuGameHistoryPlayer;
   static EntityToDTO(gameEntity: GameEntity): GameDTO {
     const { id, boardSize, gameResult, start_at, duration } = gameEntity;
     const moveRecord: MoveRecordDTO[] = [];
@@ -28,14 +50,17 @@ export class GameDTO {
   }
 }
 
-export class GameState {
-  move: MoveRecordDTO[];
-  turn: Turn;
-}
-
 export class Turn {
+  @ApiProperty()
   playerID: string;
+  @ApiProperty()
   remainingTime: number;
+}
+export class GameState {
+  @ApiProperty()
+  move: MoveRecordDTO[];
+  @ApiProperty()
+  turn: Turn;
 }
 
 export type GameOption = {
@@ -55,10 +80,16 @@ export type JoinDTO = {
   gameID: string;
 };
 
-export type GomokuGamePlayer = {
+export class GomokuGamePlayer {
+  @ApiProperty({
+    type: UserDTO,
+  })
   X: (UserDTO & { online: boolean }) | null;
+  @ApiProperty({
+    type: UserDTO,
+  })
   O: (UserDTO & { online: boolean }) | null;
-};
+}
 
 export enum GameSide {
   X,

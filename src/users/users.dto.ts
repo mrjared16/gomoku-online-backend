@@ -15,6 +15,14 @@ export class UserLoginDTO {
   @ApiProperty()
   password: string;
 }
+export class GameProfile {
+  @ApiProperty()
+  rank: number;
+  @ApiProperty()
+  numberOfMatches: number;
+  @ApiProperty()
+  numberOfWonMatches: number;
+}
 export class UserDTO {
   @ApiProperty()
   id: string;
@@ -27,11 +35,7 @@ export class UserDTO {
   @ApiProperty()
   lastName: string;
   @ApiProperty()
-  gameProfile: {
-    rank: number;
-    numberOfMatches: number;
-    numberOfWonMatches: number;
-  };
+  gameProfile: GameProfile;
   @ApiProperty()
   joinDate: Date;
   @ApiProperty()

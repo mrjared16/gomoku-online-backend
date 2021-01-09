@@ -1,3 +1,4 @@
+import { ApiResponseProperty } from '@nestjs/swagger';
 import { RankRecordDTO, MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { GameSide, GameState, Turn, GameDTO } from './game.dto';
 
@@ -25,10 +26,9 @@ export type BroadcastGameEventToCurrentRoomResponse =
       };
     };
 
-export type GameInfoResponse = {
+export class GameInfoResponse {
+  @ApiResponseProperty()
   game: GameDTO;
-  gameState: {
-    move: MoveRecordDTO[];
-    turn: Turn;
-  };
-};
+  @ApiResponseProperty()
+  gameState: GameState;
+}
