@@ -135,7 +135,7 @@ export class GameHistoryService {
     user: UserDTO,
   ): Promise<GameHistoryDetailResponse> {
     const gameEntity = await this.gameRepository.findOne(gameID, {
-      relations: ['team', 'team.users'],
+      relations: ['team', 'team.users', 'moves', 'chat'],
     });
     const { team } = gameEntity;
 
@@ -168,7 +168,7 @@ export class GameHistoryService {
       return prevDictionary;
     }, new Map<string, GameSide>());
 
-    const result2 = rankRecords.map(
+    const result = rankRecords.map(
       (rankRecord): GameHistoryDTO => {
         const { game } = rankRecord;
         const { id: gameId, start_at, duration, gameResult } = game;
@@ -185,7 +185,7 @@ export class GameHistoryService {
     );
 
     return {
-      games: result2,
+      games: result,
     };
   }
 }

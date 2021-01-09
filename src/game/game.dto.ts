@@ -35,9 +35,23 @@ export class GameDTO {
   @ApiProperty()
   players?: GomokuGameHistoryPlayer;
   static EntityToDTO(gameEntity: GameEntity): GameDTO {
-    const { id, boardSize, gameResult, start_at, duration } = gameEntity;
-    const moveRecord: MoveRecordDTO[] = [];
-    const chatRecord: ChatRecordDTO[] = [];
+    const {
+      id,
+      boardSize,
+      gameResult,
+      start_at,
+      duration,
+      moves: moveRecordEntity = [],
+      chat,
+    } = gameEntity;
+    const moveRecord: MoveRecordDTO[] = moveRecordEntity.map(
+      MoveRecordDTO.EntityToDTO,
+    );
+
+    const { records: chatRecordEntity = [] } = chat || {};
+    const chatRecord: ChatRecordDTO[] = chatRecordEntity.map(
+      ChatRecordDTO.EntityToDTO,
+    );
     return {
       id,
       boardSize,
