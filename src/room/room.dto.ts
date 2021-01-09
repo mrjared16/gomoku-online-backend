@@ -95,6 +95,8 @@ export class RoomDTO {
   numberOfUsers: number;
   @ApiProperty()
   gameID: string | null;
+  @ApiProperty()
+  chatChannelID: string;
   @ApiProperty({
     type: UserDTO,
     isArray: true,
@@ -102,7 +104,15 @@ export class RoomDTO {
   users: UserDTO[];
 
   static ModelToDTO(roomModel: RoomModel): RoomDTO {
-    const { id, host, roomOption, players, users, gameID } = roomModel;
+    const {
+      id,
+      host,
+      roomOption,
+      players,
+      users,
+      gameID,
+      chatChannelID,
+    } = roomModel;
     return {
       id,
       host,
@@ -111,6 +121,7 @@ export class RoomDTO {
       numberOfUsers: users.length,
       gameID: gameID,
       users,
+      chatChannelID,
     };
   }
 }
