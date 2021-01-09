@@ -1,9 +1,8 @@
-import { UserDTO } from 'src/users/users.dto';
-import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
-import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
-import { getRepository } from 'typeorm';
-import { GameSide } from 'src/game/game.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { GameResult, GameSide } from 'src/game/game.dto';
+import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
+import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
+import { UserDTO } from 'src/users/users.dto';
 
 export class MoveRecordDTO {
   @ApiProperty()
@@ -53,4 +52,19 @@ export class TeamDTO {
   side: GameSide;
   @ApiProperty()
   users: UserDTO[];
+}
+
+export class GameHistoryDTO {
+  @ApiProperty()
+  id: string;
+  @ApiProperty()
+  playerSide: GameSide;
+  @ApiProperty()
+  gameResult: GameResult;
+  @ApiProperty()
+  startAt: Date;
+  @ApiProperty()
+  duration: number;
+  @ApiProperty()
+  rankRecord: RankRecordDTO;
 }
