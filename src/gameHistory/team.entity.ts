@@ -23,7 +23,7 @@ export class TeamEntity {
   @Column()
   gameId: string;
 
-  @ManyToMany(() => UserEntity, (user) => user.teams, { cascade: true })
+  @ManyToMany(() => UserEntity, (user) => user.teams)
   users: UserEntity[];
 
   @Column({

@@ -71,17 +71,4 @@ export class UserDTO {
       photoURL,
     };
   }
-
-  static toEntity(user: UserDTO): Partial<UserEntity> {
-    const { id, name, username, gameProfile } = user;
-    const { rank, numberOfMatches, numberOfWonMatches } = gameProfile;
-    return {
-      id,
-      name,
-      username,
-      rank,
-      numberOfMatches,
-      numberOfWonMatches,
-    };
-  }
 }

@@ -92,7 +92,6 @@ export abstract class UserEntity {
     // new password is null and old password not null => password is removed
     if (!this.password && this.beforeUpdatePassword) {
       this.password = this.beforeUpdatePassword;
-      return;
     }
 
     if (this.password != null) {

@@ -21,6 +21,7 @@ class ConfigService {
           migrationsDir: 'src/migrations',
         },
         synchronize: true,
+        logging: ['error'],
       },
       google: {
         clientID: this.env.GOOGLEOAUTH_CLIENTID,
