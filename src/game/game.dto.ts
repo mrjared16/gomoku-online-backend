@@ -33,7 +33,7 @@ export class GameDTO {
   chatRecord: ChatRecordDTO[];
 
   @ApiProperty()
-  players?: GomokuGameHistoryPlayer;
+  players: GomokuGameHistoryPlayer;
   static EntityToDTO(gameEntity: GameEntity): GameDTO {
     const {
       id,
@@ -43,6 +43,7 @@ export class GameDTO {
       duration,
       moves: moveRecordEntity = [],
       chat,
+      team,
     } = gameEntity;
     const moveRecord: MoveRecordDTO[] = moveRecordEntity.map(
       MoveRecordDTO.EntityToDTO,
@@ -52,6 +53,17 @@ export class GameDTO {
     const chatRecord: ChatRecordDTO[] = chatRecordEntity.map(
       ChatRecordDTO.EntityToDTO,
     );
+
+    const players: GomokuGameHistoryPlayer = team.reduce(
+      (currentPlayers, { users, side }) => {
+        const gameSide = side == GameSide.X ? 'X' : 'O';
+        if (users.length) {
+          currentPlayers[gameSide] = { ...UserDTO.EntityToDTO(users[0]) };
+        }
+        return currentPlayers;
+      },
+      { X: null, O: null } as GomokuGameHistoryPlayer,
+    );
     return {
       id,
       boardSize,
@@ -60,6 +72,7 @@ export class GameDTO {
       duration,
       moveRecord: moveRecord,
       chatRecord: chatRecord,
+      players,
     };
   }
 }
