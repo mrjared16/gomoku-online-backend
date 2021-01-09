@@ -8,7 +8,7 @@ import { GameHistoryService } from './../gameHistory/gameHistory.service';
 import { TeamEntity } from './../gameHistory/team.entity';
 import { RoomModel } from './../room/room.model';
 import { RoomService } from './../room/room.service';
-import { GameResult, HitDTO } from './game.dto';
+import { GameResult, HitDTO, GameDTO } from './game.dto';
 import { GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
@@ -29,19 +29,13 @@ export class GameService {
     const room = this.roomManager.getRoom(roomID);
     const game = room.getGame();
 
-    if (!game)
-      return {
-        boardSize: room.roomOption.boardSize,
-      };
+    if (!game) {
+      return null;
+    }
 
-    const { boardSize } = game;
+    const gameDTO = GameDTO.EntityToDTO(game.getGameEntity());
     return {
-      id: game.getGameID(),
-      startAt: game.getStartedDate(),
-      boardSize,
-      duration: null,
-      winnerID: null,
-      rankRecord: [],
+      game: gameDTO,
       gameState: {
         move: game.getMoves(),
         turn: room.getGameTurn(),

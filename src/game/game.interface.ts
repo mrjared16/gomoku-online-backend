@@ -1,5 +1,5 @@
-import { RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
-import { GameSide, GameState, Turn } from './game.dto';
+import { RankRecordDTO, MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
+import { GameSide, GameState, Turn, GameDTO } from './game.dto';
 
 export type BroadcastGameEventToCurrentRoomResponse =
   | {
@@ -25,16 +25,10 @@ export type BroadcastGameEventToCurrentRoomResponse =
       };
     };
 
-export type GameInfoResponse =
-  | {
-      id: string;
-      boardSize: number;
-      gameState: GameState;
-      startAt: Date | null;
-      duration: number;
-      winnerID: string | null;
-      rankRecord: RankRecordDTO[];
-    }
-  | {
-      boardSize: number;
-    };
+export type GameInfoResponse = {
+  game: GameDTO;
+  gameState: {
+    move: MoveRecordDTO[];
+    turn: Turn;
+  };
+};
