@@ -33,8 +33,15 @@ export const getNewRank = ({
     won: elo = current + (AVG_GAINED + x / 50)
     lost: elo = current - (AVG_GAINED - x / 50)
   */
+  const getRankDiff = (enemyRank, currentRank) => {
+    if (enemyRank - currentRank > MAX_DIFF_ELO) return MAX_DIFF_ELO;
+    if (enemyRank - currentRank < -MAX_DIFF_ELO) {
+      return -MAX_DIFF_ELO;
+    }
+    return enemyRank - currentRank;
+  };
 
-  const rankDiff = enemyRank - currentRank;
+  const rankDiff = getRankDiff(enemyRank, currentRank);
   const gainedRankDiffDivFactor = Math.round(
     MAX_DIFF_ELO / (MAX_ELO_GAINED_PER_GAME - MIN_ELO_GAINED_PER_GAME),
   );
