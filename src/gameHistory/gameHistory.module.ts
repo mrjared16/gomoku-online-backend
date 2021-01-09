@@ -1,3 +1,4 @@
+import { GameEntity } from 'src/game/game.entity';
 import { GameHistoryService } from './gameHistory.service';
 import { UserEntity } from 'src/users/users.entity';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
@@ -13,6 +14,7 @@ import { Module } from '@nestjs/common';
       TeamEntity,
       RankRecordEntity,
       UserEntity,
+      GameEntity,
     ]),
   ],
   providers: [GameHistoryService],

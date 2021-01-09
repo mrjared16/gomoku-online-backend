@@ -1,5 +1,7 @@
+import { GameDTO } from './../game/game.dto';
+import { GameEntity } from 'src/game/game.entity';
 import { UserDTO } from 'src/users/users.dto';
-import { Injectable } from '@nestjs/common';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GameSide, GomokuGamePlayer } from 'src/game/game.dto';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
@@ -10,6 +12,7 @@ import { UserService } from './../users/users.service';
 import { getNewRank, GetRankData, getUserResult } from './gameHistory.helper';
 import { MoveRecordEntity } from './moveRecord.entity';
 import { TeamEntity } from './team.entity';
+import { GameHistoryDetailResponse } from './gameHistory.interface';
 @Injectable()
 export class GameHistoryService {
   constructor(
@@ -21,6 +24,8 @@ export class GameHistoryService {
     private moveRecordRepository: Repository<MoveRecordEntity>,
     @InjectRepository(RankRecordEntity)
     private rankRecordRepository: Repository<RankRecordEntity>,
+    @InjectRepository(GameEntity)
+    private gameRepository: Repository<GameEntity>,
   ) {}
 
   async createTeamEntity(
@@ -116,5 +121,31 @@ export class GameHistoryService {
     );
 
     room.getGame().getGameEntity().rankRecords = rankRecord;
+  }
+
+  isInCurrentGame(user: UserDTO, teams: TeamEntity[]) {
+    return teams.some(({ users }) => users.some(({ id }) => user.id === id));
+  }
+
+  async getGameHistory(
+    gameID: string,
+    user: UserDTO,
+  ): Promise<GameHistoryDetailResponse> {
+    const gameEntity = await this.gameRepository.findOne(gameID, {
+      relations: ['team'],
+    });
+    const { team } = gameEntity;
+
+    if (!this.isInCurrentGame(user, team)) {
+      throw new HttpException(
+        "You can't view other's game",
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    const gameDTO = GameDTO.EntityToDTO(gameEntity);
+    return {
+      game: gameDTO,
+    };
   }
 }
