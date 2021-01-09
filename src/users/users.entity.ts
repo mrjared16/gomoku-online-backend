@@ -1,13 +1,12 @@
-import { TeamEntity } from './../gameHistory/team.entity';
 import * as bcrypt from 'bcryptjs';
 import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
 import { ChatRecordEntity } from 'src/chat/chatRecord.entity';
 import { FriendParticipantEntity } from 'src/friends/friendParticipant.entity';
 import { FriendRequestEntity } from 'src/friends/friendRequest.entity';
-import { GameEntity } from 'src/game/game.entity';
 import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import {
+  AfterLoad,
   BeforeInsert,
   BeforeUpdate,
   Column,
@@ -15,10 +14,10 @@ import {
   Entity,
   JoinTable,
   ManyToMany,
-  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
+import { TeamEntity } from './../gameHistory/team.entity';
 
 @Entity('user')
 export abstract class UserEntity {
@@ -81,12 +80,24 @@ export abstract class UserEntity {
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   updated_at: Date;
 
+  private beforeUpdatePassword: string;
+  @AfterLoad()
+  private loadTempPassword(): void {
+    this.beforeUpdatePassword = this.password;
+  }
+
   @BeforeInsert()
   @BeforeUpdate()
   async hashPassword() {
-    if (this.password) {
+    // new password is null and old password not null => password is removed
+    if (!this.password && this.beforeUpdatePassword) {
+      this.password = this.beforeUpdatePassword;
+      return;
+    }
+
+    if (this.password != null) {
       this.password = await this.hash(this.password);
-    } else this.password = '';
+    }
   }
 
   private async hash(input): Promise<string> {
