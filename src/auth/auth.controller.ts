@@ -63,7 +63,7 @@ export class AuthController {
   async login(@Req() requestWithUser: RequestWithUser) {
     const { user } = requestWithUser;
     if (user) {
-      return this.authService.getToken(user);
+      return this.authService.getToken(user as UserDTO);
     }
   }
 

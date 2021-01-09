@@ -19,7 +19,7 @@ export class AuthService {
   ) {}
   getToken(userData: UserDTO): LoginResponse {
     const { id, username } = userData;
-    const jwtPayload: JWTPayload = { userId: id, username };
+    const jwtPayload: JWTPayload = { id, username };
 
     return {
       accessToken: this.jwtService.sign(jwtPayload),
@@ -29,8 +29,8 @@ export class AuthService {
   async getUser(token: string) {
     const userData: JWTPayload | any = this.jwtService.decode(token);
     if (!userData) return null;
-    const { userId } = userData as JWTPayload;
-    return await this.userService.findUser({ id: userId });
+    const { id } = userData as JWTPayload;
+    return await this.userService.findUser({ id });
   }
 
   private async getGoogleUserData(googleOAuthToken: string) {
