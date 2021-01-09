@@ -52,7 +52,8 @@ export class GameHistoryService {
         if (side !== team.side) {
           return team;
         }
-        team.users.push(this.userRepository.create(UserDTO.toEntity(user)));
+        const { gameProfile, ...updatedUser } = user;
+        team.users.push(this.userRepository.create(updatedUser));
         return team;
       });
     }, initalTeamReduce);
@@ -68,8 +69,6 @@ export class GameHistoryService {
   }
 
   async saveGame(room: RoomModel) {
-    // TODO: save chat
-
     // save moves
     room.getGame().getGameEntity().moves = room
       .getGame()
@@ -86,10 +85,13 @@ export class GameHistoryService {
         });
       });
 
-    // TODO: save rank records
+    // save rank records
     const gameResult = room.getGame().getGameResult();
-    const team = room.getGame().getGameEntity().team;
-
+    const { team } = await this.gameRepository.findOne({
+      where: { id: room.getGame().getGameID() },
+      relations: ['team', 'team.users'],
+    });
+    room.getGame().getGameEntity().team = team;
     const avgRankOf2Team = new GetRankData(team);
 
     const rankRecord: RankRecordEntity[] = team.reduce(
