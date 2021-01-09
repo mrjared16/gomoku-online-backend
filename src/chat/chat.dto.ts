@@ -32,3 +32,17 @@ export class ChatDTO {
     };
   }
 }
+
+export type JoinChatRoomDTO = {
+  roomID: string;
+  chatChannelID: string;
+};
+
+export type SentMessageToRoomChatDTO = {
+  roomID: string;
+  chatChannelID: string;
+  data: {
+    token: string;
+    content: string;
+  };
+};
