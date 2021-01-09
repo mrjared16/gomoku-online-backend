@@ -2,8 +2,11 @@ import { UserEntity } from 'src/users/users.entity';
 import { Column, CreateDateColumn, ManyToOne } from 'typeorm';
 import { GameEntity } from 'src/game/game.entity';
 import { Entity, PrimaryGeneratedColumn } from 'typeorm';
-import { GameSide } from 'src/game/game.dto';
 
+enum GameSide {
+  X,
+  O,
+}
 @Entity('move_record')
 export class MoveRecordEntity {
   @PrimaryGeneratedColumn('uuid')
