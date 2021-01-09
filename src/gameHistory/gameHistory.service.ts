@@ -8,8 +8,12 @@ import { UserDTO } from 'src/users/users.dto';
 import { UserEntity } from 'src/users/users.entity';
 import { Repository } from 'typeorm';
 import { GameDTO } from './../game/game.dto';
+import { GameHistoryDTO, RankRecordDTO } from './gameHistory.dto';
 import { getNewRank, GetRankData, getUserResult } from './gameHistory.helper';
-import { GameHistoryDetailResponse } from './gameHistory.interface';
+import {
+  AllGameHistoryResponse,
+  GameHistoryDetailResponse,
+} from './gameHistory.interface';
 import { MoveRecordEntity } from './moveRecord.entity';
 import { TeamEntity } from './team.entity';
 @Injectable()
@@ -145,6 +149,43 @@ export class GameHistoryService {
     const gameDTO = GameDTO.EntityToDTO(gameEntity);
     return {
       game: gameDTO,
+    };
+  }
+
+  async getGameHistoryOfUser(user: UserDTO): Promise<AllGameHistoryResponse> {
+    const { id } = user;
+    const teamAndRankOfUser = await this.userRepository.findOne(
+      { id },
+      { relations: ['teams', 'teams.game', 'rankRecords', 'rankRecords.game'] },
+    );
+    const { teams, rankRecords } = teamAndRankOfUser;
+
+    const sideDictionary = teams.reduce((prevDictionary, currentTeamEntity) => {
+      const { side, gameId } = currentTeamEntity;
+
+      prevDictionary.set(gameId, side);
+
+      return prevDictionary;
+    }, new Map<string, GameSide>());
+
+    const result2 = rankRecords.map(
+      (rankRecord): GameHistoryDTO => {
+        const { game } = rankRecord;
+        const { id: gameId, start_at, duration, gameResult } = game;
+
+        return {
+          id: gameId,
+          playerSide: sideDictionary.get(gameId),
+          gameResult,
+          startAt: start_at,
+          duration,
+          rankRecord: RankRecordDTO.EntityToDTO(rankRecord),
+        };
+      },
+    );
+
+    return {
+      games: result2,
     };
   }
 }
