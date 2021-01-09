@@ -1,3 +1,4 @@
+import { ChatModule } from './chat/chat.module';
 import { GameHistoryModule } from './gameHistory/gameHistory.module';
 import { GameModule } from './game/game.module';
 import { RoomModule } from './room/room.module';
@@ -20,6 +21,7 @@ import { WaitingRoomModule } from './waitingRoom/waitingRoom.module';
     RoomModule,
     GameModule,
     GameHistoryModule,
+    ChatModule,
   ],
   controllers: [AppController],
   providers: [AppService],
