@@ -156,7 +156,7 @@ export class GameHistoryService {
     const { id } = user;
     const teamAndRankOfUser = await this.userRepository.findOne(
       { id },
-      { relations: ['teams', 'teams.game', 'rankRecords', 'rankRecords.game'] },
+      { relations: ['teams', 'rankRecords', 'rankRecords.game'] },
     );
     const { teams, rankRecords } = teamAndRankOfUser;
 

@@ -37,8 +37,8 @@ export class RankRecordDTO {
 
     const { user, game, oldRank, newRank } = rankEntity;
     return {
-      playerID: user.id,
-      gameID: game.id,
+      playerID: user?.id,
+      gameID: game?.id,
       oldRank,
       newRank,
     };
