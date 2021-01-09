@@ -20,12 +20,12 @@ export class RoomManager {
     return this.map.get(roomID);
   };
 
-  addNewRoom(host: UserDTO, hostSocket: Socket): RoomModel {
+  addNewRoom(host: UserDTO, chatChannel: ChatChannelEntity): RoomModel {
     const getRoomID = (): string => {
       return Date.now().toString(36) + Math.random().toString(36).substr(2);
     };
     const roomID = getRoomID();
-    const newRoom = new RoomModel(roomID, host);
+    const newRoom = new RoomModel(roomID, host, chatChannel);
     this.map.set(roomID, newRoom);
     return newRoom;
   }
@@ -44,6 +44,7 @@ export class RoomModel {
   constructor(
     public id: string,
     public host: UserDTO,
+    private chatChannelEntity: ChatChannelEntity,
     public roomOption: RoomOption = DEFAULT_ROOM_OPTION,
   ) {
     const { boardSize, password, time } = roomOption;
@@ -59,6 +60,7 @@ export class RoomModel {
     this.joinedPlayer = [];
     this.users = [];
     this.gameID = null;
+    this.chatChannelID = this.chatChannelEntity?.id || null;
   }
 
   private password: string;
@@ -77,7 +79,6 @@ export class RoomModel {
   private gameModel: GameModel;
 
   public chatChannelID: string;
-  private chatChannelEntity: ChatChannelEntity;
 
   addUser(user: UserDTO, roomRequirement: RoomRequirement): boolean {
     if (roomRequirement) {
@@ -215,7 +216,7 @@ export class RoomModel {
     return this.joinedPlayer.some(({ user }) => user.id === userInfo.id);
   }
 
-  getChatChannelID(): ChatChannelEntity {
+  getChatChannelEntity(): ChatChannelEntity {
     return this.chatChannelEntity;
   }
 }

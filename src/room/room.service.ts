@@ -1,3 +1,4 @@
+import { ChatService } from 'src/chat/chat.service';
 import { WaitingRoomService } from './../waitingRoom/waitingRoom.service';
 import { UserDTO } from './../users/users.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
@@ -24,6 +25,8 @@ export class RoomService {
     private waitingRoomService: WaitingRoomService,
     @Inject(forwardRef(() => RoomGateway))
     private roomGateway: RoomGateway,
+    @Inject(forwardRef(() => ChatService))
+    private chatService: ChatService,
   ) {}
 
   async handleCreateRoom(
@@ -40,17 +43,22 @@ export class RoomService {
     if (!userInfo) {
       return;
     }
+
     const userStatus = this.waitingRoomService.getUserStatus(userInfo.username);
     if (userStatus.roomID) {
       // already in a room
       return;
     }
 
-    const newRoom = this.roomManager.addNewRoom(userInfo, socket);
+    const newChatChannel = await this.chatService.createChatChannelForRoom();
+
+    const newRoom = this.roomManager.addNewRoom(userInfo, newChatChannel);
+
     roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',
       data: RoomDTO.ModelToDTO(newRoom),
     });
+
     console.log({ newRoom });
     return {
       roomID: newRoom.id,

@@ -1,3 +1,4 @@
+import { ChatModule } from './../chat/chat.module';
 import { WaitingRoomModule } from './../waitingRoom/waitingRoom.module';
 import { GameModule } from './../game/game.module';
 import { RoomService } from './room.service';
@@ -12,6 +13,7 @@ import { RoomManager } from './room.model';
     forwardRef(() => AuthModule),
     forwardRef(() => GameModule),
     forwardRef(() => WaitingRoomModule),
+    forwardRef(() => ChatModule),
   ],
   controllers: [RoomController],
   providers: [RoomService, RoomGateway, RoomManager],

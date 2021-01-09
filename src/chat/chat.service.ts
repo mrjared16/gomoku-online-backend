@@ -1,3 +1,4 @@
+import { RoomModel } from 'src/room/room.model';
 import { ChatRecordEntity } from 'src/chat/chatRecord.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
@@ -11,4 +12,9 @@ export class ChatService {
     @InjectRepository(ChatRecordEntity)
     private chatRecordRepository: Repository<ChatRecordEntity>,
   ) {}
+
+  async createChatChannelForRoom(): Promise<ChatChannelEntity> {
+    const newChatChannel = this.chatRepository.create();
+    return await this.chatRepository.save(newChatChannel);
+  }
 }

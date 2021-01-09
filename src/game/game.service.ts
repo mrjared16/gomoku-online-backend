@@ -112,7 +112,7 @@ export class GameService {
       joinedPlayer,
     );
 
-    const chat: ChatChannelEntity = room.getChatChannelID();
+    const chat: ChatChannelEntity = room.getChatChannelEntity();
 
     const gameEntity: GameEntity = this.gameRepository.create({
       boardSize,
