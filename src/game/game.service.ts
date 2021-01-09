@@ -1,6 +1,7 @@
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
+import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
 import { RoomGateway } from 'src/room/room.gateway';
 import { RoomManager } from 'src/room/room.model';
 import { Repository } from 'typeorm';
@@ -8,7 +9,7 @@ import { GameHistoryService } from './../gameHistory/gameHistory.service';
 import { TeamEntity } from './../gameHistory/team.entity';
 import { RoomModel } from './../room/room.model';
 import { RoomService } from './../room/room.service';
-import { GameResult, HitDTO, GameDTO } from './game.dto';
+import { GameDTO, GameResult, HitDTO } from './game.dto';
 import { GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
@@ -111,11 +112,12 @@ export class GameService {
       joinedPlayer,
     );
 
-    // TODO: create chat
+    const chat: ChatChannelEntity = room.getChatChannelID();
 
     const gameEntity: GameEntity = this.gameRepository.create({
       boardSize,
       team: team,
+      chat,
     });
     const result = await this.gameRepository.save(gameEntity);
     return result;

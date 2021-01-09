@@ -1,3 +1,4 @@
+import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
 import { Injectable } from '@nestjs/common';
 import { Socket } from 'socket.io/dist/socket';
 import { GameSide, GomokuGamePlayer, Turn } from 'src/game/game.dto';
@@ -74,6 +75,9 @@ export class RoomModel {
 
   public gameID: string | null;
   private gameModel: GameModel;
+
+  public chatChannelID: string;
+  private chatChannelEntity: ChatChannelEntity;
 
   addUser(user: UserDTO, roomRequirement: RoomRequirement): boolean {
     if (roomRequirement) {
@@ -209,5 +213,9 @@ export class RoomModel {
 
   isPlayer(userInfo: UserDTO) {
     return this.joinedPlayer.some(({ user }) => user.id === userInfo.id);
+  }
+
+  getChatChannelID(): ChatChannelEntity {
+    return this.chatChannelEntity;
   }
 }
