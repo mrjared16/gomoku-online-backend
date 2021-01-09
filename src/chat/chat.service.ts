@@ -34,7 +34,7 @@ export class ChatService {
     socket: Socket,
     roomMessageData: SentMessageToRoomChatDTO,
   ) {
-    const { roomID, data } = roomMessageData;
+    const { roomID, data, chatChannelID } = roomMessageData;
     const { token } = data;
 
     const room = this.roomManager.getRoom(roomID);
@@ -51,7 +51,7 @@ export class ChatService {
     const { content } = data;
     const newChatRecord = this.chatRecordRepository.create({
       channel: chatChannel,
-      user: this.userRepository.create({ id: userInfo.id }),
+      user: this.userRepository.create({ ...userInfo }),
       content: content,
     });
 
@@ -59,7 +59,7 @@ export class ChatService {
       newChatRecord,
     );
 
-    this.chatGateway.broadcastChatEventToMember(socket, roomID, {
+    this.chatGateway.broadcastChatEventToMember(socket, chatChannelID, {
       event: 'onReceivedMessage',
       data: ChatRecordDTO.EntityToDTO(newChatRecordResponse),
     });
