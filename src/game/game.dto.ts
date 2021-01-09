@@ -43,7 +43,7 @@ export class GameDTO {
       duration,
       moves: moveRecordEntity = [],
       chat,
-      team,
+      team = [],
     } = gameEntity;
     const moveRecord: MoveRecordDTO[] = moveRecordEntity.map(
       MoveRecordDTO.EntityToDTO,
