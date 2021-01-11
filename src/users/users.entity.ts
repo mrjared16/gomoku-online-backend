@@ -88,7 +88,7 @@ export abstract class UserEntity {
 
   @CreateDateColumn({
     nullable: true,
-    default: null,
+    default: () => 'null',
   })
   resetPasswordExpires: Date;
 
@@ -99,13 +99,13 @@ export abstract class UserEntity {
 
   @CreateDateColumn({
     nullable: true,
-    default: null,
+    default: () => 'null',
   })
   activated_at: Date;
 
   @CreateDateColumn({
     nullable: true,
-    default: null,
+    default: () => 'null',
   })
   banned_at: Date;
 
