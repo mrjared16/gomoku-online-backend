@@ -9,6 +9,7 @@ import {
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { JWTPayload, LoginResponse } from './auth.interface';
+import { randomBytes } from 'crypto';
 
 @Injectable()
 export class AuthService {
@@ -73,5 +74,9 @@ export class AuthService {
       photoURL: picture,
     });
     return this.getToken(newUser);
+  }
+
+  createActivateCode(): string {
+    return randomBytes(20).toString('hex');
   }
 }
