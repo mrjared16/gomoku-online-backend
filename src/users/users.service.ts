@@ -63,6 +63,21 @@ export class UserService {
       throw new HttpException('Wrong username or password', 401);
     }
 
+    const { banned_at, activated_at } = userInfo;
+    if (!activated_at) {
+      throw new HttpException(
+        'Your account has not been activated yet',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
+    if (!banned_at) {
+      throw new HttpException(
+        'Your account has been banned',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+
     return UserDTO.EntityToDTO(userInfo);
   }
 
