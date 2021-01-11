@@ -3,11 +3,17 @@ import { UserEntity } from './users.entity';
 
 export class CreateUserDTO {
   @ApiProperty()
-  name: string;
+  firstName: string;
+  @ApiProperty()
+  lastName: string;
   @ApiProperty()
   username: string;
   @ApiProperty()
+  email: string;
+  @ApiProperty()
   password: string;
+  @ApiProperty()
+  confirmPassword: string;
 }
 export class UserLoginDTO {
   @ApiProperty()
@@ -58,7 +64,7 @@ export class UserDTO {
     } = userEntity;
     return {
       id,
-      name,
+      name: firstName + lastName,
       username,
       gameProfile: {
         rank,
