@@ -146,6 +146,13 @@ class ConfigService {
       },
     };
   }
+
+  public getResetPasswordConfig() {
+    const SECOND = 1 * 1000;
+    const MINUTE = 60 * SECOND;
+    const HOUR = 60 * MINUTE;
+    return 2 * HOUR;
+  }
 }
 
 const node_env: 'production' | 'development' = process.env.NODE_ENV as

@@ -87,7 +87,7 @@ export class AuthService {
     return this.getToken(newUser);
   }
 
-  createActivateCode(): string {
+  createRandomCode(): string {
     return randomBytes(20).toString('hex');
   }
 
@@ -105,7 +105,7 @@ export class AuthService {
     this.mailService
       .sendMail({
         to: email,
-        subject: 'Gomoku online user activate',
+        subject: 'Gomoku online verify account',
         html: emailContent,
       })
       // .then((response) => console.log({ response }))
@@ -115,5 +115,33 @@ export class AuthService {
   async activateUser(activateUserData: ActivateUserDTO) {
     const { token } = activateUserData;
     return await this.userService.activateUser(token);
+  }
+
+  async sendResetPasswordEmail(email: string, user: UserEntity) {
+    if (!user) {
+      user = await this.userService.getUserEntity({ email });
+    }
+    const { resetPasswordToken, firstName } = user;
+    const resetLink = `${Config.getClientHost()}/resetPassword/${resetPasswordToken}`;
+    const emailContent = `<div>Hi ${firstName}, <br/> <br/>
+      You are receiving this because you (or someone else) have requested the reset of the password for your account. <br/> <br/>
+      Please click on the following link, or paste this into your browser to complete the process: <br/> <br/>+
+      ${resetLink}
+      If you did not request this, please ignore this email and your password will remain unchanged.<br/>
+      </div>`;
+    this.mailService
+      .sendMail({
+        to: email,
+        subject: `Gomoku online reset account's password`,
+        html: emailContent,
+      })
+      // .then((response) => console.log({ response }))
+      .catch((error) => console.log({ error }));
+  }
+
+  async resetPassword(email: string) {
+    const user = await this.userService.createResetPasswordToken(email);
+    const result = await this.sendResetPasswordEmail(email, user);
+    return true;
   }
 }
