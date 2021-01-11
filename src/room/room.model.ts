@@ -176,7 +176,7 @@ export class RoomModel {
 
   async startGame(gameService: GameService) {
     const gameEntity = await gameService.createGameEntity(this);
-    this.gameModel = new GameModel(this.roomOption, this.players, gameEntity);
+    this.gameModel = new GameModel(this.roomOption, gameEntity);
     this.gameID = this.gameModel.getGameID();
     return this.gameID;
   }
@@ -201,7 +201,7 @@ export class RoomModel {
   getPlayerOfSide(gameSide: GameSide): string {
     const side: ('O' | 'X')[] = ['X', 'O'];
     const turnSide: 'X' | 'O' = side[gameSide];
-    return this.gameModel.getPlayers()[turnSide].id;
+    return this.players[turnSide].id;
   }
 
   isHost(userDTO: UserDTO) {

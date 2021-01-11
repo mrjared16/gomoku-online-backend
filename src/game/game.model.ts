@@ -1,38 +1,34 @@
 import { GameSide, GomokuGamePlayer } from 'src/game/game.dto';
-import { GameEntity } from 'src/game/game.entity';
+import { GameEndingType, GameEntity } from 'src/game/game.entity';
 import { MoveRecordDTO, RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { GameOption, GameResult } from './game.dto';
 import { GameHelper } from './game.helper';
 import { GameEndResponse } from './game.interface';
 
 export class GameModel {
-  constructor(
-    gameOption: GameOption,
-    private players: GomokuGamePlayer,
-    private gameEntity: GameEntity,
-  ) {
-    const { boardSize, time } = gameOption;
-    this.board = new Array(boardSize * boardSize).fill(null);
-    this.boardSize = boardSize;
-    this.time = time;
-    this.turn = GameSide.X;
-    this.remainingTime = this.time;
-    this.moves = [];
-    this.winLine = [];
-    this.gameResult = null;
-  }
+  private boardSize: number;
+  private time: number;
 
-  boardSize: number;
-  time: number;
+  private board: (null | GameSide)[];
 
   private remainingTime: number;
-  public turn: GameSide;
+  private turn: GameSide;
 
-  public moves: MoveRecordDTO[];
+  private moves: MoveRecordDTO[];
 
-  public board: (null | GameSide)[];
-  private winLine: number[];
-  private gameResult: GameResult;
+  constructor(gameOption: GameOption, private gameEntity: GameEntity) {
+    const { boardSize, time } = gameOption;
+
+    this.boardSize = boardSize;
+    this.board = new Array(boardSize * boardSize).fill(null);
+
+    this.time = time;
+
+    this.moves = [];
+
+    this.turn = GameSide.X;
+    this.remainingTime = this.time;
+  }
 
   hit(position: number, value: GameSide): boolean {
     if (!this.isValidHit(position, value)) {
@@ -48,16 +44,6 @@ export class GameModel {
     return true;
   }
 
-  addMove(position: number, value: GameSide) {
-    const newMove: MoveRecordDTO = {
-      id: '',
-      position: position,
-      value: value,
-      time: new Date(),
-    };
-    this.moves.push(newMove);
-  }
-
   isValidHit(position: number, value: GameSide): boolean {
     if (position < 0 || position >= this.boardSize * this.boardSize)
       return false;
@@ -70,66 +56,56 @@ export class GameModel {
 
   isFinish(): boolean {
     const gameResult = GameHelper.isFinish(this.board, this.boardSize);
-    if (gameResult.status == 'finish') {
-      const { result, winLine } = gameResult;
-      this.gameResult = result;
-      this.winLine = winLine;
-      return true;
+    if (gameResult.status !== 'finish') {
+      return false;
     }
-    return false;
+    const { result, winLine } = gameResult;
+
+    this.gameEntity.gameEndingType = GameEndingType.normal;
+    this.gameEntity.gameResult = result;
+    this.gameEntity.winningLine = winLine.join('-');
+    this.gameEntity.duration =
+      (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
+    return true;
   }
 
+  addMove(position: number, value: GameSide) {
+    const newMove: MoveRecordDTO = {
+      id: '',
+      position: position,
+      value: value,
+      time: new Date(),
+    };
+    this.moves.push(newMove);
+  }
+
+  // for live game
   getMoves(): MoveRecordDTO[] {
     return this.moves;
   }
 
+  // for live game
   getTurn(): GameSide {
     return this.turn;
   }
 
+  // for live game
   getRemainingTime(): number {
     return this.remainingTime;
   }
 
-  getPlayers(): GomokuGamePlayer {
-    return this.players;
+  // for saving game state
+  getGameEntity(): GameEntity {
+    return this.gameEntity;
   }
 
   getGameID(): string {
     return this.gameEntity.id;
   }
 
-  getStartedDate(): Date {
-    return this.gameEntity.start_at;
-  }
-
-  getDuration(): number {
-    return this.gameEntity.duration;
-  }
-
-  getRankRecord(): RankRecordDTO[] {
-    return [];
-  }
-
-  getWinLine(): number[] {
-    return this.winLine;
-  }
-
+  // for calculate rank
   getGameResult(): GameResult {
-    return this.gameResult;
-  }
-
-  getGameEntity(): GameEntity {
-    return this.gameEntity;
-  }
-
-  saveGameStateFromModel() {
-    // save result
-    this.gameEntity.gameResult = this.gameResult;
-
-    // save duration
-    this.gameEntity.duration =
-      (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
+    return this.gameEntity.gameResult;
   }
 
   getGameEndResponse(): GameEndResponse {
@@ -141,11 +117,11 @@ export class GameModel {
       duration,
     } = this.gameEntity;
     return {
-      winningLine,
-      rankRecords: rankRecords.map(RankRecordDTO.EntityToDTO),
       gameResult,
       gameEndingType,
+      winningLine,
       duration,
+      rankRecords: rankRecords.map(RankRecordDTO.EntityToDTO),
     };
   }
 }
