@@ -138,11 +138,6 @@ export class RoomModel {
   }
 
   setPlayer(newUser: UserDTO, gameSide: GameSide): boolean {
-    // full
-    if (this.joinedPlayer.length + 1 > 2) {
-      return false;
-    }
-
     // already taken
     if (this.joinedPlayer.some(({ side }) => side == gameSide)) {
       return false;
@@ -151,7 +146,12 @@ export class RoomModel {
     let newJoinedPlayer = this.joinedPlayer.filter(
       ({ user }) => user.id !== newUser.id,
     );
+
     if (gameSide != null) {
+      // full
+      if (this.joinedPlayer.length + 1 > 2) {
+        return false;
+      }
       newJoinedPlayer = newJoinedPlayer.concat({
         user: newUser,
         side: gameSide,
