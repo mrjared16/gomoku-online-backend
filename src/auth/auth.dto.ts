@@ -40,6 +40,9 @@ export class ActivateUserDTO {
   token: string;
 }
 
-export class ResetPasswordDTO {
+export class ForgotPasswordDTO {
   email: string;
+}
+export class ResetPasswordDTO {
+  token: string;
 }

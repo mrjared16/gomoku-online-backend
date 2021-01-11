@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  Param,
   Post,
   Req,
   UseGuards,
@@ -13,6 +14,7 @@ import { UserService } from './../users/users.service';
 import {
   ActivateUserDTO,
   CreateUserDTO,
+  ForgotPasswordDTO,
   ResetPasswordDTO,
   UserLoginDTO,
   UserLoginGoogleOAuthDTO,
@@ -95,12 +97,22 @@ export class AuthController {
   }
 
   @Post('forgotPassword')
-  async resetPassword(@Body() resetPasswordData: ResetPasswordDTO) {
-    const { email } = resetPasswordData;
-    const result = await this.authService.resetPassword(email);
+  async forgotPassword(@Body() forgotPasswordData: ForgotPasswordDTO) {
+    const { email } = forgotPasswordData;
+    const result = await this.authService.forgetPassword(email);
     if (result) {
       return {
         message: `An e-mail has been sent to ${email} with further instructions.`,
+      };
+    }
+  }
+
+  @Get('resetPassword/:token')
+  async resetPassword(@Param('token') token: string) {
+    const result = await this.authService.verifyResetPasswordToken(token);
+    if (result) {
+      return {
+        message: `Token is valid`,
       };
     }
   }

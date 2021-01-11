@@ -165,4 +165,15 @@ export class UserService {
     );
     return await this.userRepository.save(user);
   }
+
+  async getResetPasswordUser(token: string): Promise<UserEntity> {
+    const response = await this.userRepository
+      .createQueryBuilder('user')
+      .where('user.resetPasswordToken = :token', { token })
+      .andWhere(`user.resetPasswordExpires > :now`, {
+        now: new Date().toISOString(),
+      })
+      .getOne();
+    return response;
+  }
 }
