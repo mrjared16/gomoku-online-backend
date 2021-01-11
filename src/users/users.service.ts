@@ -12,7 +12,14 @@ export class UserService {
   ) {}
 
   async createUser(userData: CreateUserDTO): Promise<UserDTO> {
-    const { username, password, name } = userData;
+    const {
+      email,
+      username,
+      password,
+      firstName,
+      lastName,
+      photoURL = '',
+    } = userData;
     const userWithThisUsername = await this.userRepository.findOne({
       where: { username },
     });
@@ -24,15 +31,18 @@ export class UserService {
     }
 
     const newUser = await this.userRepository.create({
+      email,
       username,
       password,
-      name,
+      firstName,
+      lastName,
+      photoURL,
     });
     const userCreated = await this.userRepository.save(newUser);
     return UserDTO.EntityToDTO(userCreated);
   }
 
-  async findUser(userData: Partial<UserDTO>) {
+  async findUser(userData: Partial<UserEntity>) {
     // const { name, username, id } = userData;
     // TODO: get fields properly
     const user = await this.userRepository.findOne({ where: { ...userData } });

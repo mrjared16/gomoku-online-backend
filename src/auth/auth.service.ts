@@ -41,8 +41,8 @@ export class AuthService {
         )
         .toPromise();
       const { data } = response as { data: GoogleOAuthResponse };
-      const { email, name } = data;
-      return { email, name };
+      const { email, name, given_name, family_name, picture } = data;
+      return { email, name, given_name, family_name, picture };
     } catch (error) {
       console.log(error);
       return null;
@@ -56,18 +56,21 @@ export class AuthService {
         HttpStatus.SERVICE_UNAVAILABLE,
       );
     }
-    const { email, name } = googleUserData;
+    const { email, name, given_name, family_name, picture } = googleUserData;
     const userWithThisUsername = await this.userService.findUser({
-      username: email,
+      email: email,
     });
     if (userWithThisUsername) {
       return this.getToken(userWithThisUsername);
     }
 
     const newUser = await this.userService.createUser({
-      name,
       username: email,
       password: null,
+      email: email,
+      firstName: given_name,
+      lastName: family_name,
+      photoURL: picture,
     });
     return this.getToken(newUser);
   }

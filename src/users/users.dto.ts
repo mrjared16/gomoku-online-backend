@@ -3,17 +3,19 @@ import { UserEntity } from './users.entity';
 
 export class CreateUserDTO {
   @ApiProperty()
+  username: string;
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  password: string;
+
+  @ApiProperty()
   firstName: string;
   @ApiProperty()
   lastName: string;
   @ApiProperty()
-  username: string;
-  @ApiProperty()
-  email: string;
-  @ApiProperty()
-  password: string;
-  @ApiProperty()
-  confirmPassword: string;
+  photoURL?: string;
 }
 export class UserLoginDTO {
   @ApiProperty()
