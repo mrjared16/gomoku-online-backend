@@ -65,14 +65,17 @@ export class AuthService {
       return this.getToken(userWithThisUsername);
     }
 
-    const newUser = await this.userService.createUser({
-      username: email,
-      password: null,
-      email: email,
-      firstName: given_name,
-      lastName: family_name,
-      photoURL: picture,
-    });
+    const newUser = await this.userService.createUser(
+      {
+        username: email,
+        password: null,
+        email: email,
+        firstName: given_name,
+        lastName: family_name,
+        photoURL: picture,
+      },
+      true,
+    );
     return this.getToken(newUser);
   }
 

@@ -20,7 +20,10 @@ export class UserService {
     private authService: AuthService,
   ) {}
 
-  async createUser(userData: CreateUserDTO): Promise<UserDTO> {
+  async createUser(
+    userData: CreateUserDTO,
+    isAuthenticated = false,
+  ): Promise<UserDTO> {
     const {
       email,
       username,
@@ -38,6 +41,12 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    const userActiveStatus = isAuthenticated
+      ? { activated_at: Date.now(), activateCode: null }
+      : {
+          activated_at: null,
+          activateCode: this.authService.createActivateCode(),
+        };
 
     const newUser = this.userRepository.create({
       email,
@@ -46,8 +55,7 @@ export class UserService {
       firstName,
       lastName,
       photoURL,
-      activated_at: null,
-      activateCode: this.authService.createActivateCode(),
+      ...userActiveStatus,
     });
     const userCreated = await this.userRepository.save(newUser);
     return UserDTO.EntityToDTO(userCreated);
