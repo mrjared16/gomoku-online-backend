@@ -15,7 +15,7 @@ import {
   ActivateUserDTO,
   CreateUserDTO,
   ForgotPasswordDTO,
-  ResetPasswordDTO,
+  ChangePasswordDTO,
   UserLoginDTO,
   UserLoginGoogleOAuthDTO,
 } from './auth.dto';
@@ -109,10 +109,19 @@ export class AuthController {
 
   @Get('resetPassword/:token')
   async resetPassword(@Param('token') token: string) {
-    const result = await this.authService.verifyResetPasswordToken(token);
+    const result = await this.authService.resetPassword(token);
     if (result) {
       return {
         message: `Token is valid`,
+      };
+    }
+  }
+  @Post('resetPassword/')
+  async changePassword(@Body() changePasswordData: ChangePasswordDTO) {
+    const result = await this.authService.changePassword(changePasswordData);
+    if (result) {
+      return {
+        message: 'Success! Your password has been changed.',
       };
     }
   }

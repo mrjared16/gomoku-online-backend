@@ -1,6 +1,4 @@
-import { UserService } from './../users/users.service';
-import { ActivateUserDTO, GoogleOAuthResponse } from './auth.dto';
-import { UserDTO } from './../users/users.dto';
+import { MailerService } from '@nestjs-modules/mailer';
 import {
   forwardRef,
   HttpException,
@@ -10,12 +8,17 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { JWTPayload, LoginResponse } from './auth.interface';
 import { randomBytes } from 'crypto';
-import { UserEntity } from 'src/users/users.entity';
-import { MailerService } from '@nestjs-modules/mailer';
 import { Config } from 'src/shared/config';
-import * as nodemailer from 'nodemailer';
+import { UserEntity } from 'src/users/users.entity';
+import { UserDTO } from './../users/users.dto';
+import { UserService } from './../users/users.service';
+import {
+  ActivateUserDTO,
+  ChangePasswordDTO,
+  GoogleOAuthResponse,
+} from './auth.dto';
+import { JWTPayload, LoginResponse } from './auth.interface';
 
 @Injectable()
 export class AuthService {
@@ -145,7 +148,7 @@ export class AuthService {
     return true;
   }
 
-  async verifyResetPasswordToken(token: string) {
+  async resetPassword(token: string) {
     const user = await this.userService.getResetPasswordUser(token);
     if (!user) {
       throw new HttpException(
@@ -153,6 +156,26 @@ export class AuthService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    return true;
+  }
+
+  async changePassword(changePasswordData: ChangePasswordDTO) {
+    const { token, newPassword, confirmNewPassword } = changePasswordData;
+    const user = await this.userService.getResetPasswordUser(token);
+    if (!user) {
+      throw new HttpException(
+        'Password reset token is invalid or has expired.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    if (newPassword != confirmNewPassword) {
+      throw new HttpException(
+        'Confirm password does not match.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+
+    const result = await this.userService.changePassword(user, newPassword);
     return true;
   }
 }

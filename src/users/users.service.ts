@@ -99,7 +99,7 @@ export class UserService {
       );
     }
 
-    if (!banned_at) {
+    if (banned_at) {
       throw new HttpException(
         'Your account has been banned',
         HttpStatus.FORBIDDEN,
@@ -175,5 +175,12 @@ export class UserService {
       })
       .getOne();
     return response;
+  }
+
+  async changePassword(user: UserEntity, newPassword: string) {
+    user.password = newPassword;
+    user.resetPasswordToken = null;
+    user.resetPasswordExpires = null;
+    return await this.userRepository.save(user);
   }
 }
