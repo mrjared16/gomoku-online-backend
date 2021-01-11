@@ -69,19 +69,7 @@ export class GameService {
 
     const isFinish = game.isFinish();
     if (isFinish) {
-      // TODO: handle game end
-      await this.saveGame(room);
-
-      this.gameGateway.broadcastGameEventToMember(
-        socket,
-        roomID,
-        {
-          event: 'onFinish',
-          data: game.getGameEndResponse(),
-        },
-        true,
-      );
-      this.roomService.handleEndGame(room, socket);
+      this.handleEndGame(room);
     } else {
       this.gameGateway.broadcastGameEventToMember(
         socket,
@@ -116,9 +104,31 @@ export class GameService {
     return result;
   }
 
+  async handleEndGame(room: RoomModel) {
+    // save game
+    await this.saveGame(room);
+
+    // broadcast game result
+    const roomID = room.id;
+    const game = room.getGame();
+    this.gameGateway.broadcastGameEventToMember(
+      null,
+      roomID,
+      {
+        event: 'onFinish',
+        data: game.getGameEndResponse(),
+      },
+      true,
+    );
+
+    // reset room
+    this.roomService.resetRoomStateWhenGameEnd(room);
+  }
+
   async saveGame(room: RoomModel) {
-    room.getGame().saveGameState();
-    await this.gameHistoryService.saveGame(room);
-    await this.gameRepository.save(room.getGame().getGameEntity());
+    const game = room.getGame();
+    game.saveGameStateFromModel();
+    await this.gameHistoryService.saveGameHistory(game, room);
+    await this.gameRepository.save(game.getGameEntity());
   }
 }

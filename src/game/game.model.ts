@@ -123,7 +123,7 @@ export class GameModel {
     return this.gameEntity;
   }
 
-  saveGameState() {
+  saveGameStateFromModel() {
     // save result
     this.gameEntity.gameResult = this.gameResult;
 

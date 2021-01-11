@@ -1,3 +1,4 @@
+import { GameModel } from 'src/game/game.model';
 import { ChatRecordDTO } from 'src/chat/chat.dto';
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -68,30 +69,27 @@ export class GameHistoryService {
     return result;
   }
 
-  async saveGame(room: RoomModel) {
+  async saveGameHistory(game: GameModel, room: RoomModel) {
     // save moves
-    room.getGame().getGameEntity().moves = room
-      .getGame()
-      .getMoves()
-      .map((moveDTO) => {
-        const { id, position, value, time } = moveDTO;
-        const playerID = room.getPlayerOfSide(value);
-        const player = this.userRepository.create({ id: playerID });
-        return this.moveRecordRepository.create({
-          user: player,
-          position,
-          value,
-          created_at: time,
-        });
+    game.getGameEntity().moves = game.getMoves().map((moveDTO) => {
+      const { id, position, value, time } = moveDTO;
+      const playerID = room.getPlayerOfSide(value);
+      const player = this.userRepository.create({ id: playerID });
+      return this.moveRecordRepository.create({
+        user: player,
+        position,
+        value,
+        created_at: time,
       });
+    });
 
     // save rank records
-    const gameResult = room.getGame().getGameResult();
+    const gameResult = game.getGameResult();
     const { team } = await this.gameRepository.findOne({
-      where: { id: room.getGame().getGameID() },
+      where: { id: game.getGameID() },
       relations: ['team', 'team.users'],
     });
-    room.getGame().getGameEntity().team = team;
+    game.getGameEntity().team = team;
     const avgRankOf2Team = new GetRankData(team);
 
     const rankRecord: RankRecordEntity[] = team.reduce(
@@ -128,7 +126,7 @@ export class GameHistoryService {
       [] as RankRecordEntity[],
     );
 
-    room.getGame().getGameEntity().rankRecords = rankRecord;
+    game.getGameEntity().rankRecords = rankRecord;
   }
 
   isInCurrentGame(user: UserDTO, teams: TeamEntity[]) {

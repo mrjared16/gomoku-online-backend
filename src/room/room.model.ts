@@ -181,13 +181,9 @@ export class RoomModel {
     return this.gameID;
   }
 
-  endGame() {
+  resetGameState() {
     this.gameModel = null;
     this.gameID = null;
-  }
-
-  save() {
-    //TODO: handle save game
   }
 
   getGame() {
