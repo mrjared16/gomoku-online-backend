@@ -10,6 +10,9 @@ import {
 import { JwtService } from '@nestjs/jwt';
 import { JWTPayload, LoginResponse } from './auth.interface';
 import { randomBytes } from 'crypto';
+import { UserEntity } from 'src/users/users.entity';
+import { MailerService } from '@nestjs-modules/mailer';
+import { Config } from 'src/shared/config';
 
 @Injectable()
 export class AuthService {
@@ -17,6 +20,7 @@ export class AuthService {
     private jwtService: JwtService,
     private httpService: HttpService,
     private userService: UserService,
+    private mailService: MailerService,
   ) {}
   getToken(userData: UserDTO): LoginResponse {
     const { id, username } = userData;
@@ -81,5 +85,22 @@ export class AuthService {
 
   createActivateCode(): string {
     return randomBytes(20).toString('hex');
+  }
+
+  async sendUserVerificationEmail(email: string, userCreated: UserEntity) {
+    if (!userCreated) {
+      userCreated = await this.userService.getUserEntity({ email });
+    }
+    const { activateCode, firstName } = userCreated;
+    const activateLink = `${Config.getClientHost()}/activate/${activateCode}`;
+    const emailContent = `Hello ${firstName},
+      Please verify your account by clicking the link: <a>${activateLink}</a>
+      Thank You!`;
+    this.mailService.sendMail({
+      to: email,
+      // from: 'noreply@nestjs.com', // sender address
+      subject: 'Gomoku online user activate',
+      html: emailContent,
+    });
   }
 }
