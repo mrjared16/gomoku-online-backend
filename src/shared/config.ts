@@ -1,6 +1,5 @@
 import { MailerOptions } from '@nestjs-modules/mailer/dist';
 import { ExtractJwt } from 'passport-jwt';
-import { createTransport } from 'nodemailer';
 // eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
 class ConfigService {
@@ -128,18 +127,18 @@ class ConfigService {
   }
   public getMailServiceConfig(): MailerOptions {
     const { host } = this.getCurrentHost();
-    const transport = createTransport({
+    const transport = {
       host: this.env.SMTP_SERVICE_HOST,
       port: this.env.SMTP_SERVICE_PORT,
       secure: true,
       auth: {
-        user: this.env.SMTP_USERNAME,
-        pass: this.env.SMTP_PASSWORD,
+        user: this.env.SMTP_SERVICE_USERNAME,
+        pass: this.env.SMTP_SERVICE_PASSWORD,
       },
       tls: {
         rejectUnauthorized: false,
       },
-    });
+    };
     return {
       transport: transport,
       defaults: {
