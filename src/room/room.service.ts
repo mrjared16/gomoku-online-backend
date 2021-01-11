@@ -66,7 +66,6 @@ export class RoomService {
       room.setPlayerOnlineStatus(userInfo.id, false);
       this.broadcastRoomState({
         roomID,
-        socket: null,
       });
       return;
     }
@@ -77,7 +76,6 @@ export class RoomService {
         room.removeUser(userInfo.id);
         this.broadcastRoomState({
           roomID,
-          socket: null,
         });
         return;
       }
@@ -85,7 +83,6 @@ export class RoomService {
       if (success) {
         this.broadcastRoomState({
           roomID,
-          socket: null,
         });
       }
       return;
@@ -99,7 +96,6 @@ export class RoomService {
 
     this.broadcastRoomState({
       roomID,
-      socket: null,
     });
   }
 
@@ -136,7 +132,7 @@ export class RoomService {
           this.waitingRoomService.onUserJoinRoom(userInfo.username, roomID);
         }
 
-        this.broadcastRoomState({ roomID, socket });
+        this.broadcastRoomState({ roomID });
         return this.roomManager.getRoom(roomID);
       },
 
@@ -157,13 +153,13 @@ export class RoomService {
           await socket.leave(roomID);
           if (room.getGame()) {
             room.removeUser(userInfo.id);
-            this.broadcastRoomState({ roomID, socket });
+            this.broadcastRoomState({ roomID });
             return;
           }
           this.waitingRoomService.onUserLeaveRoom(userInfo.username);
           const success = this.roomManager.removeRoom(roomID);
           if (success) {
-            this.broadcastRoomState({ roomID, socket });
+            this.broadcastRoomState({ roomID });
           }
           return;
         }
@@ -176,7 +172,7 @@ export class RoomService {
           room.removePlayer(userInfo.id);
         }
 
-        this.broadcastRoomState({ roomID, socket });
+        this.broadcastRoomState({ roomID });
       },
 
       kick: async (roomID: string, data: JoinRoomDTO, userInfo: UserDTO) => {
@@ -217,7 +213,7 @@ export class RoomService {
 
         if (!result) return false;
 
-        this.broadcastRoomState({ roomID, socket });
+        this.broadcastRoomState({ roomID });
         return true;
       },
       leave: (
@@ -232,7 +228,7 @@ export class RoomService {
 
         if (!result) return false;
 
-        this.broadcastRoomState({ roomID, socket });
+        this.broadcastRoomState({ roomID });
         return true;
       },
       kick: (
@@ -251,7 +247,7 @@ export class RoomService {
 
         if (!result) return false;
 
-        this.broadcastRoomState({ roomID, socket });
+        this.broadcastRoomState({ roomID });
         return true;
       },
     };
@@ -278,26 +274,24 @@ export class RoomService {
     this.waitingRoomService.onUserPlayGame(room.players.X.username);
     this.waitingRoomService.onUserPlayGame(room.players.O.username);
     await room.startGame(this.gameService);
-    this.broadcastRoomState({ socket, roomID });
+    this.broadcastRoomState({ roomID });
     // console.log({ data, room });
 
     return { gameID: room.gameID };
   }
 
-  handleEndGame(room: RoomModel, socket: Socket) {
+  resetRoomStateWhenGameEnd(room: RoomModel) {
     // TODO: remove game status in socket manager
     this.waitingRoomService.onUserLeaveGame(room.players.X.username);
     this.waitingRoomService.onUserLeaveGame(room.players.O.username);
     // TODO: handle save game to database
-    room.save();
-    room.endGame();
+    room.resetGameState();
     this.broadcastRoomState({
       roomID: room.id,
-      socket,
     });
   }
 
-  broadcastRoomState({ roomID, socket }: { socket: Socket; roomID: string }) {
+  broadcastRoomState({ roomID }: { roomID: string }) {
     const room = this.roomManager.getRoom(roomID);
     const data = !!room
       ? RoomDTO.ModelToDTO(room)
@@ -307,7 +301,7 @@ export class RoomService {
         };
     // broadcast to current room
     this.roomGateway.broadcastRoomEventToMember(
-      socket,
+      null,
       roomID,
       {
         event: 'roomUpdated',
