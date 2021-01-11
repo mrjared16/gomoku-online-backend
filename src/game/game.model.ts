@@ -11,12 +11,17 @@ export class GameModel {
 
   private board: (null | GameSide)[];
 
-  private remainingTime: number;
   private turn: GameSide;
 
   private moves: MoveRecordDTO[];
 
-  constructor(gameOption: GameOption, private gameEntity: GameEntity) {
+  private turnStartAt: Date;
+  private currentTimer = null;
+  constructor(
+    gameOption: GameOption,
+    private gameEntity: GameEntity,
+    private saveGame: () => void,
+  ) {
     const { boardSize, time } = gameOption;
 
     this.boardSize = boardSize;
@@ -25,11 +30,34 @@ export class GameModel {
     this.time = time;
 
     this.moves = [];
-
-    this.turn = GameSide.X;
-    this.remainingTime = this.time;
   }
 
+  startGame() {
+    this.setTurn(GameSide.X);
+  }
+
+  setTurn(turn: 0 | 1) {
+    if (this.currentTimer) {
+      clearTimeout(this.currentTimer);
+    }
+    this.turn = turn;
+    this.turnStartAt = new Date();
+    this.currentTimer = setTimeout(
+      () => {
+        this.gameEntity.gameEndingType = GameEndingType.timeout;
+        this.gameEntity.gameResult = (this.turn !== 0
+          ? GameSide.X
+          : GameSide.O) as 0 | 1 | 2;
+        this.gameEntity.winningLine = '';
+        this.gameEntity.duration =
+          (Date.now() + this.time * 1000 - this.gameEntity.start_at.getTime()) /
+          1000;
+        this.saveGame();
+      },
+      this.time * 1000,
+      {},
+    );
+  }
   hit(position: number, value: GameSide): boolean {
     if (!this.isValidHit(position, value)) {
       return false;
@@ -38,8 +66,7 @@ export class GameModel {
 
     this.board[position] = value;
 
-    this.turn = (this.turn + 1) % 2;
-    this.remainingTime = this.time;
+    this.setTurn(((this.turn + 1) % 2) as 0 | 1);
 
     return true;
   }
@@ -48,7 +75,7 @@ export class GameModel {
     if (position < 0 || position >= this.boardSize * this.boardSize)
       return false;
     if (value !== this.turn) return false;
-    if (this.remainingTime <= 0) {
+    if (this.getRemainingTime() <= 0) {
       return false;
     }
     return true;
@@ -91,7 +118,7 @@ export class GameModel {
 
   // for live game
   getRemainingTime(): number {
-    return this.remainingTime;
+    return (Date.now() - this.turnStartAt.getTime()) / 1000;
   }
 
   // for saving game state
