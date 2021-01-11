@@ -8,9 +8,14 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
-import { CreateUserDTO, UserDTO, UserLoginDTO } from './../users/users.dto';
+import { UserDTO } from 'src/users/users.dto';
 import { UserService } from './../users/users.service';
-import { ActivateUserDTO, UserLoginGoogleOAuthDTO } from './auth.dto';
+import {
+  ActivateUserDTO,
+  CreateUserDTO,
+  UserLoginDTO,
+  UserLoginGoogleOAuthDTO,
+} from './auth.dto';
 import {
   LoginResponse,
   RequestWithUser,
@@ -81,5 +86,10 @@ export class AuthController {
   @Post('activate')
   async activateUser(@Body() activateUserData: ActivateUserDTO) {
     const result = await this.authService.activateUser(activateUserData);
+    if (result) {
+      return {
+        message: 'User has been activated',
+      };
+    }
   }
 }

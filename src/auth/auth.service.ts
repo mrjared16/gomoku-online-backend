@@ -2,9 +2,11 @@ import { UserService } from './../users/users.service';
 import { ActivateUserDTO, GoogleOAuthResponse } from './auth.dto';
 import { UserDTO } from './../users/users.dto';
 import {
+  forwardRef,
   HttpException,
   HttpService,
   HttpStatus,
+  Inject,
   Injectable,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -13,12 +15,14 @@ import { randomBytes } from 'crypto';
 import { UserEntity } from 'src/users/users.entity';
 import { MailerService } from '@nestjs-modules/mailer';
 import { Config } from 'src/shared/config';
+import * as nodemailer from 'nodemailer';
 
 @Injectable()
 export class AuthService {
   constructor(
     private jwtService: JwtService,
     private httpService: HttpService,
+    @Inject(forwardRef(() => UserService))
     private userService: UserService,
     private mailService: MailerService,
   ) {}
@@ -93,15 +97,19 @@ export class AuthService {
     }
     const { activateCode, firstName } = userCreated;
     const activateLink = `${Config.getClientHost()}/activate/${activateCode}`;
-    const emailContent = `Hello ${firstName},
-      Please verify your account by clicking the link: <a>${activateLink}</a>
-      Thank You!`;
-    this.mailService.sendMail({
-      to: email,
-      // from: 'noreply@nestjs.com', // sender address
-      subject: 'Gomoku online user activate',
-      html: emailContent,
-    });
+    const emailContent = `<div>Hello ${firstName}, <br/>
+      Please verify your account by clicking the link: <a href=${activateLink}>${activateLink}</a>
+      <br/>
+      <br/>
+      Thank You!</div>`;
+    this.mailService
+      .sendMail({
+        to: email,
+        subject: 'Gomoku online user activate',
+        html: emailContent,
+      })
+      // .then((response) => console.log({ response }))
+      .catch((error) => console.log({ error }));
   }
 
   async activateUser(activateUserData: ActivateUserDTO) {
