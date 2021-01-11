@@ -3,6 +3,7 @@ import { GameEntity } from 'src/game/game.entity';
 import { MoveRecordDTO, RankRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { GameOption, GameResult } from './game.dto';
 import { GameHelper } from './game.helper';
+import { GameEndResponse } from './game.interface';
 
 export class GameModel {
   constructor(
@@ -129,5 +130,9 @@ export class GameModel {
     // save duration
     this.gameEntity.duration =
       (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
+  }
+
+  getGameEndResponse(): GameEndResponse {
+    throw new Error('Method not implemented.');
   }
 }

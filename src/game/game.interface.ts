@@ -19,14 +19,7 @@ export type BroadcastGameEventToCurrentRoomResponse =
     }
   | {
       event: 'onFinish';
-      data: {
-        winningLine: string;
-        gameResult: GameResult;
-        gameEndingType: GameEndingType;
-
-        duration: number;
-        rankRecord: RankRecordDTO[];
-      };
+      data: GameEndResponse;
     };
 
 export class GameInfoResponse {
@@ -34,4 +27,13 @@ export class GameInfoResponse {
   game: GameDTO;
   @ApiResponseProperty()
   gameState: GameState;
+}
+
+export class GameEndResponse {
+  winningLine: string;
+  gameResult: GameResult;
+  gameEndingType: GameEndingType;
+
+  duration: number;
+  rankRecord: RankRecordDTO[];
 }
