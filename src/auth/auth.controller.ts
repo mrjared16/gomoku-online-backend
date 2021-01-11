@@ -13,6 +13,7 @@ import { UserService } from './../users/users.service';
 import {
   ActivateUserDTO,
   CreateUserDTO,
+  ResetPasswordDTO,
   UserLoginDTO,
   UserLoginGoogleOAuthDTO,
 } from './auth.dto';
@@ -89,6 +90,17 @@ export class AuthController {
     if (result) {
       return {
         message: 'User has been activated',
+      };
+    }
+  }
+
+  @Post('forgotPassword')
+  async resetPassword(@Body() resetPasswordData: ResetPasswordDTO) {
+    const { email } = resetPasswordData;
+    const result = await this.authService.resetPassword(email);
+    if (result) {
+      return {
+        message: `An e-mail has been sent to ${email} with further instructions.`,
       };
     }
   }

@@ -39,3 +39,7 @@ export class GoogleOAuthResponse {
 export class ActivateUserDTO {
   token: string;
 }
+
+export class ResetPasswordDTO {
+  email: string;
+}
