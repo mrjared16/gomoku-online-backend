@@ -44,7 +44,7 @@ export class UserDTO {
     } = userEntity;
     return {
       id,
-      name: firstName + lastName,
+      name: firstName + ' ' + lastName,
       username,
       gameProfile: {
         rank,

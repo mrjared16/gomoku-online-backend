@@ -55,6 +55,7 @@ export class UserService {
       password,
       firstName,
       lastName,
+      name: firstName + ' ' + lastName,
       photoURL,
       ...userActiveStatus,
     });
