@@ -1,6 +1,8 @@
+import { MailerOptions } from '@nestjs-modules/mailer/dist';
 import { ExtractJwt } from 'passport-jwt';
+import { createTransport } from 'nodemailer';
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('dotenv').config();
-
 class ConfigService {
   constructor(
     private env,
@@ -118,6 +120,31 @@ class ConfigService {
         (this.currentConfig as any).port
       }`,
       socketPort: (this.currentConfig as any).socketPort,
+    };
+  }
+
+  public getClientHost() {
+    return this.env.CLIENT_HOST;
+  }
+  public getMailServiceConfig(): MailerOptions {
+    const { host } = this.getCurrentHost();
+    const transport = createTransport({
+      host: this.env.SMTP_SERVICE_HOST,
+      port: this.env.SMTP_SERVICE_PORT,
+      secure: true,
+      auth: {
+        user: this.env.SMTP_USERNAME,
+        pass: this.env.SMTP_PASSWORD,
+      },
+      tls: {
+        rejectUnauthorized: false,
+      },
+    });
+    return {
+      transport: transport,
+      defaults: {
+        from: `Gomoku online <noreply@${host}>`,
+      },
     };
   }
 }
