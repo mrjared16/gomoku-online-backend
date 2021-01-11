@@ -20,7 +20,7 @@ enum GameResult {
   Draw,
 }
 
-enum GameEndingType {
+export enum GameEndingType {
   normal = 'normal',
   timeout = 'timeout',
   surrender = 'surrender',

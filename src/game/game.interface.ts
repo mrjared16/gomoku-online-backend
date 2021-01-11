@@ -1,6 +1,7 @@
 import { ApiResponseProperty } from '@nestjs/swagger';
 import { RankRecordDTO, MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
-import { GameSide, GameState, Turn, GameDTO } from './game.dto';
+import { GameSide, GameState, Turn, GameDTO, GameResult } from './game.dto';
+import { GameEndingType } from './game.entity';
 
 export type BroadcastGameEventToCurrentRoomResponse =
   | {
@@ -19,10 +20,12 @@ export type BroadcastGameEventToCurrentRoomResponse =
   | {
       event: 'onFinish';
       data: {
-        winnerID: string;
+        winningLine: string;
+        gameResult: GameResult;
+        gameEndingType: GameEndingType;
+
         duration: number;
         rankRecord: RankRecordDTO[];
-        line: number[];
       };
     };
 
