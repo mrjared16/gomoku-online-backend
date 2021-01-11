@@ -43,7 +43,7 @@ export class UserService {
       );
     }
     const userActiveStatus = isAuthenticated
-      ? { activated_at: Date.now(), activateCode: null }
+      ? { activated_at: new Date(), activateCode: null }
       : {
           activated_at: null,
           activateCode: this.authService.createActivateCode(),
@@ -130,5 +130,17 @@ export class UserService {
   }): Promise<UserEntity> {
     const user = await this.userRepository.findOne({ ...info });
     return user;
+  }
+
+  async activateUser(token: string) {
+    const user = await this.userRepository.findOne({ activateCode: token });
+    if (!user) {
+      throw new HttpException('Your token is invalid', HttpStatus.NOT_FOUND);
+    }
+
+    user.activateCode = null;
+    user.activated_at = new Date();
+    await this.userRepository.save(user);
+    return true;
   }
 }

@@ -1,5 +1,5 @@
 import { UserService } from './../users/users.service';
-import { GoogleOAuthResponse } from './auth.dto';
+import { ActivateUserDTO, GoogleOAuthResponse } from './auth.dto';
 import { UserDTO } from './../users/users.dto';
 import {
   HttpException,
@@ -102,5 +102,10 @@ export class AuthService {
       subject: 'Gomoku online user activate',
       html: emailContent,
     });
+  }
+
+  async activateUser(activateUserData: ActivateUserDTO) {
+    const { token } = activateUserData;
+    return await this.userService.activateUser(token);
   }
 }

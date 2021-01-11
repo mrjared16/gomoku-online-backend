@@ -10,7 +10,7 @@ import {
 import { ApiBearerAuth, ApiBody, ApiResponse } from '@nestjs/swagger';
 import { CreateUserDTO, UserDTO, UserLoginDTO } from './../users/users.dto';
 import { UserService } from './../users/users.service';
-import { UserLoginGoogleOAuthDTO } from './auth.dto';
+import { ActivateUserDTO, UserLoginGoogleOAuthDTO } from './auth.dto';
 import {
   LoginResponse,
   RequestWithUser,
@@ -76,5 +76,10 @@ export class AuthController {
   async loginByOAuth(@Body() googleOAuthToken: UserLoginGoogleOAuthDTO) {
     const { idToken } = googleOAuthToken;
     return await this.authService.loginWithGoogleOAuthToken(idToken);
+  }
+
+  @Post('activate')
+  async activateUser(@Body() activateUserData: ActivateUserDTO) {
+    const result = await this.authService.activateUser(activateUserData);
   }
 }

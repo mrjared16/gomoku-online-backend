@@ -37,5 +37,5 @@ export class GoogleOAuthResponse {
 }
 
 export class ActivateUserDTO {
-  activateCode: string;
+  token: string;
 }
