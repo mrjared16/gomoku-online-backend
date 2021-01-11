@@ -42,6 +42,10 @@ export class UserService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    if (email === userWithThisUsername.email) {
+      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+    }
+
     const userActiveStatus = isAuthenticated
       ? { activated_at: new Date(), activateCode: null }
       : {
