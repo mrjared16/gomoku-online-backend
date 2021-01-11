@@ -1,5 +1,3 @@
-import { AuthService } from 'src/auth/auth.service';
-import { CreateUserDTO, UserDTO } from './users.dto';
 import {
   forwardRef,
   HttpException,
@@ -8,7 +6,10 @@ import {
   Injectable,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
+import { CreateUserDTO } from 'src/auth/auth.dto';
+import { AuthService } from 'src/auth/auth.service';
 import { Repository } from 'typeorm';
+import { UserDTO } from './users.dto';
 import { UserEntity } from './users.entity';
 
 @Injectable()
@@ -58,6 +59,8 @@ export class UserService {
       ...userActiveStatus,
     });
     const userCreated = await this.userRepository.save(newUser);
+    if (!isAuthenticated)
+      this.authService.sendUserVerificationEmail(email, userCreated);
     return UserDTO.EntityToDTO(userCreated);
   }
 
@@ -118,5 +121,14 @@ export class UserService {
       user: UserDTO.EntityToDTO(user),
       rankIndex: index + 1,
     }));
+  }
+
+  async getUserEntity(info: {
+    id?: string;
+    username?: string;
+    email?: string;
+  }): Promise<UserEntity> {
+    const user = await this.userRepository.findOne({ ...info });
+    return user;
   }
 }
