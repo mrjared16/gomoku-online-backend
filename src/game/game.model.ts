@@ -133,6 +133,19 @@ export class GameModel {
   }
 
   getGameEndResponse(): GameEndResponse {
-    throw new Error('Method not implemented.');
+    const {
+      winningLine,
+      rankRecords,
+      gameResult,
+      gameEndingType,
+      duration,
+    } = this.gameEntity;
+    return {
+      winningLine,
+      rankRecords: rankRecords.map(RankRecordDTO.EntityToDTO),
+      gameResult,
+      gameEndingType,
+      duration,
+    };
   }
 }

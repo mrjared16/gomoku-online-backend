@@ -35,5 +35,5 @@ export class GameEndResponse {
   gameEndingType: GameEndingType;
 
   duration: number;
-  rankRecord: RankRecordDTO[];
+  rankRecords: RankRecordDTO[];
 }
