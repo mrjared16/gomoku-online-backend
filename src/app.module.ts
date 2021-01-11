@@ -11,10 +11,12 @@ import { Connection } from 'typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { WaitingRoomModule } from './waitingRoom/waitingRoom.module';
+import { MailerModule } from '@nestjs-modules/mailer/dist/mailer.module';
 
 @Module({
   imports: [
     TypeOrmModule.forRoot(Config.getTypeORMConfig()),
+    MailerModule.forRoot(Config.getMailServiceConfig()),
     UserModule,
     AuthModule,
     WaitingRoomModule,
