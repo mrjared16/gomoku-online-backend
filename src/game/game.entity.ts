@@ -19,6 +19,13 @@ enum GameResult {
   O,
   Draw,
 }
+
+enum GameEndingType {
+  normal = 'normal',
+  timeout = 'timeout',
+  surrender = 'surrender',
+  quit = 'quit',
+}
 @Entity('game')
 export class GameEntity {
   @PrimaryGeneratedColumn('uuid')
@@ -58,4 +65,19 @@ export class GameEntity {
     type: 'float',
   })
   duration: number;
+
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  // '1-2-3-4-5', save the winning line
+  winningLine: string;
+
+  @Column({
+    type: 'enum',
+    enum: GameEndingType,
+    nullable: true,
+    default: GameEndingType.normal,
+  })
+  gameEndingType: GameEndingType;
 }
