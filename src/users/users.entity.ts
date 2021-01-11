@@ -50,6 +50,12 @@ export abstract class UserEntity {
 
   @Column({
     nullable: true,
+    unique: true,
+  })
+  email: string;
+
+  @Column({
+    nullable: true,
   })
   password: string;
 
@@ -74,6 +80,35 @@ export abstract class UserEntity {
   @Column({ default: 0, type: 'integer', nullable: false })
   numberOfWonMatches: number;
 
+  @Column({
+    nullable: true,
+    default: null,
+  })
+  resetPasswordToken: string;
+
+  @CreateDateColumn({
+    nullable: true,
+    default: null,
+  })
+  resetPasswordExpires: Date;
+
+  @Column({
+    nullable: true,
+  })
+  activateCode: string;
+
+  @CreateDateColumn({
+    nullable: true,
+    default: null,
+  })
+  activated_at: Date;
+
+  @CreateDateColumn({
+    nullable: true,
+    default: null,
+  })
+  banned_at: Date;
+
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
 
@@ -90,12 +125,13 @@ export abstract class UserEntity {
   @BeforeUpdate()
   async hashPassword() {
     // new password is null and old password not null => password is removed
-    if (!this.password && this.beforeUpdatePassword) {
-      this.password = this.beforeUpdatePassword;
-    }
-
-    if (this.password != null) {
-      this.password = await this.hash(this.password);
+    if (this.password != this.beforeUpdatePassword) {
+      if (this.password != null) {
+        this.password = await this.hash(this.password);
+      } else {
+        this.password = this.beforeUpdatePassword;
+        return;
+      }
     }
   }
 
