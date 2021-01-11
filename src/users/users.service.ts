@@ -8,6 +8,7 @@ import {
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO } from 'src/auth/auth.dto';
 import { AuthService } from 'src/auth/auth.service';
+import { Config } from 'src/shared/config';
 import { Repository } from 'typeorm';
 import { UserDTO } from './users.dto';
 import { UserEntity } from './users.entity';
@@ -50,7 +51,7 @@ export class UserService {
       ? { activated_at: new Date(), activateCode: null }
       : {
           activated_at: null,
-          activateCode: this.authService.createActivateCode(),
+          activateCode: this.authService.createRandomCode(),
         };
 
     const newUser = this.userRepository.create({
@@ -147,5 +148,21 @@ export class UserService {
     user.activated_at = new Date();
     await this.userRepository.save(user);
     return true;
+  }
+
+  async createResetPasswordToken(email: string) {
+    const user = await this.getUserEntity({ email });
+    if (!user) {
+      throw new HttpException(
+        'No account with that email address exists.',
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const resetPasswordTokenExpireTime = Config.getResetPasswordConfig();
+    user.resetPasswordToken = this.authService.createRandomCode();
+    user.resetPasswordExpires = new Date(
+      Date.now() + resetPasswordTokenExpireTime,
+    );
+    return await this.userRepository.save(user);
   }
 }
