@@ -25,7 +25,7 @@ export class GameGateway implements OnGatewayConnection {
 
   @SubscribeMessage(GAME_MESSAGE.ON_HIT)
   async hit(socket: Socket, data: HitDTO) {
-    await this.gameService.handleHit(this, socket, data);
+    await this.gameService.handleHit(socket, data);
   }
 
   @SubscribeMessage(GAME_MESSAGE.ON_JOIN)

@@ -23,6 +23,8 @@ export class GameService {
     private roomGateway: RoomGateway,
     @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
+    @Inject(forwardRef(() => GameGateway))
+    private gameGateway: GameGateway,
     private gameHistoryService: GameHistoryService,
   ) {}
 
@@ -44,7 +46,7 @@ export class GameService {
     };
   }
 
-  async handleHit(gameGateway: GameGateway, socket: Socket, data: HitDTO) {
+  async handleHit(socket: Socket, data: HitDTO) {
     const { roomID, position, value } = data;
 
     const room = this.roomManager.getRoom(data.roomID);
@@ -57,7 +59,7 @@ export class GameService {
       return;
     }
 
-    gameGateway.broadcastGameEventToMember(socket, roomID, {
+    this.gameGateway.broadcastGameEventToMember(socket, roomID, {
       event: 'onHit',
       data: {
         position: position,
@@ -70,38 +72,29 @@ export class GameService {
       // TODO: handle game end
       await this.saveGame(room);
 
-      gameGateway.broadcastGameEventToMember(
+      this.gameGateway.broadcastGameEventToMember(
         socket,
         roomID,
         {
           event: 'onFinish',
+          data: game.getGameEndResponse(),
+        },
+        true,
+      );
+      this.roomService.handleEndGame(room, socket);
+    } else {
+      this.gameGateway.broadcastGameEventToMember(
+        socket,
+        roomID,
+        {
+          event: 'changeTurn',
           data: {
-            winnerID:
-              game.getGameResult() != GameResult.Draw
-                ? room.getPlayerOfSide(game.getGameResult() as 0 | 1)
-                : null,
-            duration: game.getDuration(),
-            rankRecord: game.getRankRecord(),
-            line: game.getWinLine(),
+            turn: room.getGameTurn(),
           },
         },
         true,
       );
-      this.roomService.handleEndGame(this.roomGateway, room, socket);
-      return;
     }
-
-    gameGateway.broadcastGameEventToMember(
-      socket,
-      roomID,
-      {
-        event: 'changeTurn',
-        data: {
-          turn: room.getGameTurn(),
-        },
-      },
-      true,
-    );
   }
 
   async createGameEntity(room: RoomModel): Promise<GameEntity> {

@@ -46,7 +46,7 @@ export class RoomGateway implements OnGatewayConnection {
     socket: Socket,
     data: CreateRoomDTO,
   ): Promise<CreateRoomResponse> {
-    const newRoom = await this.roomService.handleCreateRoom(this, socket, data);
+    const newRoom = await this.roomService.handleCreateRoom(socket, data);
     if (!newRoom) {
       return;
     }
@@ -60,7 +60,7 @@ export class RoomGateway implements OnGatewayConnection {
     socket: Socket,
     data: JoinTableDTO,
   ): Promise<JoinTableResponse> {
-    const success = await this.roomService.handleJoinTable(this, socket, data);
+    const success = await this.roomService.handleJoinTable(socket, data);
     if (success) {
       return {
         message: {
@@ -82,11 +82,7 @@ export class RoomGateway implements OnGatewayConnection {
     socket: Socket,
     data: JoinRoomDTO,
   ): Promise<JoinTableResponse> {
-    const updatedRoom = await this.roomService.handleUsersChanged(
-      this,
-      socket,
-      data,
-    );
+    const updatedRoom = await this.roomService.handleUsersChanged(socket, data);
     if (!updatedRoom) {
       return;
     }
@@ -99,11 +95,7 @@ export class RoomGateway implements OnGatewayConnection {
     socket: Socket,
     data: StartGameDTO,
   ): Promise<StartGameResponse> {
-    const { gameID } = await this.roomService.handleStartGame(
-      this,
-      socket,
-      data,
-    );
+    const { gameID } = await this.roomService.handleStartGame(socket, data);
     return { gameID: gameID };
   }
 
