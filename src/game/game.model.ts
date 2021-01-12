@@ -59,12 +59,12 @@ export class GameModel {
     );
   }
 
-  async setWinner(gameSide: GameSide, type: GameEndingType) {
+  async setGameResult(result: GameResult, type: GameEndingType) {
     if (this.currentTimer) {
       clearTimeout(this.currentTimer);
     }
     this.gameEntity.gameEndingType = type;
-    this.gameEntity.gameResult = gameSide as 0 | 1 | 2;
+    this.gameEntity.gameResult = result as 0 | 1 | 2;
     this.gameEntity.winningLine = '';
     this.gameEntity.duration =
       (Date.now() - this.gameEntity.start_at.getTime()) / 1000;

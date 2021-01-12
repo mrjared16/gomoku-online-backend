@@ -1,3 +1,4 @@
+import { AuthService } from 'src/auth/auth.service';
 import { GameSide, RequestGameDTO } from 'src/game/game.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,6 +26,8 @@ export class GameService {
     private roomGateway: RoomGateway,
     @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
+    @Inject(forwardRef(() => AuthService))
+    private authService: AuthService,
     @Inject(forwardRef(() => GameGateway))
     private gameGateway: GameGateway,
     private gameHistoryService: GameHistoryService,
@@ -137,17 +140,51 @@ export class GameService {
     room: RoomModel,
     { loser, type }: { loser: UserDTO; type: GameEndingType },
   ) {
-    const loserSide = room.getSideOfPlayer(loser);
-    const winnerSide = loserSide !== 0 ? GameSide.X : GameSide.O;
-    console.log({ players: room.players, loser, loserSide, winnerSide });
-    await room.getGame().setWinner(winnerSide, type);
+    const getGameResult = (): GameResult => {
+      if (loser === null) {
+        return GameResult.Draw;
+      }
+      const loserSide = room.getSideOfPlayer(loser);
+      const winnerSide = loserSide !== 0 ? GameSide.X : GameSide.O;
+      console.log({ players: room.players, loser, loserSide, winnerSide });
+      return winnerSide as 0 | 1 | 2;
+    };
+    await room.getGame().setGameResult(getGameResult(), type);
   }
 
-  async handleRequestGameResult(socket: Socket, data: RequestGameDTO) {
+  async handleRequestGameResult(socket: Socket, requestData: RequestGameDTO) {
     const handleRequestRequest = {
-      surrender: (data: RequestGameDTO) => {},
-      tie: (data: RequestGameDTO) => {},
+      surrender: async (room: RoomModel, user: UserDTO) => {
+        await this.makeGameEnd(room, {
+          loser: user,
+          type: GameEndingType.surrender,
+        });
+      },
+      tie: async (room: RoomModel, user: UserDTO) => {
+        this.gameGateway.broadcastGameEventToMember(
+          socket,
+          room.id,
+          { event: 'onTieRequest', data: {} },
+          false,
+        );
+      },
+      onTieAccept: async (room: RoomModel, user: UserDTO) => {
+        // TODO: validate is real tie
+        await this.makeGameEnd(room, {
+          loser: null,
+          type: GameEndingType.normal,
+        });
+      },
     };
-    handleRequestRequest[data.action](data);
+    const { data } = requestData;
+    const { token, roomID } = data;
+
+    const userInfo = await this.authService.getUser(token);
+    if (!userInfo) {
+      return;
+    }
+
+    const room = this.roomManager.getRoom(roomID);
+    await handleRequestRequest[requestData.action](room, userInfo);
   }
 }
