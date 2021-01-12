@@ -1,3 +1,4 @@
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   OnGatewayConnection,
   SubscribeMessage,
@@ -15,7 +16,10 @@ import { GameService } from './game.service';
   namespace: 'game',
 })
 export class GameGateway implements OnGatewayConnection {
-  constructor(private gameService: GameService) {}
+  constructor(
+    @Inject(forwardRef(() => GameService))
+    private gameService: GameService,
+  ) {}
 
   @WebSocketServer() server: Socket;
 

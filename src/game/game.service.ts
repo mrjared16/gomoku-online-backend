@@ -127,7 +127,6 @@ export class GameService {
 
   async saveGame(room: RoomModel) {
     const game = room.getGame();
-    game.saveGameStateFromModel();
     await this.gameHistoryService.saveGameHistory(game, room);
     await this.gameRepository.save(game.getGameEntity());
   }
