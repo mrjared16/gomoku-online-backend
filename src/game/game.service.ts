@@ -1,4 +1,4 @@
-import { GameSide } from 'src/game/game.dto';
+import { GameSide, RequestGameDTO } from 'src/game/game.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
@@ -141,5 +141,13 @@ export class GameService {
     const winnerSide = loserSide !== 0 ? GameSide.X : GameSide.O;
     console.log({ players: room.players, loser, loserSide, winnerSide });
     await room.getGame().setWinner(winnerSide, type);
+  }
+
+  async handleRequestGameResult(socket: Socket, data: RequestGameDTO) {
+    const handleRequestRequest = {
+      surrender: (data: RequestGameDTO) => {},
+      tie: (data: RequestGameDTO) => {},
+    };
+    handleRequestRequest[data.action](data);
   }
 }

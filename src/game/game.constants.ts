@@ -6,5 +6,6 @@ export { DEFAULT_BOARD_SIZE, DEFAULT_TURN_TIME };
 export const GAME_MESSAGE = {
   ON_HIT: 'hit',
   ON_JOIN: 'join',
+  ON_REQUEST: 'request',
   BROADCAST_GAME: 'gameEventMsg',
 };

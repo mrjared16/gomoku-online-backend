@@ -8,7 +8,11 @@ import {
 import { Socket } from 'socket.io/dist/socket';
 import { Config } from 'src/shared/config';
 import { GAME_MESSAGE } from './game.constants';
-import { HitDTO, JoinGameDTO } from './game.dto';
+import {
+  HitDTO,
+  JoinGameDTO,
+  RequestGameDTO as RequestGameResultDTO,
+} from './game.dto';
 import { BroadcastGameEventToCurrentRoomResponse } from './game.interface';
 import { GameService } from './game.service';
 
@@ -38,6 +42,11 @@ export class GameGateway implements OnGatewayConnection {
     const { roomID } = data;
     await socket.join(roomID);
     // await this.gameService.handleJoin(this, socket, data);
+  }
+
+  @SubscribeMessage(GAME_MESSAGE.ON_REQUEST)
+  async handleRequestGameResult(socket: Socket, data: RequestGameResultDTO) {
+    await this.gameService.handleRequestGameResult(socket, data);
   }
 
   broadcastGameEventToMember(

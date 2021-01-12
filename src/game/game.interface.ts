@@ -20,6 +20,10 @@ export type BroadcastGameEventToCurrentRoomResponse =
   | {
       event: 'onFinish';
       data: GameEndResponse;
+    }
+  | {
+      event: 'onTieRequest';
+      data: {};
     };
 
 export class GameInfoResponse {

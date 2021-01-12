@@ -117,6 +117,16 @@ export type JoinGameDTO = {
   gameID: string;
 };
 
+export type RequestGameDTO =
+  | {
+      action: 'surrender';
+      data: { roomID: string; gameID: string; token: string };
+    }
+  | {
+      action: 'tie';
+      data: { roomID: string; gameID: string; token: string };
+    };
+
 export class GomokuGamePlayer {
   @ApiProperty({
     type: UserDTO,
