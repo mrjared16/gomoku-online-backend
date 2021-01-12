@@ -1,3 +1,4 @@
+import { GameEndingType } from './../game/game.entity';
 import { ChatService } from 'src/chat/chat.service';
 import { WaitingRoomService } from './../waitingRoom/waitingRoom.service';
 import { UserDTO } from './../users/users.dto';
@@ -145,7 +146,12 @@ export class RoomService {
 
         const room = this.roomManager.getRoom(roomID);
         if (room.getGame() && room.isPlayer(userInfo)) {
-          // TODO: defwin
+          await this.gameService.makeGameEnd(room, {
+            loser: userInfo,
+            type: GameEndingType.quit,
+          });
+          room.removeUser(userInfo.id);
+          room.removePlayer(userInfo.id);
           return;
         }
         if (room.isHost(userInfo)) {
@@ -281,10 +287,9 @@ export class RoomService {
   }
 
   resetRoomStateWhenGameEnd(room: RoomModel) {
-    // TODO: remove game status in socket manager
-    this.waitingRoomService.onUserLeaveGame(room.players.X.username);
-    this.waitingRoomService.onUserLeaveGame(room.players.O.username);
-    // TODO: handle save game to database
+    // remove game status in socket manager
+    this.waitingRoomService.onUserLeaveGame(room.players.X?.username);
+    this.waitingRoomService.onUserLeaveGame(room.players.O?.username);
     room.resetGameState();
     this.broadcastRoomState({
       roomID: room.id,
