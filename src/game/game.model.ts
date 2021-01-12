@@ -20,7 +20,7 @@ export class GameModel {
   constructor(
     gameOption: GameOption,
     private gameEntity: GameEntity,
-    private saveGame: () => void,
+    private saveGame: () => Promise<void>,
   ) {
     const { boardSize, time } = gameOption;
 
@@ -43,7 +43,7 @@ export class GameModel {
     this.turn = turn;
     this.turnStartAt = new Date();
     this.currentTimer = setTimeout(
-      () => {
+      async () => {
         this.gameEntity.gameEndingType = GameEndingType.timeout;
         this.gameEntity.gameResult = (this.turn !== 0
           ? GameSide.X
@@ -52,12 +52,25 @@ export class GameModel {
         this.gameEntity.duration =
           (Date.now() + this.time * 1000 - this.gameEntity.start_at.getTime()) /
           1000;
-        this.saveGame();
+        await this.saveGame();
       },
       this.time * 1000,
       {},
     );
   }
+
+  async setWinner(gameSide: GameSide, type: GameEndingType) {
+    if (this.currentTimer) {
+      clearTimeout(this.currentTimer);
+    }
+    this.gameEntity.gameEndingType = type;
+    this.gameEntity.gameResult = gameSide as 0 | 1 | 2;
+    this.gameEntity.winningLine = '';
+    this.gameEntity.duration =
+      (Date.now() - this.gameEntity.start_at.getTime()) / 1000;
+    await this.saveGame();
+  }
+
   hit(position: number, value: GameSide): boolean {
     if (!this.isValidHit(position, value)) {
       return false;

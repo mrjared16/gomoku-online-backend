@@ -206,7 +206,12 @@ export class RoomModel {
     const turnSide: 'X' | 'O' = side[gameSide];
     return this.players[turnSide].id;
   }
-
+  getSideOfPlayer(userInfo: UserDTO) {
+    const player = this.joinedPlayer.filter(
+      ({ user }) => user.id === userInfo.id,
+    );
+    return player[0].side;
+  }
   isHost(userDTO: UserDTO) {
     return userDTO.id === this.host.id;
   }

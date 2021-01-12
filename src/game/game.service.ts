@@ -1,16 +1,18 @@
+import { GameSide } from 'src/game/game.dto';
 import { forwardRef, Inject, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Socket } from 'socket.io/dist/socket';
 import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
 import { RoomGateway } from 'src/room/room.gateway';
 import { RoomManager } from 'src/room/room.model';
+import { UserDTO } from 'src/users/users.dto';
 import { Repository } from 'typeorm';
 import { GameHistoryService } from './../gameHistory/gameHistory.service';
 import { TeamEntity } from './../gameHistory/team.entity';
 import { RoomModel } from './../room/room.model';
 import { RoomService } from './../room/room.service';
 import { GameDTO, GameResult, HitDTO } from './game.dto';
-import { GameEntity } from './game.entity';
+import { GameEndingType, GameEntity } from './game.entity';
 import { GameGateway } from './game.gateway';
 import { GameInfoResponse } from './game.interface';
 
@@ -129,5 +131,15 @@ export class GameService {
     const game = room.getGame();
     await this.gameHistoryService.saveGameHistory(game, room);
     await this.gameRepository.save(game.getGameEntity());
+  }
+
+  async makeGameEnd(
+    room: RoomModel,
+    { loser, type }: { loser: UserDTO; type: GameEndingType },
+  ) {
+    const loserSide = room.getSideOfPlayer(loser);
+    const winnerSide = loserSide !== 0 ? GameSide.X : GameSide.O;
+    console.log({ players: room.players, loser, loserSide, winnerSide });
+    await room.getGame().setWinner(winnerSide, type);
   }
 }
