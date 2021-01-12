@@ -1,4 +1,4 @@
-import { GameEntity } from 'src/game/game.entity';
+import { GameEndingType, GameEntity } from 'src/game/game.entity';
 import { ChatRecordDTO } from 'src/chat/chat.dto';
 import { MoveRecordDTO } from 'src/gameHistory/gameHistory.dto';
 import { UserDTO } from 'src/users/users.dto';
@@ -34,6 +34,12 @@ export class GameDTO {
 
   @ApiProperty()
   players: GomokuGameHistoryPlayer;
+
+  @ApiProperty()
+  winningLine: string;
+  @ApiProperty()
+  gameEndingType: GameEndingType;
+
   static EntityToDTO(gameEntity: GameEntity): GameDTO {
     const {
       id,
@@ -44,6 +50,8 @@ export class GameDTO {
       moves: moveRecordEntity = [],
       chat,
       team = [],
+      winningLine,
+      gameEndingType,
     } = gameEntity;
     const moveRecord: MoveRecordDTO[] = moveRecordEntity.map(
       MoveRecordDTO.EntityToDTO,
@@ -73,6 +81,8 @@ export class GameDTO {
       moveRecord: moveRecord,
       chatRecord: chatRecord,
       players,
+      winningLine: winningLine,
+      gameEndingType: gameEndingType,
     };
   }
 }

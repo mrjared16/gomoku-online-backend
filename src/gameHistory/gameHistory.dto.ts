@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { GameResult, GameSide } from 'src/game/game.dto';
+import { GameEndingType } from 'src/game/game.entity';
 import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
 import { UserDTO } from 'src/users/users.dto';
@@ -61,6 +62,8 @@ export class GameHistoryDTO {
   playerSide: GameSide;
   @ApiProperty()
   gameResult: GameResult;
+  @ApiProperty()
+  gameEndingType: GameEndingType;
   @ApiProperty()
   startAt: Date;
   @ApiProperty()

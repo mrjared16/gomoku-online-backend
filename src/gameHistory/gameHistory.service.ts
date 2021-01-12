@@ -189,12 +189,19 @@ export class GameHistoryService {
     const result = rankRecords.map(
       (rankRecord): GameHistoryDTO => {
         const { game } = rankRecord;
-        const { id: gameId, start_at, duration, gameResult } = game;
+        const {
+          id: gameId,
+          start_at,
+          duration,
+          gameResult,
+          gameEndingType,
+        } = game;
 
         return {
           id: gameId,
           playerSide: sideDictionary.get(gameId),
           gameResult,
+          gameEndingType,
           startAt: start_at,
           duration,
           rankRecord: RankRecordDTO.EntityToDTO(rankRecord),
