@@ -1,4 +1,27 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from '@nestjs/swagger';
+
+export class CreateUserDTO {
+  @ApiProperty()
+  username: string;
+  @ApiProperty()
+  email: string;
+
+  @ApiProperty()
+  password: string;
+
+  @ApiProperty()
+  firstName: string;
+  @ApiProperty()
+  lastName: string;
+  @ApiProperty()
+  photoURL?: string;
+}
+export class UserLoginDTO {
+  @ApiProperty()
+  username: string;
+  @ApiProperty()
+  password: string;
+}
 
 export class UserLoginGoogleOAuthDTO {
   @ApiProperty()
@@ -8,4 +31,20 @@ export class UserLoginGoogleOAuthDTO {
 export class GoogleOAuthResponse {
   email: string;
   name: string;
+  picture: string;
+  given_name: string;
+  family_name: string;
+}
+
+export class ActivateUserDTO {
+  token: string;
+}
+
+export class ForgotPasswordDTO {
+  email: string;
+}
+export class ChangePasswordDTO {
+  token: string;
+  newPassword: string;
+  confirmNewPassword: string;
 }

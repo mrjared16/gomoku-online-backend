@@ -1,19 +1,13 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { UserEntity } from "./users.entity";
+import { ApiProperty } from '@nestjs/swagger';
+import { UserEntity } from './users.entity';
 
-export class CreateUserDTO {
+export class GameProfile {
   @ApiProperty()
-  name: string;
+  rank: number;
   @ApiProperty()
-  username: string;
+  numberOfMatches: number;
   @ApiProperty()
-  password: string;
-}
-export class UserLoginDTO{
-  @ApiProperty()
-  username: string;
-  @ApiProperty()
-  password: string;
+  numberOfWonMatches: number;
 }
 export class UserDTO {
   @ApiProperty()
@@ -22,11 +16,45 @@ export class UserDTO {
   name: string;
   @ApiProperty()
   username: string;
-  static EntityToDTO(userEntity: UserEntity): UserDTO {
-    if (userEntity == null)
-      return null;
+  @ApiProperty()
+  firstName: string;
+  @ApiProperty()
+  lastName: string;
+  @ApiProperty()
+  gameProfile: GameProfile;
+  @ApiProperty()
+  joinDate: Date;
+  @ApiProperty()
+  photoURL: string;
 
-    const { id, name, username } = userEntity;
-    return { id, name, username };
+  static EntityToDTO(userEntity: UserEntity): UserDTO {
+    if (userEntity == null) return null;
+
+    const {
+      id,
+      name,
+      username,
+      rank,
+      numberOfMatches,
+      numberOfWonMatches,
+      created_at,
+      firstName,
+      lastName,
+      photoURL,
+    } = userEntity;
+    return {
+      id,
+      name: firstName + ' ' + lastName,
+      username,
+      gameProfile: {
+        rank,
+        numberOfMatches,
+        numberOfWonMatches,
+      },
+      joinDate: created_at,
+      firstName,
+      lastName,
+      photoURL,
+    };
   }
 }

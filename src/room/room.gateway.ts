@@ -1,3 +1,4 @@
+import { forwardRef, Inject } from '@nestjs/common';
 import {
   OnGatewayConnection,
   SubscribeMessage,
@@ -5,27 +6,31 @@ import {
   WebSocketServer,
 } from '@nestjs/websockets';
 import { Socket } from 'socket.io/dist/socket';
-import { AuthService } from 'src/auth/auth.service';
 import { Config } from 'src/shared/config';
-import { Server } from 'typeorm';
-import { RoomMessage } from './room.constants';
+import { ROOM_MESSAGE } from './room.constants';
 import {
-  BroadcastRoomEventToAllDTO,
-  BroadcastGameEventToCurrentRoomDTO,
-  BroadcastRoomEventToCurrentRoomDTO,
   CreateRoomDTO,
   JoinRoomDTO,
+  JoinTableDTO,
+  StartGameDTO,
 } from './room.dto';
+import {
+  BroadcastRoomEventToAllResponse,
+  BroadcastRoomEventToCurrentRoomResponse,
+  CreateRoomResponse,
+  JoinRoomResponse,
+  JoinTableResponse,
+  StartGameResponse,
+} from './room.interface';
 import { RoomService } from './room.service';
-import { RoomManager } from './roomManager';
 
 @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
   namespace: 'room',
 })
 export class RoomGateway implements OnGatewayConnection {
   constructor(
+    @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
-    private authService: AuthService,
   ) {}
 
   @WebSocketServer() server: Socket;
@@ -33,11 +38,15 @@ export class RoomGateway implements OnGatewayConnection {
   handleConnection(client: Socket, ...args: any[]) {
     // this.roomService.handleConnection(this, client);
 
-    console.log('listen!');
+    console.log('Room Gateway listen!');
   }
-  @SubscribeMessage(RoomMessage.ON_CREATE)
-  async createRoom(socket: Socket, data: CreateRoomDTO) {
-    const newRoom = await this.roomService.handleCreateRoom(this, socket, data);
+
+  @SubscribeMessage(ROOM_MESSAGE.ON_CREATE)
+  async createRoom(
+    socket: Socket,
+    data: CreateRoomDTO,
+  ): Promise<CreateRoomResponse> {
+    const newRoom = await this.roomService.handleCreateRoom(socket, data);
     if (!newRoom) {
       return;
     }
@@ -46,58 +55,68 @@ export class RoomGateway implements OnGatewayConnection {
     };
   }
 
-  @SubscribeMessage(RoomMessage.ON_JOIN)
-  async joinRoom(socket: Socket, data: JoinRoomDTO) {
-    const roomDetail = await this.roomService.handleJoinRoom(
-      this,
-      socket,
-      data,
-    );
-    if (!roomDetail) {
-      return;
+  @SubscribeMessage(ROOM_MESSAGE.ON_TABLE_JOIN)
+  async joinTable(
+    socket: Socket,
+    data: JoinTableDTO,
+  ): Promise<JoinTableResponse> {
+    const success = await this.roomService.handleJoinTable(socket, data);
+    if (success) {
+      return {
+        message: {
+          type: 'success',
+          content: '',
+        },
+      };
     }
-    console.log({ roomDetail });
-    return roomDetail;
+    return {
+      message: {
+        type: 'error',
+        content: '',
+      },
+    };
   }
 
-  broadcastRoomEventsToAll(broadcastRoomToAllDTO: BroadcastRoomEventToAllDTO) {
-    console.log({ broadcastRoomToAllDTO });
-    this.server.emit(RoomMessage.BROADCAST_ALL, broadcastRoomToAllDTO);
+  @SubscribeMessage(ROOM_MESSAGE.ON_JOIN)
+  async joinRoom(
+    socket: Socket,
+    data: JoinRoomDTO,
+  ): Promise<JoinTableResponse> {
+    const updatedRoom = await this.roomService.handleUsersChanged(socket, data);
+    if (!updatedRoom) {
+      return;
+    }
+    // console.log({ updatedRoom });
+    // return RoomDTO.ModelToDTO(updatedRoom);
+  }
+
+  @SubscribeMessage(ROOM_MESSAGE.ON_START)
+  async startGame(
+    socket: Socket,
+    data: StartGameDTO,
+  ): Promise<StartGameResponse> {
+    const { gameID } = await this.roomService.handleStartGame(socket, data);
+    return { gameID: gameID };
+  }
+
+  broadcastRoomEventsToAll(
+    broadcastRoomToAllDTO: BroadcastRoomEventToAllResponse,
+  ) {
+    // console.log({ broadcastRoomToAllDTO });
+    this.server.emit(ROOM_MESSAGE.BROADCAST_ALL, broadcastRoomToAllDTO);
   }
 
   broadcastRoomEventToMember(
     room: Socket,
     roomID: string,
-    broadcastRoomEventToCurrentRoomDTO: BroadcastRoomEventToCurrentRoomDTO,
-  ) {
-    console.log({ broadcastRoomEventToCurrentRoomDTO });
-    room
-      .to(roomID)
-      .emit(RoomMessage.BROADCAST_ROOM, broadcastRoomEventToCurrentRoomDTO);
-  }
-
-  broadcastGameEventToMember(
-    room: Socket,
-    roomID: string,
-    broadcastGameEventToCurrentRoomDTO: BroadcastGameEventToCurrentRoomDTO,
+    broadcastRoomEventToCurrentRoomDTO: BroadcastRoomEventToCurrentRoomResponse,
     isBroadcast = false,
   ) {
-    console.log({
-      broadcastRoomEventToCurrentRoomDTO: broadcastGameEventToCurrentRoomDTO,
-    });
+    // console.log({ broadcastRoomEventToCurrentRoomDTO });
     const socket = isBroadcast ? this.server.in(roomID) : room.to(roomID);
-    socket.emit(RoomMessage.BROADCAST_GAME, broadcastGameEventToCurrentRoomDTO);
-  }
-  @SubscribeMessage('start')
-  async startGame(socket: Socket, data: { roomID: string }) {
-    await this.roomService.handleStartGame(this, socket, data);
-  }
-
-  @SubscribeMessage('hit')
-  async hit(
-    socket: Socket,
-    data: { roomID: string; index: number; value: 0 | 1 },
-  ) {
-    await this.roomService.handleHit(this, socket, data);
+    socket.emit(
+      ROOM_MESSAGE.BROADCAST_ROOM,
+      broadcastRoomEventToCurrentRoomDTO,
+    );
   }
 }

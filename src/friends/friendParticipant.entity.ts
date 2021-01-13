@@ -1,15 +1,22 @@
 import { UserEntity } from 'src/users/users.entity';
-import { BeforeInsert, BeforeUpdate, CreateDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  CreateDateColumn,
+  Entity,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('friend_participant')
 export class FriendParticipantEntity {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
-  @ManyToOne(() => UserEntity, user => user.friendList1, { primary: true })
+  @ManyToOne(() => UserEntity, (user) => user.friendList1, { primary: true })
   user1: UserEntity;
 
-  @ManyToOne(() => UserEntity, user => user.friendList2, { primary: true })
+  @ManyToOne(() => UserEntity, (user) => user.friendList2, { primary: true })
   user2: UserEntity;
 
   @CreateDateColumn({ type: 'timestamptz', default: () => 'CURRENT_TIMESTAMP' })

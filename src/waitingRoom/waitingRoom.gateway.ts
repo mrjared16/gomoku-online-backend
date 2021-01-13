@@ -1,23 +1,32 @@
 import { Config } from 'src/shared/config';
-import { Injectable, Logger } from "@nestjs/common";
-import { OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit, SubscribeMessage, WebSocketGateway, WebSocketServer, WsResponse } from "@nestjs/websockets";
-import { Server, Socket } from "socket.io";
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
+import {
+  OnGatewayConnection,
+  OnGatewayDisconnect,
+  OnGatewayInit,
+  SubscribeMessage,
+  WebSocketGateway,
+  WebSocketServer,
+  WsResponse,
+} from '@nestjs/websockets';
+import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { WaitingRoomService } from './waitingRoom.service';
-import { BroadcastUserDTO } from './waitingRoom.dto';
-import { WaitingRoomMessage } from './waitingRoom.constants';
+import { BroadcastUserDTO, InviteDTO } from './waitingRoom.dto';
+import { WaitingRoomMessage as WAITINGROOM_MESSAGE } from './waitingRoom.constants';
+import { InviteRoomResponse } from './waitingRoom.interface';
 
 @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
   namespace: 'waitingRoom',
   // transports: ['websocket']
 })
-export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
+export class WaitingRoomGateway
+  implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private authService: AuthService,
-    private waitingRoomService: WaitingRoomService
-  ) {
-
-  }
+    @Inject(forwardRef(() => WaitingRoomService))
+    private waitingRoomService: WaitingRoomService,
+  ) {}
 
   @WebSocketServer() server: Server;
 
@@ -32,24 +41,29 @@ export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconn
 
   /* a connection connect */
   async handleConnection(client: Socket, ...args: any[]) {
-    this.waitingRoomService.handleConnection(this,
+    this.waitingRoomService.handleConnection(
+      this,
       client,
       this.waitingRoomService.handleOnAnonymousConnect,
-      this.waitingRoomService.handleOnAuthenticatedUserConnect);
+      this.waitingRoomService.handleOnAuthenticatedUserConnect,
+    );
   }
 
   /* a connection disconnected */
   async handleDisconnect(client: Socket) {
-    this.waitingRoomService.handleConnection(this,
+    this.waitingRoomService.handleConnection(
+      this,
       client,
       this.waitingRoomService.handleOnAnonymousDisconnect,
-      this.waitingRoomService.handleOnAuthenticatedUserDisconnect);
-
+      this.waitingRoomService.handleOnAuthenticatedUserDisconnect,
+    );
   }
 
-
-  broadcastUserEvent(broadcastUserDTO: BroadcastUserDTO, message: string = null) {
-    this.server.emit(WaitingRoomMessage.BROADCAST_USER, broadcastUserDTO);
+  broadcastUserEvent(
+    broadcastUserDTO: BroadcastUserDTO,
+    message: string = null,
+  ) {
+    this.server.emit(WAITINGROOM_MESSAGE.BROADCAST_USER, broadcastUserDTO);
 
     if (broadcastUserDTO.user == 'anonymous') {
       this.logger.log(`An anonymous user ${broadcastUserDTO.event}`);
@@ -57,14 +71,35 @@ export class WaitingRoomGateway implements OnGatewayConnection, OnGatewayDisconn
     }
 
     if (!message) {
-      this.logger.log(`An user ${broadcastUserDTO.event}: ${broadcastUserDTO.user.username}`);
+      this.logger.log(
+        `An user ${broadcastUserDTO.event}: ${broadcastUserDTO.user.username}`,
+      );
       return;
     }
 
-    this.logger.log(`${message}: ${broadcastUserDTO.event}: ${broadcastUserDTO.user.username}`)
+    this.logger.log(
+      `${message}: ${broadcastUserDTO.event}: ${broadcastUserDTO.user.username}`,
+    );
   }
 
   afterInit(server: Server) {
-    this.logger.log(`Game Socket is running on port ${Config.getCurrentHost().socketPort}`);
+    this.logger.log(
+      `Game Socket is running on port ${Config.getCurrentHost().socketPort}`,
+    );
+  }
+
+  @SubscribeMessage(WAITINGROOM_MESSAGE.ONROOM)
+  async inviteUser(socket: Socket, data: InviteDTO) {
+    const success = await this.waitingRoomService.handleInviteUser(
+      socket,
+      data,
+    );
+  }
+
+  broadcastToUser(username: string, data: InviteRoomResponse) {
+    const sockets = this.waitingRoomService.getAllSocketClientID(username);
+    sockets.forEach((socket) =>
+      this.server.to(socket).emit(WAITINGROOM_MESSAGE.ROOM, data),
+    );
   }
 }
