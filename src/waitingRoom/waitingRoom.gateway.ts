@@ -1,5 +1,5 @@
 import { Config } from 'src/shared/config';
-import { Injectable, Logger } from '@nestjs/common';
+import { forwardRef, Inject, Injectable, Logger } from '@nestjs/common';
 import {
   OnGatewayConnection,
   OnGatewayDisconnect,
@@ -12,8 +12,9 @@ import {
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { WaitingRoomService } from './waitingRoom.service';
-import { BroadcastUserDTO } from './waitingRoom.dto';
-import { WaitingRoomMessage } from './waitingRoom.constants';
+import { BroadcastUserDTO, InviteDTO } from './waitingRoom.dto';
+import { WaitingRoomMessage as WAITINGROOM_MESSAGE } from './waitingRoom.constants';
+import { InviteRoomResponse } from './waitingRoom.interface';
 
 @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
   namespace: 'waitingRoom',
@@ -23,6 +24,7 @@ export class WaitingRoomGateway
   implements OnGatewayConnection, OnGatewayDisconnect, OnGatewayInit {
   constructor(
     private authService: AuthService,
+    @Inject(forwardRef(() => WaitingRoomService))
     private waitingRoomService: WaitingRoomService,
   ) {}
 
@@ -61,7 +63,7 @@ export class WaitingRoomGateway
     broadcastUserDTO: BroadcastUserDTO,
     message: string = null,
   ) {
-    this.server.emit(WaitingRoomMessage.BROADCAST_USER, broadcastUserDTO);
+    this.server.emit(WAITINGROOM_MESSAGE.BROADCAST_USER, broadcastUserDTO);
 
     if (broadcastUserDTO.user == 'anonymous') {
       this.logger.log(`An anonymous user ${broadcastUserDTO.event}`);
@@ -83,6 +85,21 @@ export class WaitingRoomGateway
   afterInit(server: Server) {
     this.logger.log(
       `Game Socket is running on port ${Config.getCurrentHost().socketPort}`,
+    );
+  }
+
+  @SubscribeMessage(WAITINGROOM_MESSAGE.ONROOM)
+  async inviteUser(socket: Socket, data: InviteDTO) {
+    const success = await this.waitingRoomService.handleInviteUser(
+      socket,
+      data,
+    );
+  }
+
+  broadcastToUser(username: string, data: InviteRoomResponse) {
+    const sockets = this.waitingRoomService.getAllSocketClientID(username);
+    sockets.forEach((socket) =>
+      this.server.to(socket).emit(WAITINGROOM_MESSAGE.ROOM, data),
     );
   }
 }
