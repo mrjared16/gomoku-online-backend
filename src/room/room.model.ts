@@ -7,6 +7,7 @@ import { UserDTO } from 'src/users/users.dto';
 import { GameService } from './../game/game.service';
 import { DEFAULT_ROOM_OPTION } from './room.constants';
 import { RoomOption, RoomRequirement } from './room.dto';
+import { hash, comparePassword } from 'src/shared/helper';
 
 @Injectable()
 export class RoomManager {
@@ -57,7 +58,12 @@ export class RoomModel {
     };
     this.time = time;
     this.boardSize = boardSize;
-    this.password = password;
+    this.password = null;
+    if (password) {
+      hash(password).then((result) => {
+        this.password = result;
+      });
+    }
 
     this.players = {
       X: null,
@@ -66,6 +72,7 @@ export class RoomModel {
 
     this.joinedPlayer = [];
     this.users = [];
+    this.inviteId = [];
     this.gameID = null;
     this.chatChannelID = this.chatChannelEntity?.id || null;
   }
@@ -82,16 +89,19 @@ export class RoomModel {
     online: boolean;
   }[];
 
+  inviteId: string[];
+
   public gameID: string | null;
   private gameModel: GameModel;
 
   public chatChannelID: string;
 
-  addUser(user: UserDTO, roomRequirement: RoomRequirement): boolean {
+  async addUser(
+    user: UserDTO,
+    roomRequirement: RoomRequirement,
+  ): Promise<boolean> {
     if (roomRequirement) {
-      console.log({ roomRequirement });
-      const { password } = roomRequirement;
-      if (this.password !== password) return false;
+      return await this.canUserJoin(user, roomRequirement);
     }
     const isExist = this.users.some((inRoomUser) => inRoomUser.id === user.id);
     if (!isExist) {
@@ -105,6 +115,27 @@ export class RoomModel {
       }
     }
     return true;
+  }
+
+  async canUserJoin(
+    user: UserDTO,
+    roomRequirement: RoomRequirement,
+  ): Promise<boolean> {
+    if (this.password == null) return true;
+
+    if (
+      this.isHost(user) ||
+      this.isInvited(user) ||
+      (this.isPlayer(user) && this.gameID != null)
+    ) {
+      return true;
+    }
+
+    const { password } = roomRequirement;
+    if (password == null) return false;
+
+    const isPasswordMatched = await comparePassword(password, this.password);
+    return isPasswordMatched;
   }
 
   removeUser(userId: string): boolean {
@@ -215,18 +246,24 @@ export class RoomModel {
     const turnSide: 'X' | 'O' = side[gameSide];
     return this.players[turnSide].id;
   }
+
   getSideOfPlayer(userInfo: UserDTO) {
     const player = this.joinedPlayer.filter(
       ({ user }) => user.id === userInfo.id,
     );
     return player[0].side;
   }
+
   isHost(userDTO: UserDTO) {
-    return userDTO.id === this.host.id;
+    return userDTO.id === this.host?.id;
   }
 
   isPlayer(userInfo: UserDTO) {
     return this.joinedPlayer.some(({ user }) => user.id === userInfo.id);
+  }
+
+  isInvited(user: UserDTO): boolean {
+    return this.inviteId.some((id) => user.id === id);
   }
 
   getChatChannelEntity(): ChatChannelEntity {
