@@ -1,10 +1,10 @@
-import * as bcrypt from 'bcryptjs';
 import { ChatChannelEntity } from 'src/chat/chatChannel.entity';
 import { ChatRecordEntity } from 'src/chat/chatRecord.entity';
 import { FriendParticipantEntity } from 'src/friends/friendParticipant.entity';
 import { FriendRequestEntity } from 'src/friends/friendRequest.entity';
 import { MoveRecordEntity } from 'src/gameHistory/moveRecord.entity';
 import { RankRecordEntity } from 'src/gameHistory/rankRecord.entity';
+import { hash } from 'src/shared/helper';
 import {
   AfterLoad,
   BeforeInsert,
@@ -127,23 +127,12 @@ export abstract class UserEntity {
     // new password is null and old password not null => password is removed
     if (this.password != this.beforeUpdatePassword) {
       if (this.password != null) {
-        this.password = await this.hash(this.password);
+        this.password = await hash(this.password);
       } else {
         this.password = this.beforeUpdatePassword;
         return;
       }
     }
-  }
-
-  private async hash(input): Promise<string> {
-    return bcrypt.hash(input, 10);
-  }
-
-  public static async comparePassword(
-    rawPassword: string,
-    hashPassword: string,
-  ): Promise<boolean> {
-    return bcrypt.compare(rawPassword, hashPassword);
   }
 
   @OneToMany(() => FriendRequestEntity, (friendRequest) => friendRequest.sender)

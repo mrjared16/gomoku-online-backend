@@ -9,6 +9,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserDTO } from 'src/auth/auth.dto';
 import { AuthService } from 'src/auth/auth.service';
 import { Config } from 'src/shared/config';
+import { comparePassword } from 'src/shared/helper';
 import { Repository } from 'typeorm';
 import { UserDTO } from './users.dto';
 import { UserEntity } from './users.entity';
@@ -81,7 +82,7 @@ export class UserService {
       throw new HttpException('Wrong username or password', 401);
     }
 
-    const isPasswordMatched = await UserEntity.comparePassword(
+    const isPasswordMatched = await comparePassword(
       password,
       userInfo.password,
     );
