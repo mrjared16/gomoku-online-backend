@@ -9,7 +9,6 @@ export class BroadcastRoomEventToAllResponse {
     | RoomDTO
     | {
         id: string;
-        host: null;
       };
 }
 
@@ -24,7 +23,7 @@ export type BroadcastRoomEventToCurrentRoomResponse =
         | RoomDTO
         | {
             id: string;
-            host: null;
+            isKicked: boolean;
           };
     };
 

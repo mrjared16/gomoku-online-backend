@@ -329,8 +329,8 @@ export class RoomService {
     const data = !!room
       ? RoomDTO.ModelToDTO(room)
       : {
-          id: roomID,
-          host: null,
+          id: null,
+          isKicked: true,
         };
     // broadcast to current room
     this.roomGateway.broadcastRoomEventToMember(
