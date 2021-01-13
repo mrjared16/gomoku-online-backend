@@ -17,3 +17,11 @@ export class OnlineUserDTO {
   roomID: string;
   isPlayingGame: boolean;
 }
+
+export type InviteDTO = {
+  action: 'invite';
+  data: {
+    token: string;
+    username: string;
+  };
+};
