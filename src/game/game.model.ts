@@ -131,7 +131,7 @@ export class GameModel {
 
   // for live game
   getRemainingTime(): number {
-    return (Date.now() - this.turnStartAt.getTime()) / 1000;
+    return this.time - (Date.now() - this.turnStartAt.getTime()) / 1000;
   }
 
   // for saving game state
