@@ -18,6 +18,7 @@ import {
   ChangePasswordDTO,
   UserLoginDTO,
   UserLoginGoogleOAuthDTO,
+  UserLoginFacebookOAuthDTO,
 } from './auth.dto';
 import {
   LoginResponse,
@@ -81,9 +82,21 @@ export class AuthController {
     status: 200,
     type: LoginResponse,
   })
-  async loginByOAuth(@Body() googleOAuthToken: UserLoginGoogleOAuthDTO) {
+  async loginByGoogleOAuth(@Body() googleOAuthToken: UserLoginGoogleOAuthDTO) {
     const { idToken } = googleOAuthToken;
     return await this.authService.loginWithGoogleOAuthToken(idToken);
+  }
+
+  @Post('oauth/facebook')
+  @ApiResponse({
+    status: 200,
+    type: LoginResponse,
+  })
+  async loginByFacebookOAuth(
+    @Body() facebookOAuthToken: UserLoginFacebookOAuthDTO,
+  ) {
+    const { idToken } = facebookOAuthToken;
+    return await this.authService.loginWithFacebookOAuthToken(idToken);
   }
 
   @Post('activate')

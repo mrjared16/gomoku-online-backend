@@ -16,6 +16,7 @@ import { UserService } from './../users/users.service';
 import {
   ActivateUserDTO,
   ChangePasswordDTO,
+  FacebookOAuthResponse,
   GoogleOAuthResponse,
 } from './auth.dto';
 import { JWTPayload, LoginResponse } from './auth.interface';
@@ -66,6 +67,29 @@ export class AuthService {
       return null;
     }
   }
+
+  private async getFacebookUserData(googleOAuthToken: string) {
+    try {
+      const response = await this.httpService
+        .get(
+          `https://graph.facebook.com/v5.0/me?fields=email,id,first_name,name,last_name,picture&access_token=${googleOAuthToken}`,
+        )
+        .toPromise();
+      const { data } = response as { data: FacebookOAuthResponse };
+      const { email, name, last_name, first_name, picture: pictureData } = data;
+      return {
+        email,
+        name,
+        last_name,
+        first_name,
+        picture: pictureData.data.url,
+      };
+    } catch (error) {
+      console.log(error);
+      return null;
+    }
+  }
+
   async loginWithGoogleOAuthToken(googleOAuthToken: string) {
     const googleUserData = await this.getGoogleUserData(googleOAuthToken);
     if (googleUserData == null) {
@@ -89,6 +113,36 @@ export class AuthService {
         email: email,
         firstName: given_name,
         lastName: family_name,
+        photoURL: picture,
+      },
+      true,
+    );
+    return this.getToken(newUser);
+  }
+
+  async loginWithFacebookOAuthToken(facebookOAuthToken: string) {
+    const googleUserData = await this.getFacebookUserData(facebookOAuthToken);
+    if (googleUserData == null) {
+      throw new HttpException(
+        'Error when verify Facebook OAuth',
+        HttpStatus.SERVICE_UNAVAILABLE,
+      );
+    }
+    const { email, name, first_name, last_name, picture } = googleUserData;
+    const userWithThisUsername = await this.userService.findUser({
+      email: email,
+    });
+    if (userWithThisUsername) {
+      return this.getToken(userWithThisUsername);
+    }
+
+    const newUser = await this.userService.createUser(
+      {
+        username: email,
+        password: null,
+        email: email,
+        firstName: first_name,
+        lastName: last_name,
         photoURL: picture,
       },
       true,

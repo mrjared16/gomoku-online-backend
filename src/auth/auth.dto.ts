@@ -28,12 +28,29 @@ export class UserLoginGoogleOAuthDTO {
   idToken: string;
 }
 
+export class UserLoginFacebookOAuthDTO {
+  @ApiProperty()
+  idToken: string;
+}
+
 export class GoogleOAuthResponse {
   email: string;
   name: string;
   picture: string;
   given_name: string;
   family_name: string;
+}
+
+export class FacebookOAuthResponse {
+  email: string;
+  name: string;
+  first_name: string;
+  last_name: string;
+  picture: {
+    data: {
+      url: string;
+    };
+  };
 }
 
 export class ActivateUserDTO {
