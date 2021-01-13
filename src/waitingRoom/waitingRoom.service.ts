@@ -7,6 +7,8 @@ import { forwardRef, Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { SocketManager } from './socketManager';
 import { Inject } from '@nestjs/common/decorators/core/inject.decorator';
+import { InviteDTO } from './waitingRoom.dto';
+import { RoomManager } from 'src/room/room.model';
 
 @Injectable()
 export class WaitingRoomService {
@@ -14,6 +16,10 @@ export class WaitingRoomService {
     private authService: AuthService,
     @Inject(forwardRef(() => RoomService))
     private roomService: RoomService,
+    @Inject(forwardRef(() => RoomManager))
+    private roomManager: RoomManager,
+    @Inject(forwardRef(() => WaitingRoomGateway))
+    private waitingRoomGateway: WaitingRoomGateway,
   ) {}
   socketManager: SocketManager = new SocketManager();
 
@@ -140,5 +146,48 @@ export class WaitingRoomService {
 
   getUserStatus(username: string) {
     return this.socketManager.getUserStatus(username);
+  }
+
+  async handleInviteUser(socket: Socket, data1: InviteDTO) {
+    const { data, action } = data1 || {};
+    const { token, username: beInvitedUser } = data || {};
+
+    if (!token) return;
+    const decodedToken = this.authService.decodeToken(token);
+
+    if (!decodedToken) return;
+    const { id: invitedID, username: inviteUser } = decodedToken;
+
+    const beInvitedOnlineStatus = this.socketManager.getUserStatus(
+      beInvitedUser,
+    );
+
+    const inviteOnlineStatus = this.socketManager.getUserStatus(inviteUser);
+
+    if (!beInvitedOnlineStatus || !inviteOnlineStatus) {
+      return;
+    }
+
+    if (beInvitedOnlineStatus.roomID) {
+      return;
+    }
+    if (!inviteOnlineStatus.roomID) {
+      return;
+    }
+
+    const room = this.roomManager.getRoom(inviteOnlineStatus.roomID);
+    if (!room || !room.isHost({ id: invitedID } as UserDTO) || room.gameID) {
+      return;
+    }
+    this.waitingRoomGateway.broadcastToUser(beInvitedUser, {
+      event: 'invite',
+      data: {
+        roomID: room.id,
+      },
+    });
+  }
+
+  getAllSocketClientID(username: string): string[] {
+    return this.socketManager.getUserStatus(username)?.socket;
   }
 }
