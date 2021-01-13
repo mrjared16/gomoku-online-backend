@@ -45,6 +45,12 @@ export class AuthService {
     return await this.userService.findUser({ id });
   }
 
+  decodeToken(token: string): JWTPayload {
+    const userData: JWTPayload = this.jwtService.decode(token) as JWTPayload;
+    if (!userData) return null;
+    return userData;
+  }
+
   private async getGoogleUserData(googleOAuthToken: string) {
     try {
       const response = await this.httpService
