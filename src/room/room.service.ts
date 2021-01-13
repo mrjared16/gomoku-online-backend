@@ -2,7 +2,13 @@ import { GameEndingType } from './../game/game.entity';
 import { ChatService } from 'src/chat/chat.service';
 import { WaitingRoomService } from './../waitingRoom/waitingRoom.service';
 import { UserDTO } from './../users/users.dto';
-import { forwardRef, Inject, Injectable } from '@nestjs/common';
+import {
+  forwardRef,
+  Inject,
+  Injectable,
+  HttpException,
+  HttpStatus,
+} from '@nestjs/common';
 import { Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { GameService } from './../game/game.service';
@@ -12,9 +18,11 @@ import {
   RoomDTO,
   StartGameDTO,
   JoinTableDTO,
+  JoinRoomRequestDTO,
 } from './room.dto';
 import { RoomGateway } from './room.gateway';
 import { RoomManager, RoomModel } from './room.model';
+import { JWTPayload } from 'src/auth/auth.interface';
 
 @Injectable()
 export class RoomService {
@@ -65,6 +73,7 @@ export class RoomService {
       roomID: newRoom.id,
     };
   }
+
   async handleUserDisconnect(roomID: string, userInfo: UserDTO) {
     const room = this.roomManager.getRoom(roomID);
     if (room.getGame() && room.isPlayer(userInfo)) {
@@ -126,7 +135,7 @@ export class RoomService {
           // room not found
           return;
         }
-        const addUserResponse = room.addUser(userInfo, roomRequirement);
+        const addUserResponse = await room.addUser(userInfo, roomRequirement);
         if (!addUserResponse) {
           // TODO: handle not able to join room (not meet requirement or server error)
           return;
@@ -288,6 +297,21 @@ export class RoomService {
     // console.log({ data, room });
 
     return { gameID: room.gameID };
+  }
+
+  async verifyJoinRoomRequest(
+    user: JWTPayload,
+    requestData: JoinRoomRequestDTO,
+  ) {
+    const { roomID, roomRequirement } = requestData;
+    const room = this.roomManager.getRoom(roomID);
+    if (!room) {
+      throw new HttpException(`Room doesn't exist`, HttpStatus.NOT_FOUND);
+    }
+    if (!room.canUserJoin(user as UserDTO, roomRequirement)) {
+      throw new HttpException(`Wrong password`, HttpStatus.FORBIDDEN);
+    }
+    return true;
   }
 
   resetRoomStateWhenGameEnd(room: RoomModel) {

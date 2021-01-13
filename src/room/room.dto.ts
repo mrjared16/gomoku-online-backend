@@ -35,6 +35,12 @@ export type CreateRoomDTO = {
   roomOption: RoomOption;
 };
 
+export type JoinRoomRequestDTO = {
+  token: string;
+  roomID: string;
+  roomRequirement: RoomRequirement;
+};
+
 export type JoinRoomDTO =
   | {
       action: 'join';
