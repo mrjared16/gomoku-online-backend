@@ -31,7 +31,7 @@ export class RoomService {
   ) {}
 
   async handleCreateRoom(socket: Socket, data: CreateRoomDTO) {
-    const { token } = data;
+    const { token, roomOption } = data;
     if (!token) {
       return;
     }
@@ -49,7 +49,11 @@ export class RoomService {
 
     const newChatChannel = await this.chatService.createChatChannelForRoom();
 
-    const newRoom = this.roomManager.addNewRoom(userInfo, newChatChannel);
+    const newRoom = this.roomManager.addNewRoom(
+      userInfo,
+      roomOption,
+      newChatChannel,
+    );
 
     this.roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',

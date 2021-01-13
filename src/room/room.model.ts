@@ -20,12 +20,16 @@ export class RoomManager {
     return this.map.get(roomID);
   };
 
-  addNewRoom(host: UserDTO, chatChannel: ChatChannelEntity): RoomModel {
+  addNewRoom(
+    host: UserDTO,
+    roomOption: RoomOption,
+    chatChannel: ChatChannelEntity,
+  ): RoomModel {
     const getRoomID = (): string => {
       return Date.now().toString(36) + Math.random().toString(36).substr(2);
     };
     const roomID = getRoomID();
-    const newRoom = new RoomModel(roomID, host, chatChannel);
+    const newRoom = new RoomModel(roomID, host, chatChannel, roomOption);
     this.map.set(roomID, newRoom);
     return newRoom;
   }
@@ -45,9 +49,12 @@ export class RoomModel {
     public id: string,
     public host: UserDTO,
     private chatChannelEntity: ChatChannelEntity,
-    public roomOption: RoomOption = DEFAULT_ROOM_OPTION,
+    roomOption: RoomOption = DEFAULT_ROOM_OPTION,
   ) {
-    const { boardSize, password, time } = roomOption;
+    const { boardSize, password, time } = {
+      ...DEFAULT_ROOM_OPTION,
+      ...roomOption,
+    };
     this.time = time;
     this.boardSize = boardSize;
     this.password = password;
@@ -176,8 +183,10 @@ export class RoomModel {
 
   async startGame(gameService: GameService) {
     const gameEntity = await gameService.createGameEntity(this);
-    this.gameModel = new GameModel(this.roomOption, gameEntity, () =>
-      gameService.handleEndGame(this),
+    this.gameModel = new GameModel(
+      { boardSize: this.boardSize, time: this.time },
+      gameEntity,
+      () => gameService.handleEndGame(this),
     );
     this.gameModel.startGame();
     this.gameID = this.gameModel.getGameID();
