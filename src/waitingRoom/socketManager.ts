@@ -1,3 +1,4 @@
+import { OnlineUser, OnlineUserDTO } from './waitingRoom.dto';
 import { Socket } from 'socket.io';
 import { UserDTO } from 'src/users/users.dto';
 
@@ -11,20 +12,15 @@ export class SocketManager {
     });
   }
 
-  map: Map<
-    string,
-    {
-      user: UserDTO | null;
-      socket: string[];
-      roomID: string;
-      isPlayingGame: boolean;
-    }
-  > = new Map();
+  map: Map<string, OnlineUser> = new Map();
 
-  getUsers(): UserDTO[] {
-    return Array.from(this.map.entries())
-      .filter(([key, values]) => key != '')
-      .map(([key, values]) => values.user);
+  getUsers(): OnlineUserDTO[] {
+    return Array.from(this.map.entries()).reduce((prev, [key, values]) => {
+      if (key === '') return prev;
+      const { user, roomID, isPlayingGame } = values;
+      prev.push({ user, roomID, isPlayingGame });
+      return prev;
+    }, []);
   }
 
   addAnonymousUser(client: Socket) {

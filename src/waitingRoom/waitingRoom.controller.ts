@@ -1,3 +1,4 @@
+import { OnlineUserDTO } from './waitingRoom.dto';
 import { UserDTO } from 'src/users/users.dto';
 import { JWTAuthenticationGuard } from '../auth/guards/jwt.guard';
 import { WaitingRoomService } from './waitingRoom.service';
@@ -9,7 +10,7 @@ class OnlineUsersResponse {
     type: UserDTO,
     isArray: true,
   })
-  users: UserDTO[];
+  users: OnlineUserDTO[];
 }
 
 @Controller('waitingRoom')
