@@ -12,7 +12,10 @@ import { ChatService } from './chat.service';
 import { JoinChatRoomDTO, SentMessageToRoomChatDTO } from './chat.dto';
 import { BroadcastChatEventToCurrentChannelDTO } from './chat.interface';
 
-@WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+// @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+//   namespace: 'chat',
+// })
+@WebSocketGateway({
   namespace: 'chat',
 })
 export class ChatGateway implements OnGatewayConnection {

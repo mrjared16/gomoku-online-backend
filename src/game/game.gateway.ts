@@ -16,7 +16,10 @@ import {
 import { BroadcastGameEventToCurrentRoomResponse } from './game.interface';
 import { GameService } from './game.service';
 
-@WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+// @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+//   namespace: 'game',
+// })
+@WebSocketGateway({
   namespace: 'game',
 })
 export class GameGateway implements OnGatewayConnection {

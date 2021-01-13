@@ -16,7 +16,11 @@ import { BroadcastUserDTO, InviteDTO } from './waitingRoom.dto';
 import { WaitingRoomMessage as WAITINGROOM_MESSAGE } from './waitingRoom.constants';
 import { InviteRoomResponse } from './waitingRoom.interface';
 
-@WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+// @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+//   namespace: 'waitingRoom',
+//   // transports: ['websocket']
+// })
+@WebSocketGateway({
   namespace: 'waitingRoom',
   // transports: ['websocket']
 })

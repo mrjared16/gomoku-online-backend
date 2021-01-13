@@ -24,8 +24,12 @@ import {
 } from './room.interface';
 import { RoomService } from './room.service';
 
-@WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+// @WebSocketGateway(Number(Config.getCurrentHost().socketPort), {
+//   namespace: 'room',
+// })
+@WebSocketGateway({
   namespace: 'room',
+  // transports: ['websocket']
 })
 export class RoomGateway implements OnGatewayConnection {
   constructor(
