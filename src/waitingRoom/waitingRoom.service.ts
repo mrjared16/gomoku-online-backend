@@ -178,6 +178,7 @@ export class WaitingRoomService {
     if (!room || !room.isHost(host) || room.gameID) {
       return;
     }
+    room.inviteUser(beInvitedOnlineStatus.user);
     this.waitingRoomGateway.broadcastToUser(beInvitedUser, {
       event: 'invite',
       data: {

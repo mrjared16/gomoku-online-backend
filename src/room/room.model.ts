@@ -213,6 +213,7 @@ export class RoomModel {
   }
 
   async startGame(gameService: GameService) {
+    this.resetInviteList();
     const gameEntity = await gameService.createGameEntity(this);
     this.gameModel = new GameModel(
       { boardSize: this.boardSize, time: this.time },
@@ -224,6 +225,9 @@ export class RoomModel {
     return this.gameID;
   }
 
+  resetInviteList() {
+    this.inviteId = [];
+  }
   resetGameState() {
     this.gameModel = null;
     this.gameID = null;
@@ -272,5 +276,9 @@ export class RoomModel {
 
   hasPassword(): boolean {
     return this.password != null;
+  }
+
+  inviteUser(user: UserDTO) {
+    this.inviteId.push(user.id);
   }
 }
