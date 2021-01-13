@@ -308,7 +308,11 @@ export class RoomService {
     if (!room) {
       throw new HttpException(`Room doesn't exist`, HttpStatus.NOT_FOUND);
     }
-    if (!room.canUserJoin(user as UserDTO, roomRequirement)) {
+    const canUserJoin = await room.canUserJoin(
+      user as UserDTO,
+      roomRequirement,
+    );
+    if (!canUserJoin) {
       throw new HttpException(`Wrong password`, HttpStatus.FORBIDDEN);
     }
     return true;
