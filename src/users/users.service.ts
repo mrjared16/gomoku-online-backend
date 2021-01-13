@@ -36,18 +36,19 @@ export class UserService {
       photoURL = '',
     } = userData;
     const userWithThisUsername = await this.userRepository.findOne({
-      where: { username },
+      where: [{ username }, { email }],
     });
-    if (userWithThisUsername != null) {
-      throw new HttpException(
-        'Username already exists',
-        HttpStatus.BAD_REQUEST,
-      );
+    if (userWithThisUsername) {
+      if (userWithThisUsername?.username === username) {
+        throw new HttpException(
+          'Username already exists',
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      if (userWithThisUsername?.email === email) {
+        throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
+      }
     }
-    if (email === userWithThisUsername.email) {
-      throw new HttpException('Email already exists', HttpStatus.BAD_REQUEST);
-    }
-
     const userActiveStatus = isAuthenticated
       ? { activated_at: new Date(), activateCode: null }
       : {
