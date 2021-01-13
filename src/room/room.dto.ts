@@ -16,12 +16,12 @@ export class RoomOptionDTO {
   @ApiProperty()
   hasPassword: boolean;
 
-  static ModelToEntity(roomOptionModel: RoomOption): RoomOptionDTO {
-    const { time, password, boardSize } = roomOptionModel;
+  static ModelToEntity(room: RoomModel): RoomOptionDTO {
+    const { time, boardSize } = room;
     return {
       time,
       boardSize,
-      hasPassword: password !== null,
+      hasPassword: room.hasPassword(),
     };
   }
 }
@@ -110,19 +110,11 @@ export class RoomDTO {
   users: UserDTO[];
 
   static ModelToDTO(roomModel: RoomModel): RoomDTO {
-    const {
-      id,
-      host,
-      roomOption,
-      players,
-      users,
-      gameID,
-      chatChannelID,
-    } = roomModel;
+    const { id, host, players, users, gameID, chatChannelID } = roomModel;
     return {
       id,
       host,
-      roomOption: RoomOptionDTO.ModelToEntity(roomOption),
+      roomOption: RoomOptionDTO.ModelToEntity(roomModel),
       players,
       numberOfUsers: users.length,
       gameID: gameID,

@@ -91,8 +91,7 @@ export class GameService {
   }
 
   async createGameEntity(room: RoomModel): Promise<GameEntity> {
-    const { roomOption, joinedPlayer } = room;
-    const { boardSize } = roomOption;
+    const { boardSize, joinedPlayer } = room;
 
     const team: TeamEntity[] = await this.gameHistoryService.createTeamEntity(
       joinedPlayer,

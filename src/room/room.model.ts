@@ -78,8 +78,8 @@ export class RoomModel {
   }
 
   private password: string;
-  private boardSize: number;
-  private time: number;
+  public boardSize: number;
+  public time: number;
 
   public players: GomokuGamePlayer;
   users: UserDTO[];
@@ -268,5 +268,9 @@ export class RoomModel {
 
   getChatChannelEntity(): ChatChannelEntity {
     return this.chatChannelEntity;
+  }
+
+  hasPassword(): boolean {
+    return this.password != null;
   }
 }
