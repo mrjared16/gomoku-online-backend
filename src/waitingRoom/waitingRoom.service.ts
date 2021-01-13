@@ -153,16 +153,15 @@ export class WaitingRoomService {
     const { token, username: beInvitedUser } = data || {};
 
     if (!token) return;
-    const decodedToken = this.authService.decodeToken(token);
+    const host = await this.authService.getUser(token);
 
-    if (!decodedToken) return;
-    const { id: invitedID, username: inviteUser } = decodedToken;
+    if (!host) return;
 
     const beInvitedOnlineStatus = this.socketManager.getUserStatus(
       beInvitedUser,
     );
 
-    const inviteOnlineStatus = this.socketManager.getUserStatus(inviteUser);
+    const inviteOnlineStatus = this.socketManager.getUserStatus(host.username);
 
     if (!beInvitedOnlineStatus || !inviteOnlineStatus) {
       return;
@@ -176,13 +175,14 @@ export class WaitingRoomService {
     }
 
     const room = this.roomManager.getRoom(inviteOnlineStatus.roomID);
-    if (!room || !room.isHost({ id: invitedID } as UserDTO) || room.gameID) {
+    if (!room || !room.isHost(host) || room.gameID) {
       return;
     }
     this.waitingRoomGateway.broadcastToUser(beInvitedUser, {
       event: 'invite',
       data: {
         roomID: room.id,
+        host,
       },
     });
   }
