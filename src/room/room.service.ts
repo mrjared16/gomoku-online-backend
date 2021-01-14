@@ -93,6 +93,9 @@ export class RoomService {
         });
         return;
       }
+      room.users.forEach(({ username }) => {
+        this.waitingRoomService.onUserLeaveRoom(username);
+      });
       const success = this.roomManager.removeRoom(roomID);
       if (success) {
         this.broadcastRoomState({
