@@ -254,4 +254,18 @@ export class AuthService {
     const result = await this.userService.changePassword(user, newPassword);
     return true;
   }
+
+  async verifyUser(user: JWTPayload): Promise<UserDTO> {
+    const userEntity = await this.userService.getUserEntity({
+      username: user.username,
+    });
+    const { banned_at } = userEntity;
+    if (banned_at) {
+      throw new HttpException(
+        'Your account has been banned',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    return UserDTO.EntityToDTO(userEntity);
+  }
 }
