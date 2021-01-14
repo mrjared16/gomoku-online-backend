@@ -93,6 +93,9 @@ export class RoomService {
         });
         return;
       }
+      room.users.forEach(({ username }) => {
+        this.waitingRoomService.onUserLeaveRoom(username);
+      });
       const success = this.roomManager.removeRoom(roomID);
       if (success) {
         this.broadcastRoomState({
@@ -330,11 +333,18 @@ export class RoomService {
 
   broadcastRoomState({ roomID }: { roomID: string }) {
     const room = this.roomManager.getRoom(roomID);
-    const data = !!room
+    const inRoomData = !!room
       ? RoomDTO.ModelToDTO(room)
       : {
           id: null,
           isKicked: true,
+        };
+
+    const waitingRoomData = !!room
+      ? RoomDTO.ModelToDTO(room)
+      : {
+          id: roomID,
+          isRemoved: true,
         };
     // broadcast to current room
     this.roomGateway.broadcastRoomEventToMember(
@@ -342,14 +352,14 @@ export class RoomService {
       roomID,
       {
         event: 'roomUpdated',
-        data,
+        data: inRoomData,
       },
       true,
     );
     // broadcast to waiting room
     this.roomGateway.broadcastRoomEventsToAll({
       event: 'roomUpdated',
-      data,
+      data: waitingRoomData,
     });
   }
 

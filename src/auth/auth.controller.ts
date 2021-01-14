@@ -47,9 +47,7 @@ export class AuthController {
     @Req() requestWithUser: RequestWithUser,
   ): Promise<VerifyResponse> {
     const { user } = requestWithUser;
-    const userInfo = await this.userService.findUser({
-      username: user.username,
-    });
+    const userInfo: UserDTO = await this.authService.verifyUser(user);
     return { user: userInfo };
   }
 

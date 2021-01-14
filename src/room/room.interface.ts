@@ -9,6 +9,10 @@ export class BroadcastRoomEventToAllResponse {
     | RoomDTO
     | {
         id: string;
+      }
+    | {
+        id: string;
+        isRemoved: boolean;
       };
 }
 
