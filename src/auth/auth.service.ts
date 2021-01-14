@@ -99,11 +99,19 @@ export class AuthService {
       );
     }
     const { email, name, given_name, family_name, picture } = googleUserData;
-    const userWithThisUsername = await this.userService.findUser({
+    const userWithThisUsername = await this.userService.getUserEntity({
       email: email,
     });
     if (userWithThisUsername) {
-      return this.getToken(userWithThisUsername);
+      const { banned_at } = userWithThisUsername;
+
+      if (banned_at) {
+        throw new HttpException(
+          'Your account has been banned',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+      return this.getToken(UserDTO.EntityToDTO(userWithThisUsername));
     }
 
     const newUser = await this.userService.createUser(
@@ -129,11 +137,19 @@ export class AuthService {
       );
     }
     const { email, name, first_name, last_name, picture } = googleUserData;
-    const userWithThisUsername = await this.userService.findUser({
+    const userWithThisUsername = await this.userService.getUserEntity({
       email: email,
     });
     if (userWithThisUsername) {
-      return this.getToken(userWithThisUsername);
+      const { banned_at } = userWithThisUsername;
+
+      if (banned_at) {
+        throw new HttpException(
+          'Your account has been banned',
+          HttpStatus.FORBIDDEN,
+        );
+      }
+      return this.getToken(UserDTO.EntityToDTO(userWithThisUsername));
     }
 
     const newUser = await this.userService.createUser(
