@@ -78,6 +78,7 @@ export class RoomService {
     const room = this.roomManager.getRoom(roomID);
     if (room.getGame() && room.isPlayer(userInfo)) {
       room.setPlayerOnlineStatus(userInfo.id, false);
+      room.removeUser(userInfo.id);
       this.broadcastRoomState({
         roomID,
       });
