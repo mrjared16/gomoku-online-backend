@@ -76,6 +76,9 @@ export class RoomService {
 
   async handleUserDisconnect(roomID: string, userInfo: UserDTO) {
     const room = this.roomManager.getRoom(roomID);
+    if (!room) {
+      return;
+    }
     if (room.getGame() && room.isPlayer(userInfo)) {
       room.setPlayerOnlineStatus(userInfo.id, false);
       room.removeUser(userInfo.id);
