@@ -7,7 +7,7 @@ import { forwardRef, Injectable } from '@nestjs/common';
 import { AuthService } from 'src/auth/auth.service';
 import { SocketManager } from './socketManager';
 import { Inject } from '@nestjs/common/decorators/core/inject.decorator';
-import { InviteDTO } from './waitingRoom.dto';
+import { InviteDTO, LogOutDTO } from './waitingRoom.dto';
 import { RoomManager } from 'src/room/room.model';
 
 @Injectable()
@@ -190,5 +190,15 @@ export class WaitingRoomService {
 
   getAllSocketClientID(username: string): string[] {
     return this.socketManager.getUserStatus(username)?.socket;
+  }
+
+  async handleUserLogout(socket: Socket, data: LogOutDTO) {
+    const { token } = data;
+    const decodedToken = this.authService.decodeToken(token);
+    this.handleOnAuthenticatedUserDisconnect(
+      this.waitingRoomGateway,
+      socket,
+      decodedToken as UserDTO,
+    );
   }
 }

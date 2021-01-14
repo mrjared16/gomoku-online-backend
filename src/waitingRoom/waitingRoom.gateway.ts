@@ -12,7 +12,7 @@ import {
 import { Server, Socket } from 'socket.io';
 import { AuthService } from 'src/auth/auth.service';
 import { WaitingRoomService } from './waitingRoom.service';
-import { BroadcastUserDTO, InviteDTO } from './waitingRoom.dto';
+import { BroadcastUserDTO, InviteDTO, LogOutDTO } from './waitingRoom.dto';
 import { WaitingRoomMessage as WAITINGROOM_MESSAGE } from './waitingRoom.constants';
 import { InviteRoomResponse } from './waitingRoom.interface';
 
@@ -98,6 +98,11 @@ export class WaitingRoomGateway
       socket,
       data,
     );
+  }
+
+  @SubscribeMessage(WAITINGROOM_MESSAGE.ONLOGOUT)
+  async handleUserLogout(socket: Socket, data: LogOutDTO) {
+    await this.waitingRoomService.handleUserLogout(socket, data);
   }
 
   broadcastToUser(username: string, data: InviteRoomResponse) {

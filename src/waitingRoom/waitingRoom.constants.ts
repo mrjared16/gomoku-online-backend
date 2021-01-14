@@ -3,4 +3,5 @@ export const WaitingRoomMessage = {
   RECONNECT: 'reconnectEventMsg',
   ROOM: 'roomEventMsg',
   ONROOM: 'room',
+  ONLOGOUT: 'logout',
 };

@@ -25,3 +25,7 @@ export type InviteDTO = {
     username: string;
   };
 };
+
+export type LogOutDTO = {
+  token: string;
+};
