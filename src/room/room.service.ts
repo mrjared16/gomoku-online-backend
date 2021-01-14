@@ -168,6 +168,7 @@ export class RoomService {
           });
           room.removeUser(userInfo.id);
           room.removePlayer(userInfo.id);
+          this.broadcastRoomState({ roomID });
           return;
         }
         if (room.isHost(userInfo)) {
