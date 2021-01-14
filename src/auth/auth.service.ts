@@ -205,7 +205,7 @@ export class AuthService {
     const emailContent = `<div>Hi ${firstName}, <br/> <br/>
       You are receiving this because you (or someone else) have requested the reset of the password for your account. <br/> <br/>
       Please click on the following link, or paste this into your browser to complete the process: <br/> <br/>
-      ${resetLink}
+      <a href=${resetLink}>${resetLink}</a>
       If you did not request this, please ignore this email and your password will remain unchanged.<br/>
       </div>`;
     this.mailService
