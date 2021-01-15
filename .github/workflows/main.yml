@@ -1,7 +1,7 @@
 name: gomoku-backend-docker-ci
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
 
 jobs:
   docker:
